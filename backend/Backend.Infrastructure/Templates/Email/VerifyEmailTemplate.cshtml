@@ -1,0 +1,141 @@
+@inherits RazorLight.TemplatePage<VerifyEmailModel>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        .message {
+            font-size: 16px;
+            color: #666666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .verify-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .verify-button:hover {
+            transform: translateY(-2px);
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .alternative-link {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666666;
+            word-break: break-all;
+        }
+        .footer {
+            padding: 30px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #999999;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .warning {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="icon">✉️</div>
+            <h1>Email Verification</h1>
+        </div>
+        <div class="content">
+            <div class="greeting">
+                👋 Hello <strong>@Model.FullName</strong>,
+            </div>
+            <div class="message">
+                Thank you for registering with <strong>Sneaker Shop</strong>! We're excited to have you on board.
+                <br><br>
+                To complete your registration and activate your account, please verify your email address by clicking the button below:
+            </div>
+            <div class="button-container">
+                <a href="@Model.VerificationLink" class="verify-button">
+                    ✓ Verify Email Address
+                </a>
+            </div>
+            <div class="warning">
+                ⚠️ <strong>Important:</strong> This verification link will expire in <strong>24 hours</strong>. If you didn't create an account with Sneaker Shop, please ignore this email.
+            </div>
+            <div class="alternative-link">
+                <strong>Having trouble with the button?</strong><br>
+                Copy and paste this link into your browser:<br>
+                <a href="@Model.VerificationLink" style="color: #667eea;">@Model.VerificationLink</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p><strong>Sneaker Shop</strong></p>
+            <p>Your trusted destination for authentic sneakers</p>
+            <p style="margin-top: 15px;">
+                Need help? Contact us at <a href="mailto:support@sneakershop.com" style="color: #667eea;">support@sneakershop.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -9,6 +9,11 @@ public class AuthRepository : IAuthRepository
 
     public async Task<bool> IsEmailExistsAsync(string email)
     {
+        if (string.IsNullOrEmpty(email))
+        {
+            return false;
+        }
+
         bool existEmail = await _unitOfWork
             .Repository<Account>()
             .ExistsAsync(a => a.Email != null && a.Email.ToLower() == email.ToLower());
@@ -61,5 +66,27 @@ public class AuthRepository : IAuthRepository
         {
             await _unitOfWork.Repository<CustomerAccount>().AddAsync(account.CustomerAccount);
         }
+    }
+
+    public async Task<Account?> GetAccountByEmailOrPhoneAsync(string emailOrPhone)
+    {
+        if (string.IsNullOrEmpty(emailOrPhone))
+        {
+            return null;
+        }
+
+        var normalizedInput = emailOrPhone.ToLower();
+
+        // Try to find by email first
+        var account = await _unitOfWork
+            .Repository<Account>()
+            .GetFirstOrDefaultAsync(
+                a =>
+                    (a.Email != null && a.Email.ToLower() == normalizedInput)
+                    || a.Phone.ToLower() == normalizedInput,
+                a => a.CustomerAccount!
+            );
+
+        return account;
     }
 }

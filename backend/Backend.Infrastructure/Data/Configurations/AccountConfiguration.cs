@@ -12,7 +12,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         // Properties
         builder.Property(a => a.Role).HasConversion<string>().IsRequired().HasMaxLength(20);
 
-        builder.Property(a => a.Email).HasMaxLength(255);
+        builder.Property(a => a.Email).IsRequired().HasMaxLength(255);
 
         builder.Property(a => a.Phone).HasMaxLength(20).IsRequired();
 

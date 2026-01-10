@@ -109,6 +109,9 @@ importers:
       react-hook-form:
         specifier: ^7.70.0
         version: 7.70.0(react@19.2.3)
+      react-hot-toast:
+        specifier: ^2.6.0
+        version: 2.6.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.2.7)(react@19.2.3)(redux@5.0.1)
@@ -2364,6 +2367,14 @@ packages:
         integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==,
       }
 
+  goober@2.1.18:
+    resolution:
+      {
+        integrity: sha512-2vFqsaDVIT9Gz7N6kAL++pLpp41l3PfDuusHcjnGLfR6+huZkl6ziX+zgVC3ZxpqWhzH6pyDdGrCeDhMIvwaxw==,
+      }
+    peerDependencies:
+      csstype: ^3.0.10
+
   gopd@1.2.0:
     resolution:
       {
@@ -2864,6 +2875,16 @@ packages:
     engines: { node: ">=18.0.0" }
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
+
+  react-hot-toast@2.6.0:
+    resolution:
+      {
+        integrity: sha512-bH+2EBMZ4sdyou/DPrfgIouFpcRLCJ+HoCA32UoAYHn6T3Ur5yfcDCeSr5mwldl6pFOsiocmrXMuoCJ1vV8bWg==,
+      }
+    engines: { node: ">=10" }
+    peerDependencies:
+      react: ">=16"
+      react-dom: ">=16"
 
   react-redux@9.2.0:
     resolution:
@@ -4776,6 +4797,10 @@ snapshots:
 
   globrex@0.1.2: {}
 
+  goober@2.1.18(csstype@3.2.3):
+    dependencies:
+      csstype: 3.2.3
+
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
@@ -5001,6 +5026,13 @@ snapshots:
   react-hook-form@7.70.0(react@19.2.3):
     dependencies:
       react: 19.2.3
+
+  react-hot-toast@2.6.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      csstype: 3.2.3
+      goober: 2.1.18(csstype@3.2.3)
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   react-redux@9.2.0(@types/react@19.2.7)(react@19.2.3)(redux@5.0.1):
     dependencies:

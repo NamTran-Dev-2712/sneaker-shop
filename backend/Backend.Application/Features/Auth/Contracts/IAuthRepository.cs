@@ -6,4 +6,5 @@ public interface IAuthRepository
     Task<Account> CreateAccountAsync(Account account);
     Task LinkAccountToCustomerAsync(Account account, Customer customer);
     Task CreateCustomerWithAccountAsync(Customer customer, Account account);
+    Task<Account?> GetAccountByEmailOrPhoneAsync(string emailOrPhone);
 }

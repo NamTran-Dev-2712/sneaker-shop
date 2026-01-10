@@ -3,7 +3,7 @@ public class Account : BaseEntity
     public Account() { }
 
     public Role Role { get; set; } = Role.CUSTOMER;
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
     public bool IsEmailVerified { get; set; } = false;
     public string Phone { get; set; } = string.Empty;
     public string? Password { get; set; }
@@ -22,7 +22,7 @@ public class Account : BaseEntity
     public ICollection<Return> Returns { get; set; } = new List<Return>();
     public ICollection<RestockRequest> RestockRequests { get; set; } = new List<RestockRequest>();
 
-    private Account(string phone, string? email, string? passwordHash)
+    private Account(string phone, string email, string? passwordHash)
     {
         Phone = phone;
         Email = email;
@@ -30,7 +30,7 @@ public class Account : BaseEntity
     }
 
     // Business logic
-    public static Account Create(string phone, string? email, string? passwordHash)
+    public static Account Create(string phone, string email, string? passwordHash)
     {
         // check required fields
         if (string.IsNullOrWhiteSpace(phone))
@@ -86,7 +86,7 @@ public class Account : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateProfile(string? email, string phone, string? avatar)
+    public void UpdateProfile(string email, string phone, string? avatar)
     {
         Email = email;
         Phone = phone;

@@ -2,7 +2,15 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
-import { Eye, EyeOff, UserPlus, Mail, Phone } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  UserPlus,
+  Mail,
+  Phone,
+  User,
+  Calendar,
+} from "lucide-react";
 import {
   registerSchema,
   type RegisterFormData,
@@ -13,6 +21,13 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import SocialLogin from "../social-login";
 import UploadImage from "~/components/common/shared/upload-image";
+import { convertPhoneVietNamToInternational } from "~/common/helpers/phone.helper";
+import { authSerivce } from "~/services/auth/auth.service";
+import { getErrMessage } from "~/common/helpers/get-err-message.helper";
+import type { ApiResponseError } from "~/types/global/api.response";
+import { showSuccessToast } from "~/lib/toast/toast.success";
+import { showErrorToast } from "~/lib/toast/toast.error";
+import { showInfoToast } from "~/lib/toast/toast.custom";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -33,17 +48,41 @@ const RegisterForm = () => {
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
-      console.log("Register data:", data);
-      // TODO: Call API register service
-      // await authService.register(data);
+      const formattedData: FormData = new FormData();
+      formattedData.append("fullName", data.fullName);
+      formattedData.append("email", data.email);
+      formattedData.append(
+        "phone",
+        convertPhoneVietNamToInternational(data.phone),
+      );
+      formattedData.append("birthday", data.birthday);
+      formattedData.append("password", data.password);
+      if (data.avatar) {
+        formattedData.append("avatar", data.avatar);
+      }
 
-      // Tạm thời giả lập đăng ký thành công
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate("/login");
-      }, 1500);
+      const response = await authSerivce.register(formattedData);
+
+      if (response.success) {
+        showSuccessToast("Đăng ký tài khoản thành công!");
+        showInfoToast(
+          "Vui lòng kiểm tra email để xác thực tài khoản của bạn. Email xác thực đã được gửi đến hộp thư của bạn.",
+          6000,
+        );
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        const err = response as unknown as ApiResponseError;
+        console.log(err);
+        console.log(getErrMessage(err));
+        showErrorToast(getErrMessage(err));
+      }
+
+      setIsLoading(false);
     } catch (error) {
       console.error("Register error:", error);
+      showErrorToast("Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau!");
       setIsLoading(false);
     }
   };
@@ -65,13 +104,37 @@ const RegisterForm = () => {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Full Name Field */}
+        <div className="space-y-2">
+          <Label htmlFor="fullName">
+            Họ và tên
+            <span className="text-destructive ml-1">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="fullName"
+              type="text"
+              placeholder="Nhập họ và tên"
+              {...register("fullName")}
+              aria-invalid={!!errors.fullName}
+              className="pr-10"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <User className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+          {errors.fullName && (
+            <p className="text-sm text-destructive">
+              {errors.fullName.message}
+            </p>
+          )}
+        </div>
+
         {/* Email Field */}
         <div className="space-y-2">
           <Label htmlFor="email">
             Email
-            <span className="text-muted-foreground ml-1 text-xs">
-              (Bắt buộc nếu không có SĐT)
-            </span>
+            <span className="text-destructive ml-1">*</span>
           </Label>
           <div className="relative">
             <Input
@@ -95,9 +158,7 @@ const RegisterForm = () => {
         <div className="space-y-2">
           <Label htmlFor="phone">
             Số điện thoại
-            <span className="text-muted-foreground ml-1 text-xs">
-              (Bắt buộc nếu không có Email)
-            </span>
+            <span className="text-destructive ml-1">*</span>
           </Label>
           <div className="relative">
             <Input
@@ -115,6 +176,34 @@ const RegisterForm = () => {
           {errors.phone && (
             <p className="text-sm text-destructive">{errors.phone.message}</p>
           )}
+        </div>
+
+        {/* Birthday Field */}
+        <div className="space-y-2">
+          <Label htmlFor="birthday">
+            Ngày sinh
+            <span className="text-destructive ml-1">*</span>
+          </Label>
+          <div className="relative">
+            <Input
+              id="birthday"
+              type="date"
+              {...register("birthday")}
+              aria-invalid={!!errors.birthday}
+              className="pr-10"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+          {errors.birthday && (
+            <p className="text-sm text-destructive">
+              {errors.birthday.message}
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Bạn phải từ 13 tuổi trở lên để đăng ký
+          </p>
         </div>
 
         {/* Password Field */}
@@ -150,7 +239,8 @@ const RegisterForm = () => {
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số
+            Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký
+            tự đặc biệt
           </p>
         </div>
 

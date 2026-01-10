@@ -17,15 +17,16 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Matches(
                 @"^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$"
             )
-            .WithMessage("Full name can only contain letters and spaces.")
+            .WithMessage("Tên chỉ được chứa chữ cái và khoảng trắng.")
             .NotEmpty()
-            .WithMessage("Full name is required.")
+            .WithMessage("Họ và tên là bắt buộc.")
             .MaximumLength(255)
-            .WithMessage("Full name must not exceed 255 characters.");
-
+            .WithMessage("Họ và tên không được vượt quá 255 ký tự.");
         RuleFor(x => x.Email)
+            .NotEmpty()
+            .WithMessage("Email là bắt buộc.")
             .EmailAddress()
-            .WithMessage("Invalid email format.")
+            .WithMessage("Định dạng email không hợp lệ.")
             .When(x => !string.IsNullOrEmpty(x.Email))
             .MustAsync(
                 async (email, cancellation) =>
@@ -34,13 +35,13 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
                     return !existEmail;
                 }
             )
-            .WithMessage("Email already exists.");
+            .WithMessage("Email đã tồn tại.");
 
         RuleFor(x => x.Phone)
             .NotEmpty()
-            .WithMessage("Phone number is required.")
+            .WithMessage("Số điện thoại là bắt buộc.")
             .Matches(@"^\+?[1-9]\d{1,14}$")
-            .WithMessage("Invalid phone number format.")
+            .WithMessage("Định dạng số điện thoại không hợp lệ.")
             .When(x => !string.IsNullOrEmpty(x.Phone))
             .MustAsync(
                 async (phone, cancellation) =>
@@ -49,13 +50,21 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
                     return !existPhone;
                 }
             )
-            .WithMessage("Phone number already exists.");
+            .WithMessage("Số điện thoại đã tồn tại.");
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("Password is required.")
-            .MinimumLength(6)
-            .WithMessage("Password must be at least 6 characters long.");
+            .WithMessage("Mật khẩu là bắt buộc.")
+            .MinimumLength(8)
+            .WithMessage("Mật khẩu phải có ít nhất 8 ký tự.")
+            .Matches(@"[A-Z]")
+            .WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết hoa.")
+            .Matches(@"[a-z]")
+            .WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết thường.")
+            .Matches(@"[0-9]")
+            .WithMessage("Mật khẩu phải chứa ít nhất một chữ số.")
+            .Matches(@"[\!\?\*\.]")
+            .WithMessage("Mật khẩu phải chứa ít nhất một ký tự đặc biệt (!?*.).");
 
         RuleFor(x => x.Birthday)
             .Must(birthday =>
@@ -65,6 +74,6 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
                 return DateTime.TryParse(birthday, out _);
             })
-            .WithMessage("Invalid birthday format. Use a valid date string.");
+            .WithMessage("Định dạng ngày sinh không hợp lệ. Vui lòng sử dụng chuỗi ngày hợp lệ.");
     }
 }

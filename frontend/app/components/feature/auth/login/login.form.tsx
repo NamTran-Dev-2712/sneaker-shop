@@ -12,9 +12,19 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import SocialLogin from "../social-login";
+import { authSerivce } from "~/services/auth/auth.service";
+import { showSuccessToast } from "~/lib/toast/toast.success";
+import { showErrorToast } from "~/lib/toast/toast.error";
+import { getErrMessage } from "~/common/helpers/get-err-message.helper";
+import type { ApiResponseError } from "~/types/global/api.response";
+import { useAppDispatch } from "~/hooks/redux";
+import { login } from "~/store/auth/auth.slice";
+import type { LoginRequest } from "~/services/auth/dto/login/login.request";
+import { convertPhoneVietNamToInternational } from "~/common/helpers/phone.helper";
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,17 +40,36 @@ const LoginForm = () => {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      console.log("Login data:", data);
-      // TODO: Call API login service
-      // await authService.login(data);
+      // Determine if identifier is email or phone
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isEmail = emailRegex.test(data.identifier);
 
-      // Tạm thời giả lập đăng nhập thành công
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate("/");
-      }, 1500);
+      const loginRequest: LoginRequest = {
+        password: data.password,
+        ...(isEmail
+          ? { email: data.identifier }
+          : { phone: convertPhoneVietNamToInternational(data.identifier) }),
+      };
+
+      const response = await authSerivce.login(loginRequest);
+
+      if (response.success && response.data) {
+        dispatch(login(response.data));
+        showSuccessToast(
+          `Chào mừng ${response.data.fullName}! Đăng nhập thành công.`,
+        );
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      } else {
+        const err = response as unknown as ApiResponseError;
+        showErrorToast(getErrMessage(err));
+      }
+
+      setIsLoading(false);
     } catch (error) {
       console.error("Login error:", error);
+      showErrorToast("Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau!");
       setIsLoading(false);
     }
   };

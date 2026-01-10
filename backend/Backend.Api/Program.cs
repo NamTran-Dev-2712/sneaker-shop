@@ -8,11 +8,20 @@ builder.Services.AddDatabaseContext(builder.Configuration);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder
     .Services.AddOpenApiDocumentation()
-    .AddPresentationServices()
+    .AddPresentationServices(builder.Configuration)
     .AddServiceInfrastructure()
     .AddServiceApplication();
 
 var app = builder.Build();
+
+if (app.Environment.IsProduction())
+{
+    app.UseCors("Restricted");
+}
+else
+{
+    app.UseCors("Development");
+}
 
 // Configure the HTTP request pipeline.
 app.UseOpenApiDocumentation();
@@ -21,6 +30,10 @@ app.UseOpenApiDocumentation();
 // app.UseHttpsRedirection();
 
 app.UseRouting();
+
+// Authentication & Authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Custom middlewares
 app.UseCustomMiddlewares();

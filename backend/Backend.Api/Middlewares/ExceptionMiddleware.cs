@@ -30,45 +30,75 @@ public class ExceptionMiddleware
         }
     }
 
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    public async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
 
-        // 1. determine status code
-        var statusCode = exception switch
-        {
-            FluentValidation.ValidationException => StatusCodes.Status400BadRequest, // 400 Bad Request for validation errors
-            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-            KeyNotFoundException => StatusCodes.Status404NotFound,
-            _ => StatusCodes.Status500InternalServerError,
-        };
-
-        context.Response.StatusCode = statusCode;
-
-        // Handle different exception types
+        // initial values
+        var statusCode = StatusCodes.Status500InternalServerError;
         string message = "An internal server error occurred.";
         List<string>? errors = null;
 
-        if (exception is FluentValidation.ValidationException validationException)
+        // handle specific exceptions
+        switch (exception)
         {
-            message = "Validation failed.";
-            // get all validation errors
-            errors = validationException
-                .Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
-                .ToList();
-        }
-        else if (_env.IsDevelopment())
-        {
-            message = exception.Message;
-            errors = new List<string> { exception.StackTrace ?? "" };
+            case FluentValidation.ValidationException valEx:
+                statusCode = StatusCodes.Status400BadRequest;
+                message = "Validation failed.";
+                errors = valEx.Errors.Select(e => e.ErrorMessage).ToList(); // Only take Message for easier display on FE
+                break;
+
+            case NotFoundException:
+                statusCode = StatusCodes.Status404NotFound;
+                message = exception.Message; // Example: "The requested resource was not found."
+                break;
+
+            case BadException:
+                statusCode = StatusCodes.Status400BadRequest;
+                message = exception.Message; // Example: "The request was invalid."
+                break;
+
+            case UnauthorizedAccessException:
+                statusCode = StatusCodes.Status401Unauthorized;
+                message = exception.Message; // Example: "Invalid credentials."
+                break;
+
+            case UnauthorizedException:
+                statusCode = StatusCodes.Status401Unauthorized;
+                message = exception.Message; // Example: "Invalid credentials."
+                break;
+
+            case ForbiddenException:
+                statusCode = StatusCodes.Status403Forbidden;
+                message = exception.Message; // Example: "You do not have permission to access this resource."
+                break;
+
+            case KeyNotFoundException:
+                statusCode = StatusCodes.Status404NotFound;
+                message = "The requested resource was not found.";
+                break;
+
+            // You can add Custom Exceptions here (e.g., BadRequestException)
+
+            default:
+                // Unknown error (500)
+                if (_env.IsDevelopment())
+                {
+                    message = exception.Message;
+                    errors = new List<string> { exception.StackTrace ?? "" };
+                }
+                else
+                {
+                    message = "A server error occurred. Please try again later.";
+                }
+                break;
         }
 
-        // 3. Create response according to your ApiResponse format
-        var response = ApiResponse<object>.Fail(
-            statusCode,
-            message,
-            errors // Return specific error list instead of StackTrace if it's a Validation error
-        );
+        // 3. Set StatusCode for Response
+        context.Response.StatusCode = statusCode;
+
+        // 4. Create Response in your standard format
+        var response = ApiResponse<object>.Fail(statusCode, message, errors);
 
         var options = new JsonSerializerOptions
         {

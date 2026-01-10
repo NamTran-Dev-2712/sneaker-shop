@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Menu, Search, ShoppingCart, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import {
   NavigationMenu,
@@ -13,6 +13,9 @@ import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { Separator } from "~/components/ui/separator";
 import useAuth from "~/store/auth/auth.hook";
+import UserMenu from "~/components/common/layout/user-menu";
+import CartButton from "~/components/common/layout/cart-button";
+import SearchButton from "~/components/common/layout/search-button";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -168,14 +171,8 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden md:inline-flex"
-            >
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Tìm kiếm</span>
-            </Button>
+            {/* Search Button */}
+            <SearchButton />
 
             {!isLogin ? (
               // Chưa đăng nhập - hiển thị nút Đăng nhập và Đăng ký
@@ -197,19 +194,12 @@ const Header = () => {
                 </Button>
               </>
             ) : (
-              // Đã đăng nhập - hiển thị icon User và Giỏ hàng
+              // Đã đăng nhập - hiển thị Cart và User Menu
               <>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">Tài khoản</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-white">
-                    0
-                  </span>
-                  <span className="sr-only">Giỏ hàng</span>
-                </Button>
+                <CartButton itemCount={0} />
+                <div className="hidden md:block">
+                  <UserMenu />
+                </div>
               </>
             )}
 
@@ -226,6 +216,16 @@ const Header = () => {
                 className="w-75 sm:w-100 overflow-y-auto"
               >
                 <nav className="flex flex-col gap-4 pb-8">
+                  {/* User Info Section for Mobile */}
+                  {isLogin && (
+                    <>
+                      <div className="md:hidden">
+                        <UserMenu />
+                      </div>
+                      <Separator />
+                    </>
+                  )}
+
                   <Link
                     to="/"
                     className="text-lg font-medium"

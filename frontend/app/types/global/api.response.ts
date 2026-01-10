@@ -1,5 +1,6 @@
 export interface ApiResponse<T> {
   success: boolean;
+  statusCode: number;
   message: string;
   data: T;
   errors: any;
@@ -7,7 +8,8 @@ export interface ApiResponse<T> {
 
 export interface ApiResponseError {
   success: boolean;
+  statusCode: number;
   message: string;
   data: null;
-  errors: Record<string, string[]> | null;
+  errors: string[] | null;
 }

@@ -77,6 +77,7 @@ apiServer.interceptors.response.use(
       if (originalRequest.url?.includes("/auth/refresh-token")) {
         const apiError: ApiResponseError = {
           success: false,
+          statusCode: 401,
           message: "Session expired. Please login again.",
           data: null,
           errors: null,
@@ -190,6 +191,7 @@ apiServer.interceptors.response.use(
 
         const apiError: ApiResponseError = {
           success: false,
+          statusCode: 401,
           message: "Session expired. Please login again.",
           data: null,
           errors: null,
@@ -202,6 +204,7 @@ apiServer.interceptors.response.use(
     const errorData = error.response?.data as any;
     const apiError: ApiResponseError = {
       success: false,
+      statusCode: error.response?.status || 500,
       message:
         errorData?.message ||
         errorData?.Message ||
