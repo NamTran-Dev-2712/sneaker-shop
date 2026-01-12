@@ -25,9 +25,9 @@ import { convertPhoneVietNamToInternational } from "~/common/helpers/phone.helpe
 import { authSerivce } from "~/services/auth/auth.service";
 import { getErrMessage } from "~/common/helpers/get-err-message.helper";
 import type { ApiResponseError } from "~/types/global/api.response";
-import { showSuccessToast } from "~/lib/toast/toast.success";
-import { showErrorToast } from "~/lib/toast/toast.error";
-import { showInfoToast } from "~/lib/toast/toast.custom";
+import { showSuccessToast } from "~/components/common/toast/toast.success";
+import { showErrorToast } from "~/components/common/toast/toast.error";
+import { showInfoToast } from "~/components/common/toast/toast.custom";
 
 const RegisterForm = () => {
   const navigate = useNavigate();

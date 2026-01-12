@@ -5,6 +5,8 @@ public class BrandSeries : BaseEntity
     public int BrandId { get; set; }
     public required string Name { get; set; }
     public string Slug { get; set; } = string.Empty;
+    public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; } = false;
 
     // Navigation properties
     public Brand Brand { get; set; } = null!;

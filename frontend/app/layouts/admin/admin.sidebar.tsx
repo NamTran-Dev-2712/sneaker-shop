@@ -10,10 +10,17 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
+  Store,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import useAdminLayout from "~/store/admin/layout/layout.hook";
+import BrandIcon from "~/components/common/icons/brand.icon";
+import BrandAddIcon from "~/components/common/icons/brand-add.icon";
+import BrandListIcon from "~/components/common/icons/brand-list.icon";
+import SneakerIcon from "~/components/common/icons/sneaker.icon";
+import SneakerListIcon from "~/components/common/icons/sneaker-list.icon";
+import SneakerAddIcon from "~/components/common/icons/sneaker-add.icon";
 
 interface MenuItem {
   id: string;
@@ -29,6 +36,18 @@ const menuItems: MenuItem[] = [
     label: "Dashboard",
     icon: <LayoutDashboard className="h-5 w-5" />,
     path: "/admin",
+  },
+  {
+    id: "stores",
+    label: "Quản lý Cửa hàng",
+    icon: <Store className="h-5 w-5" />,
+    path: "/admin/stores",
+  },
+  {
+    id: "brands",
+    label: "Quản lý Hãng",
+    icon: <BrandIcon className="h-5 w-5" />,
+    path: "/admin/brands",
   },
   {
     id: "employees",
@@ -71,18 +90,18 @@ const menuItems: MenuItem[] = [
   {
     id: "products",
     label: "Quản lý Giày",
-    icon: <ShoppingBag className="h-5 w-5" />,
+    icon: <SneakerIcon className="h-5 w-5" />,
     children: [
       {
         id: "products-list",
         label: "Danh sách",
-        icon: <Package className="h-4 w-4" />,
+        icon: <SneakerListIcon className="h-4 w-4" />,
         path: "/admin/products",
       },
       {
         id: "products-create",
         label: "Tạo mới",
-        icon: <Package className="h-4 w-4" />,
+        icon: <SneakerAddIcon className="h-4 w-4" />,
         path: "/admin/products/create",
       },
     ],

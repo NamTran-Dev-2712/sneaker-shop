@@ -7,6 +7,7 @@ public class Store : BaseEntity
     public string? Address { get; set; }
     public string? Phone { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; } = false;
 
     // Navigation properties
     public ICollection<StaffProfile> StaffProfiles { get; set; } = new List<StaffProfile>();

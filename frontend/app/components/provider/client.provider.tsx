@@ -6,7 +6,7 @@ const ClientProvider = ({ children }: { children: React.ReactNode }) => {
   const auth = useAuth();
 
   if (auth.user?.role === Role.ADMIN) {
-    return <Navigate to="/admin/dashboard" />;
+    return <Navigate to="/admin" />;
   } else if (auth.user?.role === Role.STAFF) {
     return <Navigate to="/staff/orders" />;
   }

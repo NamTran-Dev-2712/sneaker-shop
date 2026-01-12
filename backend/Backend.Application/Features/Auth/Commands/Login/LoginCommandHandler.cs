@@ -53,9 +53,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
         Customer? customer = null;
         if (account.CustomerAccount != null)
         {
-            customer = await _unitOfWork
-                .Repository<Customer>()
-                .GetByIdAsync(account.CustomerAccount.CustomerId);
+            customer = await _unitOfWork.Customers.GetByIdAsync(account.CustomerAccount.CustomerId);
         }
 
         // 5. Generate JWT claims

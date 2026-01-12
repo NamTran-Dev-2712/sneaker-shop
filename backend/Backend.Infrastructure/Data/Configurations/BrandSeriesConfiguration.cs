@@ -15,6 +15,8 @@ public class BrandSeriesConfiguration : IEntityTypeConfiguration<BrandSeries>
         builder.Property(bs => bs.Name).IsRequired().HasMaxLength(255);
 
         builder.Property(bs => bs.Slug).IsRequired().HasMaxLength(300);
+        builder.Property(bs => bs.IsActive).IsRequired().HasDefaultValue(true);
+        builder.Property(bs => bs.IsDeleted).IsRequired().HasDefaultValue(false);
 
         builder.Property(bs => bs.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

@@ -36,10 +36,10 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
     )
     {
         // 1. Upload avatar if provided
-        string? avatarUrl = null;
+        ImageUploadResult? avatarUpload = null;
         if (command.Avatar != null)
         {
-            avatarUrl = await _imageService.UploadImageAsync(
+            avatarUpload = await _imageService.UploadImageAsync(
                 command.Avatar,
                 CloudinaryFolder.Avatars
             );
@@ -53,10 +53,11 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
             passwordHash: passwordHash
         );
 
-        // Set avatar URL if uploaded
-        if (!string.IsNullOrEmpty(avatarUrl))
+        // Set avatar URL and PublicId if uploaded
+        if (avatarUpload != null)
         {
-            account.Avatar = avatarUrl;
+            account.Avatar = avatarUpload.Url;
+            account.PublicIdAvatar = avatarUpload.PublicId;
         }
 
         await _authRepository.CreateAccountAsync(account);

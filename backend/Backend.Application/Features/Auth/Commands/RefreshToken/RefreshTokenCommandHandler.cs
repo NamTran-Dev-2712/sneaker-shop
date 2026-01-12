@@ -51,9 +51,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         Customer? customer = null;
         if (account.CustomerAccount != null)
         {
-            customer = await _unitOfWork
-                .Repository<Customer>()
-                .GetByIdAsync(account.CustomerAccount.CustomerId);
+            customer = await _unitOfWork.Customers.GetByIdAsync(account.CustomerAccount.CustomerId);
         }
 
         // 5. Build new claims

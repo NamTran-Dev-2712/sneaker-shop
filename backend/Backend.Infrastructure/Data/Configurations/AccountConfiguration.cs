@@ -19,6 +19,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
         builder.Property(a => a.Password).HasMaxLength(500);
 
         builder.Property(a => a.Avatar).HasMaxLength(500);
+        builder.Property(a => a.PublicIdAvatar).HasMaxLength(500);
 
         builder.Property(a => a.IsEmailVerified).IsRequired().HasDefaultValue(false);
 

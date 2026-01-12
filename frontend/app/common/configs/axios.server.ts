@@ -21,7 +21,7 @@ const apiServer: AxiosInstance = axios.create({
   },
   // Extremely important: Remix loader runs in Node so it can still send cookies with requests
   // => you must manually attach cookies from the request if you want authentication
-  timeout: 10000,
+  timeout: 20000,
   withCredentials: true,
 });
 

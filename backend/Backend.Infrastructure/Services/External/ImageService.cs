@@ -29,7 +29,7 @@ public class ImageService : IImageService
         _cloudinary = new Cloudinary(cloudinaryAccount);
     }
 
-    public async Task<string> UploadImageAsync(IFormFile file, string folder)
+    public async Task<ImageUploadResult> UploadImageAsync(IFormFile file, string folder)
     {
         if (file == null || file.Length == 0)
         {
@@ -59,7 +59,11 @@ public class ImageService : IImageService
             throw new Exception($"Cloudinary upload failed: {uploadResult.Error.Message}");
         }
 
-        return uploadResult.SecureUrl.ToString();
+        return new ImageUploadResult
+        {
+            Url = uploadResult.SecureUrl.ToString(),
+            PublicId = uploadResult.PublicId,
+        };
     }
 
     public async Task<bool> DeleteImageAsync(string publicId)
@@ -176,5 +180,21 @@ public class ImageService : IImageService
         {
             return false;
         }
+    }
+
+    public async Task<ImageUploadResult> ReplaceImageAsync(
+        IFormFile file,
+        string folder,
+        string? oldPublicId
+    )
+    {
+        // Delete old image if exists
+        if (!string.IsNullOrEmpty(oldPublicId))
+        {
+            await DeleteImageAsync(oldPublicId);
+        }
+
+        // Upload new image
+        return await UploadImageAsync(file, folder);
     }
 }

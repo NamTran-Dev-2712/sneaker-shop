@@ -111,6 +111,27 @@ public class AuthController : BaseController
         return Ok(result);
     }
 
+    [Authorize]
+    [HttpPut("profile")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileCommand command)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
+        }
+
+        // Ensure user can only update their own profile
+        if (command.AccountId != accountId.Value)
+        {
+            return Forbid("Bạn không có quyền cập nhật profile này.");
+        }
+
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
     private void SetAuthCookies(string accessToken, string refreshToken)
     {
         var accessExpirationMinutes = int.Parse(

@@ -7,8 +7,8 @@ public interface IImageService
     /// </summary>
     /// <param name="file">Image file to upload</param>
     /// <param name="folder">Folder name in Cloudinary (e.g., "avatars", "products")</param>
-    /// <returns>Image URL from Cloudinary</returns>
-    Task<string> UploadImageAsync(IFormFile file, string folder);
+    /// <returns>ImageUploadResult containing URL and PublicId</returns>
+    Task<ImageUploadResult> UploadImageAsync(IFormFile file, string folder);
 
     /// <summary>
     /// Delete image from Cloudinary by public ID
@@ -29,4 +29,13 @@ public interface IImageService
     /// <param name="file">Image file to validate</param>
     /// <returns>True if valid, false otherwise</returns>
     Task<bool> ValidateImageAsync(IFormFile file);
+
+    /// <summary>
+    /// Replace existing image: delete old and upload new
+    /// </summary>
+    /// <param name="file">New image file to upload</param>
+    /// <param name="folder">Folder name in Cloudinary</param>
+    /// <param name="oldPublicId">Public ID of old image to delete</param>
+    /// <returns>ImageUploadResult containing new URL and PublicId</returns>
+    Task<ImageUploadResult> ReplaceImageAsync(IFormFile file, string folder, string? oldPublicId);
 }

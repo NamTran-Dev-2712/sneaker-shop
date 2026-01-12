@@ -9,7 +9,7 @@ const GuestOnlyProvider = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to={"/"} />;
   }
   if (auth.isLogin && auth.user?.role === Role.ADMIN) {
-    return <Navigate to={"/admin/dashboard"} />;
+    return <Navigate to={"/admin"} />;
   } else if (auth.isLogin && auth.user?.role === Role.STAFF) {
     return <Navigate to="/staff/orders" />;
   }

@@ -15,6 +15,9 @@ public class BrandConfiguration : IEntityTypeConfiguration<Brand>
         builder.Property(b => b.Slug).IsRequired().HasMaxLength(300);
 
         builder.Property(b => b.LogoUrl).IsRequired().HasMaxLength(500);
+        builder.Property(b => b.PublicIdLogo).HasMaxLength(500);
+        builder.Property(b => b.IsActive).IsRequired().HasDefaultValue(true);
+        builder.Property(b => b.IsDeleted).IsRequired().HasDefaultValue(false);
 
         builder.Property(b => b.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

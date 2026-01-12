@@ -38,6 +38,9 @@ export default [
       layout("./components/provider/role.provider.tsx", [
         layout("./layouts/admin/admin.layout.tsx", [
           index("./routes/admin/dashboard.tsx"),
+          // shop management routes
+          route("brands", "./routes/admin/shop/brand.tsx"),
+          route("stores", "./routes/admin/shop/store.tsx"),
         ]),
       ]),
     ]),

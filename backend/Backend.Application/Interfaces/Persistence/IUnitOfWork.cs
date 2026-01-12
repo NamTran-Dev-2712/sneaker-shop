@@ -8,6 +8,9 @@ public interface IUnitOfWork
     ICustomerRepository Customers { get; }
     IStaffRepository Staffs { get; }
     IAccountRepository Accounts { get; }
+    IBrandRepository Brands { get; }
+    IBrandSeriesRepository BrandSeries { get; }
+    IStoreRepository Stores { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -3,17 +3,11 @@ using MediatR;
 
 public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, VerifyEmailResult>
 {
-    private readonly IAuthRepository _authRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITokenService _tokenService;
 
-    public VerifyEmailCommandHandler(
-        IAuthRepository authRepository,
-        IUnitOfWork unitOfWork,
-        ITokenService tokenService
-    )
+    public VerifyEmailCommandHandler(IUnitOfWork unitOfWork, ITokenService tokenService)
     {
-        _authRepository = authRepository;
         _unitOfWork = unitOfWork;
         _tokenService = tokenService;
     }
@@ -54,7 +48,7 @@ public class VerifyEmailCommandHandler : IRequestHandler<VerifyEmailCommand, Ver
         }
 
         // 3. Get account from database
-        var account = await _unitOfWork.Repository<Account>().GetByIdAsync(accountId);
+        var account = await _unitOfWork.Accounts.GetAccountByIdAsync(accountId);
         if (account == null)
         {
             return new VerifyEmailResult { Success = false, Message = "Account not found." };

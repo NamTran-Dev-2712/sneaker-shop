@@ -9,6 +9,7 @@ public static class ServiceInfrastructureRegistration
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IImageService, ImageService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ISlugService, SlugService>();
 
         // Register RazorLight engine for email templates
         var templatesPath = Path.Combine(AppContext.BaseDirectory, "Templates");

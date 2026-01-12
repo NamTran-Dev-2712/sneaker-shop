@@ -37,6 +37,11 @@ public static class DbContextRegistration
 
         // repositories (not implemented generically)
         services.AddScoped<IAuthRepository, AuthRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IBrandSeriesRepository, BrandSeriesRepository>();
+        services.AddScoped<IStoreRepository, StoreRepository>();
 
         return services;
     }

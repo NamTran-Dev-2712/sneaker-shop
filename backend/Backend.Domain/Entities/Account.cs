@@ -8,6 +8,7 @@ public class Account : BaseEntity
     public string Phone { get; set; } = string.Empty;
     public string? Password { get; set; }
     public string? Avatar { get; set; }
+    public string? PublicIdAvatar { get; set; }
     public bool IsActive { get; set; } = true;
 
     // Navigation properties
@@ -86,11 +87,12 @@ public class Account : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateProfile(string email, string phone, string? avatar)
+    public void UpdateProfile(string email, string phone, string? avatar, string? publicIdAvatar)
     {
         Email = email;
         Phone = phone;
         Avatar = avatar;
+        PublicIdAvatar = publicIdAvatar;
         UpdatedAt = DateTime.UtcNow;
     }
 

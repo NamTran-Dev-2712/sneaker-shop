@@ -1,1 +1,1 @@
-public interface ICustomerRepository { }
+public interface ICustomerRepository : IGenericRepository<Customer> { }

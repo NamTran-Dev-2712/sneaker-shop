@@ -11,6 +11,9 @@ public class UnitOfWork : IUnitOfWork
     private IAccountRepository? _accountRepository;
     private ICustomerRepository? _customerRepository;
     private IStaffRepository? _staffRepository;
+    private IBrandRepository? _brandRepository;
+    private IBrandSeriesRepository? _brandSeriesRepository;
+    private IStoreRepository? _storeRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -25,6 +28,10 @@ public class UnitOfWork : IUnitOfWork
     public ICustomerRepository Customers =>
         _customerRepository ??= new CustomerRepository(_context);
     public IStaffRepository Staffs => _staffRepository ??= new StaffRepository(_context);
+    public IBrandRepository Brands => _brandRepository ??= new BrandRepository(_context);
+    public IBrandSeriesRepository BrandSeries =>
+        _brandSeriesRepository ??= new BrandSeriesRepository(_context);
+    public IStoreRepository Stores => _storeRepository ??= new StoreRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

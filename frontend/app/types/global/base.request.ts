@@ -1,5 +1,5 @@
 export interface BaseGetRequest {
-  page?: number;
-  limit?: number;
+  pageNumber?: number;
+  pageSize?: number;
   search?: string;
 }
