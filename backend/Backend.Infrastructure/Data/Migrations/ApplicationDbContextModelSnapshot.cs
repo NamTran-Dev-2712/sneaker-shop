@@ -1696,7 +1696,6 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea")
                         .HasColumnName("row_version");
 
@@ -1817,7 +1816,7 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("brand_id");
 
-                    b.Property<int?>("BrandSeriesId")
+                    b.Property<int>("BrandSeriesId")
                         .HasColumnType("integer")
                         .HasColumnName("brand_series_id");
 
@@ -1855,6 +1854,12 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("public_id");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -1927,6 +1932,12 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("public_id");
+
                     b.Property<int>("SneakerId")
                         .HasColumnType("integer")
                         .HasColumnName("sneaker_id");
@@ -1954,6 +1965,52 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasDatabaseName("ix_sneaker_colorways_sneaker_id_color_id");
 
                     b.ToTable("sneaker_colorways", (string)null);
+                });
+
+            modelBuilder.Entity("SneakerSubImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_url");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("public_id");
+
+                    b.Property<int>("SneakerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sneaker_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sneaker_sub_images");
+
+                    b.HasIndex("SneakerId")
+                        .HasDatabaseName("ix_sneaker_sub_images_sneaker_id");
+
+                    b.ToTable("sneaker_sub_images", (string)null);
                 });
 
             modelBuilder.Entity("SneakerVariant", b =>
@@ -2858,6 +2915,7 @@ namespace Backend.Infrastructure.Data.Migrations
                         .WithMany("Sneakers")
                         .HasForeignKey("BrandSeriesId")
                         .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
                         .HasConstraintName("fk_sneakers_brand_series_brand_series_id");
 
                     b.Navigation("Brand");
@@ -2882,6 +2940,18 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasConstraintName("fk_sneaker_colorways_sneakers_sneaker_id");
 
                     b.Navigation("Color");
+
+                    b.Navigation("Sneaker");
+                });
+
+            modelBuilder.Entity("SneakerSubImage", b =>
+                {
+                    b.HasOne("Sneaker", "Sneaker")
+                        .WithMany("SneakerSubImages")
+                        .HasForeignKey("SneakerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sneaker_sub_images_sneakers_sneaker_id");
 
                     b.Navigation("Sneaker");
                 });
@@ -3117,6 +3187,8 @@ namespace Backend.Infrastructure.Data.Migrations
             modelBuilder.Entity("Sneaker", b =>
                 {
                     b.Navigation("Colorways");
+
+                    b.Navigation("SneakerSubImages");
 
                     b.Navigation("Variants");
                 });

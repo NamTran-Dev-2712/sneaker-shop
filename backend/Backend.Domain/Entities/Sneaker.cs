@@ -3,11 +3,12 @@ public class Sneaker : BaseEntity
     public Sneaker() { }
 
     public int BrandId { get; set; }
-    public int? BrandSeriesId { get; set; }
+    public required int BrandSeriesId { get; set; }
     public required string Name { get; set; }
     public string Slug { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string MainImage { get; set; } = string.Empty;
+    public string PublicId { get; set; } = string.Empty;
     public decimal? BasePrice { get; set; } // Giá tham khảo (giá thấp nhất)
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
@@ -17,6 +18,8 @@ public class Sneaker : BaseEntity
     public BrandSeries? BrandSeries { get; set; }
     public ICollection<SneakerColorway> Colorways { get; set; } = new List<SneakerColorway>();
     public ICollection<SneakerVariant> Variants { get; set; } = new List<SneakerVariant>();
+    public ICollection<SneakerSubImage> SneakerSubImages { get; set; } =
+        new List<SneakerSubImage>();
 
     // Business logic
     public void UpdateInfo(
@@ -24,6 +27,7 @@ public class Sneaker : BaseEntity
         string slug,
         string? description,
         string mainImage,
+        string publicId,
         decimal? basePrice
     )
     {
@@ -31,6 +35,7 @@ public class Sneaker : BaseEntity
         Slug = slug;
         Description = description;
         MainImage = mainImage;
+        PublicId = publicId;
         BasePrice = basePrice;
         UpdatedAt = DateTime.UtcNow;
     }

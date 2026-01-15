@@ -23,7 +23,13 @@ public class SellableItemConfiguration : IEntityTypeConfiguration<SellableItem>
         builder.Property(si => si.IsActive).IsRequired().HasDefaultValue(true);
 
         // Concurrency control for PostgreSQL
-        builder.Property(si => si.RowVersion).IsRowVersion().HasColumnType("bytea");
+        // Use IsConcurrencyToken instead of IsRowVersion for PostgreSQL
+        // IsRowVersion prevents EF Core from sending the value in INSERT statements
+        builder
+            .Property(si => si.RowVersion)
+            .IsConcurrencyToken()
+            .IsRequired()
+            .HasColumnType("bytea");
 
         builder.Property(si => si.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

@@ -26,6 +26,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Sneaker> Sneakers { get; set; }
     public DbSet<SneakerColorway> SneakerColorways { get; set; }
     public DbSet<SneakerVariant> SneakerVariants { get; set; }
+    public DbSet<SneakerSubImage> SneakerSubImages { get; set; }
 
     // Accessory Product DbSets
     public DbSet<CategoryAccessory> CategoryAccessories { get; set; }
@@ -153,6 +154,16 @@ public class ApplicationDbContext : DbContext
                 case EntityState.Modified:
                     entry.Entity.UpdatedAt = DateTime.UtcNow;
                     break;
+            }
+        }
+
+        // Handle RowVersion for SellableItem (PostgreSQL doesn't auto-generate bytea)
+        var sellableItemEntries = ChangeTracker.Entries<SellableItem>();
+        foreach (var entry in sellableItemEntries)
+        {
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            {
+                entry.Entity.RowVersion = Guid.NewGuid().ToByteArray();
             }
         }
 

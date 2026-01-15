@@ -12,6 +12,8 @@ public class SneakerConfiguration : IEntityTypeConfiguration<Sneaker>
         // Properties
         builder.Property(s => s.BrandId).IsRequired();
 
+        builder.Property(s => s.BrandSeriesId).IsRequired();
+
         builder.Property(s => s.Name).IsRequired().HasMaxLength(255);
 
         builder.Property(s => s.Slug).IsRequired().HasMaxLength(300);
@@ -19,6 +21,7 @@ public class SneakerConfiguration : IEntityTypeConfiguration<Sneaker>
         builder.Property(s => s.Description).HasMaxLength(2000);
 
         builder.Property(s => s.MainImage).IsRequired().HasMaxLength(500);
+        builder.Property(s => s.PublicId).IsRequired().HasMaxLength(500);
 
         builder.Property(s => s.BasePrice).HasPrecision(18, 2);
 

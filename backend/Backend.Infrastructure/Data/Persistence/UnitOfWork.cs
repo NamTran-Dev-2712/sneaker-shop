@@ -14,6 +14,13 @@ public class UnitOfWork : IUnitOfWork
     private IBrandRepository? _brandRepository;
     private IBrandSeriesRepository? _brandSeriesRepository;
     private IStoreRepository? _storeRepository;
+    private IColorRepository? _colorRepository;
+    private ISizeRepository? _sizeRepository;
+    private ISneakerRepository? _sneakerRepository;
+    private ISneakerColorwayRepository? _sneakerColorwayRepository;
+    private ISneakerVariantRepository? _sneakerVariantRepository;
+    private ISneakerSubImageRepository? _sneakerSubImageRepository;
+    private ISellableItemRepository? _sellableItemRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -32,6 +39,17 @@ public class UnitOfWork : IUnitOfWork
     public IBrandSeriesRepository BrandSeries =>
         _brandSeriesRepository ??= new BrandSeriesRepository(_context);
     public IStoreRepository Stores => _storeRepository ??= new StoreRepository(_context);
+    public IColorRepository Colors => _colorRepository ??= new ColorRepository(_context);
+    public ISizeRepository Sizes => _sizeRepository ??= new SizeRepository(_context);
+    public ISneakerRepository Sneakers => _sneakerRepository ??= new SneakerRepository(_context);
+    public ISneakerColorwayRepository SneakerColorways =>
+        _sneakerColorwayRepository ??= new SneakerColorwayRepository(_context);
+    public ISneakerVariantRepository SneakerVariants =>
+        _sneakerVariantRepository ??= new SneakerVariantRepository(_context);
+    public ISneakerSubImageRepository SneakerSubImages =>
+        _sneakerSubImageRepository ??= new SneakerSubImageRepository(_context);
+    public ISellableItemRepository SellableItems =>
+        _sellableItemRepository ??= new SellableItemRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()
@@ -78,6 +96,31 @@ public class UnitOfWork : IUnitOfWork
     public async Task RollbackTransactionAsync()
     {
         await _context.Database.RollbackTransactionAsync();
+    }
+
+    public async Task<TResult> ExecuteInTransactionAsync<TResult>(
+        Func<Task<TResult>> operation,
+        IsolationLevel isolationLevel = IsolationLevel.ReadCommitted
+    )
+    {
+        // Use execution strategy to support retry
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(isolationLevel);
+            try
+            {
+                var result = await operation();
+                await transaction.CommitAsync();
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        });
     }
 
     // Save Changes

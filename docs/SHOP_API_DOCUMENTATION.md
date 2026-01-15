@@ -1,6 +1,6 @@
 # Shop API Documentation
 
-API documentation for Brand/Store management in Sneaker Shop Backend.
+API documentation for Brand/Store/Color/Size/Sneaker management in Sneaker Shop Backend.
 
 ## Authorization
 
@@ -11,19 +11,16 @@ API documentation for Brand/Store management in Sneaker Shop Backend.
 
 ---
 
-## Brand API
+## Color API
 
-Base URL: `api/brands`
-
-### Endpoints
+Base URL: `api/colors`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | Get paginated list with filters |
-| GET | `/{id}` | Get brand detail with series |
-| POST | `/` | Create brand (multipart/form-data) |
-| PUT | `/{id}` | Update brand (multipart/form-data) |
-| DELETE | `/{id}` | Soft delete brand |
+| GET | `/` | Get paginated list |
+| POST | `/` | Create color |
+| PUT | `/{id}` | Update color |
+| DELETE | `/{id}` | Delete color (blocked if in use) |
 
 ### Query Parameters (GET `/`)
 
@@ -31,49 +28,179 @@ Base URL: `api/brands`
 |-------|------|---------|-------------|
 | pageNumber | int | 1 | Page number |
 | pageSize | int | 10 | Items per page |
-| search | string? | null | Search by name |
-| isActive | bool? | null | Filter by status |
-| sortBy | string | "name" | Sort field: name, createdAt, updatedAt |
+| search | string? | null | Search by name, hex |
+| sortBy | string | "name" | Sort field: name, hex, createdAt |
 | sortOrder | string | "asc" | Sort direction: asc, desc |
 
-### Create Brand Request
+### Request Body
 
 ```json
-// multipart/form-data
-name: "Nike"           // required
-logo: [File]           // required, image file
-```
-
-### Update Brand Request
-
-```json
-// multipart/form-data
-id: 1                  // required, in route and body
-name: "Nike"           // required
-logo: [File]           // optional
-isActive: true         // required
+{
+  "name": "White",       // required
+  "hex": "#FFFFFF"       // required, format: #RRGGBB
+}
 ```
 
 ---
 
-## Brand Series API
+## Size API
 
-Base URL: `api/brands/{brandId}/series`
+Base URL: `api/sizes`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/` | Create series |
-| PUT | `/{seriesId}` | Update series |
-| DELETE | `/{seriesId}` | Soft delete series |
+| GET | `/` | Get paginated list |
+| POST | `/` | Create size |
+| PUT | `/{id}` | Update size |
+| DELETE | `/{id}` | Delete size (blocked if in use) |
 
-### Create/Update Request
+### Query Parameters (GET `/`)
+
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| pageNumber | int | 1 | Page number |
+| pageSize | int | 10 | Items per page |
+| search | string? | null | Search by system, value |
+| system | string? | null | Filter by system: US, UK, EU, CM |
+| sortBy | string | "value" | Sort field: value, system, createdAt |
+
+### Request Body
 
 ```json
 {
-  "name": "Air Max",    // required
-  "isActive": true      // required for update only
+  "system": "US",     // required: US, UK, EU, CM
+  "value": 9.5        // required, decimal
 }
 ```
+
+---
+
+## Sneaker API
+
+Base URL: `api/sneakers`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Get paginated list with filters |
+| GET | `/{id}` | Get sneaker detail with colorways/variants |
+| POST | `/` | Create sneaker (multipart/form-data) |
+| PUT | `/{id}` | Update sneaker (multipart/form-data) |
+| DELETE | `/{id}` | Soft delete sneaker |
+
+### Query Parameters (GET `/`)
+
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| pageNumber | int | 1 | Page number |
+| pageSize | int | 10 | Items per page |
+| search | string? | null | Search by name, slug |
+| brandId | int? | null | Filter by brand |
+| brandSeriesId | int? | null | Filter by series |
+| isActive | bool? | null | Filter by status |
+| minPrice | decimal? | null | Min base price |
+| maxPrice | decimal? | null | Max base price |
+| colorIds | int[]? | null | Filter by colors (any match) |
+| sizeIds | int[]? | null | Filter by sizes (any match) |
+| sortBy | string | "name" | Sort: name, price, createdAt |
+
+### Create Sneaker Request (multipart/form-data)
+
+```typescript
+{
+  brandId: number;           // required
+  brandSeriesId?: number;
+  name: string;              // required
+  description?: string;
+  mainImage: File;           // required
+  colorways: [
+    {
+      colorId?: number;      // existing color OR
+      newColor?: {           // create inline
+        name: string,
+        hex: string
+      };
+      coverImage: File;      // required
+      variants: [
+        {
+          sizeId: number,
+          retailPrice?: number,
+          onlinePrice?: number
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Update Sneaker Request (multipart/form-data)
+
+**Supports: Update info, add colorways, add variants, update prices**
+
+```typescript
+{
+  id: number;
+  brandId: number;
+  brandSeriesId?: number;
+  name: string;
+  description?: string;
+  mainImage?: File;          // optional
+  isActive: boolean;
+  
+  // Optional: colorway changes
+  colorways?: [
+    {
+      id?: number;           // null = new colorway
+      colorId?: number;      // for new colorway (existing color)
+      newColor?: {           // for new colorway (inline color creation)
+        name: string,
+        hex: string
+      };
+      coverImage?: File;     // required for new, optional for existing
+      isActive?: boolean;    // update status
+      
+      variants?: [
+        {
+          id?: number;       // null = new variant
+          sizeId?: number;   // required for new variant
+          retailPrice?: number;
+          onlinePrice?: number;
+          isActive?: boolean;
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Update Response
+
+```json
+{
+  "id": 1,
+  "name": "Air Max 90",
+  "slug": "air-max-90", 
+  "mainImage": "https://...",
+  "isActive": true,
+  "updatedAt": "...",
+  "colorwaysAdded": 1,
+  "variantsAdded": 3,
+  "variantsUpdated": 2
+}
+```
+
+---
+
+## Brand API
+
+Base URL: `api/brands`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Get paginated list |
+| GET | `/{id}` | Get brand detail with series |
+| POST | `/` | Create brand (multipart/form-data) |
+| PUT | `/{id}` | Update brand (multipart/form-data) |
+| DELETE | `/{id}` | Soft delete brand |
 
 ---
 
@@ -81,55 +208,19 @@ Base URL: `api/brands/{brandId}/series`
 
 Base URL: `api/stores`
 
-### Endpoints
-
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | Get paginated list with filters |
+| GET | `/` | Get paginated list |
 | GET | `/{id}` | Get store detail |
 | POST | `/` | Create store |
 | PUT | `/{id}` | Update store |
 | DELETE | `/{id}` | Soft delete store |
 
-### Query Parameters (GET `/`)
-
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| pageNumber | int | 1 | Page number |
-| pageSize | int | 10 | Items per page |
-| search | string? | null | Search by name, code, address |
-| isActive | bool? | null | Filter by status |
-| sortBy | string | "name" | Sort field: name, code, createdAt |
-| sortOrder | string | "asc" | Sort direction: asc, desc |
-
-### Create Store Request
-
-```json
-{
-  "code": "HN-001",     // required, uppercase
-  "name": "Store Hanoi", // required
-  "address": "123 Street", // optional
-  "phone": "0123456789"  // optional
-}
-```
-
-### Update Store Request
-
-```json
-{
-  "id": 1,               // required
-  "name": "Store Hanoi", // required
-  "address": "123 Street", // optional
-  "phone": "0123456789",  // optional
-  "isActive": true       // required
-}
-```
-
 ---
 
 ## Response Format
 
-### Paginated List Response
+### Paginated List
 
 ```json
 {
@@ -141,12 +232,12 @@ Base URL: `api/stores`
 }
 ```
 
-### Error Response
+### Error
 
 ```json
 {
   "message": "Error message",
-  "errors": ["Validation error 1", "Validation error 2"]
+  "errors": ["Validation error 1"]
 }
 ```
 
@@ -154,7 +245,10 @@ Base URL: `api/stores`
 
 ## Optimization Notes
 
-- **AsNoTracking**: All GET queries use AsNoTracking for better read performance
-- **Projection**: Only required fields are selected (no full entity loading)
-- **Soft Delete**: All deletions are soft (IsDeleted = true)
-- **Unique Slug**: Auto-generated Vietnamese-friendly slugs
+- **AsNoTracking**: All GET queries for read performance
+- **Projection**: Only required fields selected
+- **Soft Delete**: Brand, Sneaker use soft delete
+- **Hard Delete**: Color, Size delete only if no dependencies
+- **Transaction**: CreateSneaker uses transaction for atomicity
+- **SKU Generation**: Auto-generated format: `{BRAND}-{SNEAKER}-{COLOR}-{SIZE}`
+- **SplitQuery**: Used for complex includes to avoid cartesian explosion

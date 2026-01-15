@@ -16,8 +16,6 @@ import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import useAdminLayout from "~/store/admin/layout/layout.hook";
 import BrandIcon from "~/components/common/icons/brand.icon";
-import BrandAddIcon from "~/components/common/icons/brand-add.icon";
-import BrandListIcon from "~/components/common/icons/brand-list.icon";
 import SneakerIcon from "~/components/common/icons/sneaker.icon";
 import SneakerListIcon from "~/components/common/icons/sneaker-list.icon";
 import SneakerAddIcon from "~/components/common/icons/sneaker-add.icon";
@@ -48,6 +46,25 @@ const menuItems: MenuItem[] = [
     label: "Quản lý Hãng",
     icon: <BrandIcon className="h-5 w-5" />,
     path: "/admin/brands",
+  },
+  {
+    id: "colors-sizes",
+    label: "Quản lý Màu & Size",
+    icon: <UserCog className="h-5 w-5" />,
+    children: [
+      {
+        id: "colors-list",
+        label: "Danh sách Màu",
+        icon: <Users className="h-4 w-4" />,
+        path: "/admin/attributes/colors",
+      },
+      {
+        id: "sizes-list",
+        label: "Danh sách Size",
+        icon: <Users className="h-4 w-4" />,
+        path: "/admin/attributes/sizes",
+      },
+    ],
   },
   {
     id: "employees",
@@ -96,13 +113,13 @@ const menuItems: MenuItem[] = [
         id: "products-list",
         label: "Danh sách",
         icon: <SneakerListIcon className="h-4 w-4" />,
-        path: "/admin/products",
+        path: "/admin/sneakers",
       },
       {
         id: "products-create",
         label: "Tạo mới",
         icon: <SneakerAddIcon className="h-4 w-4" />,
-        path: "/admin/products/create",
+        path: "/admin/sneakers/create",
       },
     ],
   },

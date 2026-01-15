@@ -43,6 +43,17 @@ public static class DbContextRegistration
         services.AddScoped<IBrandSeriesRepository, BrandSeriesRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
 
+        // Attribute repositories
+        services.AddScoped<IColorRepository, ColorRepository>();
+        services.AddScoped<ISizeRepository, SizeRepository>();
+
+        // Product repositories
+        services.AddScoped<ISneakerRepository, SneakerRepository>();
+        services.AddScoped<ISneakerColorwayRepository, SneakerColorwayRepository>();
+        services.AddScoped<ISneakerVariantRepository, SneakerVariantRepository>();
+        services.AddScoped<ISneakerSubImageRepository, SneakerSubImageRepository>();
+        services.AddScoped<ISellableItemRepository, SellableItemRepository>();
+
         return services;
     }
 }

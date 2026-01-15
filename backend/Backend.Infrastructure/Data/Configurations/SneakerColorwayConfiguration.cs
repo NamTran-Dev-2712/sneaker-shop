@@ -15,6 +15,7 @@ public class SneakerColorwayConfiguration : IEntityTypeConfiguration<SneakerColo
         builder.Property(sc => sc.ColorId).IsRequired();
 
         builder.Property(sc => sc.CoverImage).IsRequired().HasMaxLength(500);
+        builder.Property(sc => sc.PublicId).IsRequired().HasMaxLength(500);
 
         builder.Property(sc => sc.IsActive).IsRequired().HasDefaultValue(true);
 
