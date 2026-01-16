@@ -12,6 +12,7 @@ import type {
   GetSneakerResponse,
 } from "./dto/get-sneaker/get-sneaker.response";
 import type { GetSneakerRequest } from "./dto/get-sneaker/get-sneaker.request";
+import type { SneakerStatisticResponse } from "./dto/statistic/sneaker-statistic.response";
 
 export const sneakerService = {
   createSneaker: async (
@@ -121,6 +122,27 @@ export const sneakerService = {
     } catch (error) {
       const err = error as ApiResponseError;
 
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  getSneakerStatistics: async (): Promise<
+    ApiResponse<SneakerStatisticResponse | null>
+  > => {
+    try {
+      const res =
+        await api.get<ApiResponse<SneakerStatisticResponse | null>>(
+          `/sneakers/statistics`,
+        );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
       return {
         success: false,
         statusCode: err.statusCode,

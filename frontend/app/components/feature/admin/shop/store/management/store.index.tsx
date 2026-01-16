@@ -12,6 +12,7 @@ import {
   useCreateStore,
   useUpdateStore,
   useDeleteStore,
+  useStoreStatistics,
 } from "~/hooks/react-query/use-store.query";
 import type { GetStoreItem } from "~/services/shop/store/dto/get-store/get-store.response";
 import type { GetStoreRequest } from "~/services/shop/store/dto/get-store/get-store.request";
@@ -38,6 +39,8 @@ export const StoreIndex = () => {
 
   // React Query hooks
   const { data, isLoading, error } = useStoreList(query);
+  const { data: statisticsData, isLoading: statisticsLoading } =
+    useStoreStatistics();
   const createMutation = useCreateStore();
   const updateMutation = useUpdateStore();
   const deleteMutation = useDeleteStore();
@@ -136,7 +139,10 @@ export const StoreIndex = () => {
       </div>
 
       {/* Quick Statistics */}
-      <StoreQuickStatistic data={data} isLoading={isLoading} />
+      <StoreQuickStatistic
+        data={statisticsData}
+        isLoading={statisticsLoading}
+      />
 
       {/* Filter */}
       <StoreFilter

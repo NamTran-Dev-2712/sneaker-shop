@@ -15,6 +15,7 @@ export const storeKeys = {
   list: (query: GetStoreRequest) => [...storeKeys.lists(), query] as const,
   details: () => [...storeKeys.all, "detail"] as const,
   detail: (id: number) => [...storeKeys.details(), id] as const,
+  statistics: () => [...storeKeys.all, "statistics"] as const,
 };
 
 // Hook lấy danh sách stores
@@ -47,6 +48,22 @@ export const useStoreDetail = (id: number | null) => {
     },
     enabled: id !== null && id > 0,
     staleTime: 1000 * 60 * 5,
+  });
+};
+
+// Hook lấy thống kê stores
+export const useStoreStatistics = () => {
+  return useQuery({
+    queryKey: storeKeys.statistics(),
+    queryFn: async () => {
+      const response = await storeService.getStoreStatistics();
+      if (!response.success) {
+        const error = response as unknown as ApiResponseError;
+        throw new Error(getErrMessage(error));
+      }
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 phút
   });
 };
 

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 public class DeleteBrandSeriesCommandHandler
     : IRequestHandler<DeleteBrandSeriesCommand, DeleteBrandSeriesResult>
@@ -28,12 +29,24 @@ public class DeleteBrandSeriesCommandHandler
             throw new BadException("Dòng sản phẩm không thuộc thương hiệu này.");
         }
 
-        // 3. Soft delete
+        // 3. Check if brand series has any non-deleted sneakers
+        var hasActiveSneakers = await _unitOfWork
+            .Sneakers.Query()
+            .AnyAsync(s => s.BrandSeriesId == command.Id && !s.IsDeleted, cancellationToken);
+
+        if (hasActiveSneakers)
+        {
+            throw new BadException(
+                "Không thể xóa dòng sản phẩm này vì đang có sản phẩm liên kết. Vui lòng xóa tất cả sản phẩm trước."
+            );
+        }
+
+        // 4. Soft delete
         brandSeries.IsDeleted = true;
         brandSeries.IsActive = false;
         brandSeries.UpdatedAt = DateTime.UtcNow;
 
-        // 4. Save changes
+        // 5. Save changes
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new DeleteBrandSeriesResult

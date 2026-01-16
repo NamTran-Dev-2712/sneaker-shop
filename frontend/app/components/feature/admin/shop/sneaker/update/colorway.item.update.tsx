@@ -25,7 +25,7 @@ import {
 } from "~/components/ui/collapsible";
 import type { UseFormReturn } from "react-hook-form";
 import type { CreateSneakerFormData } from "~/lib/validation/admin/shop/sneaker.schema";
-import { useColorList } from "~/hooks/react-query/use-color.query";
+import { useAllColors } from "~/hooks/react-query/use-color.query";
 import { VariantItem } from "../create/variant.item";
 import { useFieldArray } from "react-hook-form";
 import { useUpdateSneakerForm } from "~/store/admin/product/sneaker/update/update-sneaker.hook";
@@ -60,8 +60,8 @@ export const ColorwayItemUpdate = ({
     useUpdateSneakerForm();
   const imagePreview = colorwayImagePreviews[index] || null;
 
-  // Lấy danh sách colors
-  const { data: colorsData } = useColorList({ pageNumber: 1, pageSize: 100 });
+  // Lấy danh sách colors (không phân trang)
+  const { data: colorsData } = useAllColors();
 
   // Field array cho variants
   const variantsArray = useFieldArray({
@@ -71,9 +71,7 @@ export const ColorwayItemUpdate = ({
 
   const colorwayErrors = errors.colorways?.[index];
   const selectedColorId = watch(`colorways.${index}.colorId`);
-  const selectedColor = colorsData?.items?.find(
-    (c) => c.id === selectedColorId,
-  );
+  const selectedColor = colorsData?.find((c) => c.id === selectedColorId);
 
   // Initialize preview from existing URL if no preview set
   useEffect(() => {
@@ -222,7 +220,7 @@ export const ColorwayItemUpdate = ({
                     <SelectValue placeholder="Chọn màu" />
                   </SelectTrigger>
                   <SelectContent>
-                    {colorsData?.items?.map((color) => (
+                    {colorsData?.map((color) => (
                       <SelectItem key={color.id} value={color.id.toString()}>
                         <div className="flex items-center gap-2">
                           <div

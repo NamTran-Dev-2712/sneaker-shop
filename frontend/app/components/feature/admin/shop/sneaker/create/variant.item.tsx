@@ -10,7 +10,7 @@ import {
 } from "~/components/ui/select";
 import type { UseFormReturn } from "react-hook-form";
 import type { CreateSneakerFormData } from "~/lib/validation/admin/shop/sneaker.schema";
-import { useSizeList } from "~/hooks/react-query/use-size.query";
+import { useAllSizes } from "~/hooks/react-query/use-size.query";
 import { useCallback, useState, useEffect } from "react";
 
 interface VariantItemProps {
@@ -53,8 +53,8 @@ export const VariantItem = ({
     formState: { errors },
   } = form;
 
-  // Lấy danh sách sizes
-  const { data: sizesData } = useSizeList({ pageNumber: 1, pageSize: 100 });
+  // Lấy danh sách sizes (không phân trang)
+  const { data: sizesData } = useAllSizes();
 
   const variantErrors =
     errors.colorways?.[colorwayIndex]?.variants?.[variantIndex];
@@ -130,7 +130,7 @@ export const VariantItem = ({
   );
 
   // Group sizes by system
-  const groupedSizes = sizesData?.items?.reduce(
+  const groupedSizes = sizesData?.reduce(
     (acc, size) => {
       if (!acc[size.system]) {
         acc[size.system] = [];
@@ -138,7 +138,7 @@ export const VariantItem = ({
       acc[size.system].push(size);
       return acc;
     },
-    {} as Record<string, typeof sizesData.items>,
+    {} as Record<string, typeof sizesData>,
   );
 
   return (

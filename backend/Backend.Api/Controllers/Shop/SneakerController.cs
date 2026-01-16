@@ -20,6 +20,13 @@ public class SneakerController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetSneakerStatistics()
+    {
+        var result = await _mediator.Send(new GetSneakerStatisticQuery());
+        return Ok(result);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetSneakerDetail(int id)
     {

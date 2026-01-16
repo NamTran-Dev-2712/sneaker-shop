@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, DeleteBrandResult>
 {
@@ -21,12 +22,24 @@ public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, Del
             throw new NotFoundException("Không tìm thấy thương hiệu.");
         }
 
-        // 2. Soft delete brand
+        // 2. Check if brand has any non-deleted sneakers
+        var hasActiveSneakers = await _unitOfWork
+            .Sneakers.Query()
+            .AnyAsync(s => s.BrandId == command.Id && !s.IsDeleted, cancellationToken);
+
+        if (hasActiveSneakers)
+        {
+            throw new BadException(
+                "Không thể xóa thương hiệu này vì đang có sản phẩm liên kết. Vui lòng xóa tất cả sản phẩm trước."
+            );
+        }
+
+        // 3. Soft delete brand
         brand.IsDeleted = true;
         brand.IsActive = false;
         brand.UpdatedAt = DateTime.UtcNow;
 
-        // 3. Soft delete all brand series
+        // 4. Soft delete all brand series
         foreach (var series in brand.BrandSeries)
         {
             series.IsDeleted = true;
@@ -34,7 +47,7 @@ public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, Del
             series.UpdatedAt = DateTime.UtcNow;
         }
 
-        // 4. Save changes
+        // 5. Save changes
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new DeleteBrandResult { Success = true, Message = "Xóa thương hiệu thành công." };

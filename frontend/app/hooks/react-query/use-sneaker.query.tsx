@@ -13,6 +13,7 @@ export const sneakerKeys = {
   list: (query: GetSneakerRequest) => [...sneakerKeys.lists(), query] as const,
   details: () => [...sneakerKeys.all, "detail"] as const,
   detail: (id: number) => [...sneakerKeys.details(), id] as const,
+  statistics: () => [...sneakerKeys.all, "statistics"] as const,
 };
 
 // ==========================================
@@ -51,6 +52,23 @@ export const useSneakerDetail = (id: number) => {
       return response.data;
     },
     enabled: !!id && id > 0,
+    staleTime: 5 * 60 * 1000, // 5 phút
+  });
+};
+
+/**
+ * Hook lấy thống kê sneaker
+ */
+export const useSneakerStatistics = () => {
+  return useQuery({
+    queryKey: sneakerKeys.statistics(),
+    queryFn: async () => {
+      const response = await sneakerService.getSneakerStatistics();
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể tải thống kê sản phẩm");
+      }
+      return response.data;
+    },
     staleTime: 5 * 60 * 1000, // 5 phút
   });
 };

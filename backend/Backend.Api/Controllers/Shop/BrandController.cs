@@ -20,6 +20,20 @@ public class BrandController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllBrands()
+    {
+        var result = await _mediator.Send(new GetAllBrandQuery());
+        return Ok(result);
+    }
+
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetBrandStatistics()
+    {
+        var result = await _mediator.Send(new GetBrandStatisticQuery());
+        return Ok(result);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetBrandDetail(int id)
     {

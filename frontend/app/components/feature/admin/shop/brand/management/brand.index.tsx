@@ -19,6 +19,7 @@ import {
   useCreateBrandSeries,
   useUpdateBrandSeries,
   useDeleteBrandSeries,
+  useBrandStatistics,
 } from "~/hooks/react-query/use-brand.query";
 import type { GetBrandItem } from "~/services/shop/brand/dto/get-brand/get-brand.response";
 import type { GetBrandSeries } from "~/services/shop/brand/dto/get-brand/get-brand.response";
@@ -52,6 +53,8 @@ export const BrandIndex = () => {
   // React Query hooks
   const { data, isLoading, error } = useBrandList(query);
   const { data: brandDetail } = useBrandDetail(detailBrandId);
+  const { data: statisticsData, isLoading: statisticsLoading } =
+    useBrandStatistics();
   const createMutation = useCreateBrand();
   const updateMutation = useUpdateBrand();
   const deleteMutation = useDeleteBrand();
@@ -235,7 +238,10 @@ export const BrandIndex = () => {
       </div>
 
       {/* Quick Statistics */}
-      <BrandQuickStatistic data={data} isLoading={isLoading} />
+      <BrandQuickStatistic
+        data={statisticsData}
+        isLoading={statisticsLoading}
+      />
 
       {/* Filter */}
       <BrandFilter

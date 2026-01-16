@@ -20,6 +20,13 @@ public class StoreController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetStoreStatistics()
+    {
+        var result = await _mediator.Send(new GetStoreStatisticQuery());
+        return Ok(result);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetStoreDetail(int id)
     {

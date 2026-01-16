@@ -10,6 +10,7 @@ import { SneakerQuickStatistic } from "./sneaker.quick-statistic";
 import {
   useSneakerList,
   useDeleteSneaker,
+  useSneakerStatistics,
 } from "~/hooks/react-query/use-sneaker.query";
 import type { GetSneakerItem } from "~/services/shop/sneaker/dto/get-sneaker/get-sneaker.response";
 import type { GetSneakerRequest } from "~/services/shop/sneaker/dto/get-sneaker/get-sneaker.request";
@@ -38,6 +39,8 @@ export const SneakerIndex = () => {
 
   // React Query hooks
   const { data, isLoading, error } = useSneakerList(query);
+  const { data: statisticsData, isLoading: statisticsLoading } =
+    useSneakerStatistics();
   const deleteMutation = useDeleteSneaker();
 
   // Handlers
@@ -131,7 +134,10 @@ export const SneakerIndex = () => {
       </div>
 
       {/* Quick Statistics */}
-      <SneakerQuickStatistic data={data} isLoading={isLoading} />
+      <SneakerQuickStatistic
+        data={statisticsData}
+        isLoading={statisticsLoading}
+      />
 
       {/* Filter */}
       <SneakerFilter

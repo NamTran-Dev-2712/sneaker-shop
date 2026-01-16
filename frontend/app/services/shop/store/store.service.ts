@@ -13,6 +13,7 @@ import type {
   GetStoreResponseDetail,
 } from "./dto/get-store/get-store.response";
 import { id } from "zod/v4/locales";
+import type { StoreStatisticResponse } from "./dto/statistic/store-statistic.response";
 
 export const storeService = {
   createStore: async (
@@ -112,6 +113,27 @@ export const storeService = {
     } catch (error) {
       const err = error as ApiResponseError;
 
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  getStoreStatistics: async (): Promise<
+    ApiResponse<StoreStatisticResponse | null>
+  > => {
+    try {
+      const res =
+        await api.get<ApiResponse<StoreStatisticResponse | null>>(
+          `/stores/statistics`,
+        );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
       return {
         success: false,
         statusCode: err.statusCode,

@@ -20,6 +20,20 @@ public class SizeController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllSizes()
+    {
+        var result = await _mediator.Send(new GetAllSizeQuery());
+        return Ok(result);
+    }
+
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetSizeStatistics()
+    {
+        var result = await _mediator.Send(new GetSizeStatisticQuery());
+        return Ok(result);
+    }
+
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<IActionResult> CreateSize([FromBody] CreateSizeCommand command)

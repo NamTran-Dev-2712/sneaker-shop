@@ -13,6 +13,7 @@ export const colorKeys = {
   all: ["colors"] as const,
   lists: () => [...colorKeys.all, "list"] as const,
   list: (query: GetColorRequest) => [...colorKeys.lists(), query] as const,
+  statistics: () => [...colorKeys.all, "statistics"] as const,
 };
 
 // ==========================================
@@ -34,6 +35,40 @@ export const useColorList = (query: GetColorRequest) => {
     },
     staleTime: 5 * 60 * 1000, // 5 phút
     placeholderData: (previousData) => previousData,
+  });
+};
+
+/**
+ * Hook lấy tất cả màu không phân trang (dùng cho select trong form)
+ */
+export const useAllColors = () => {
+  return useQuery({
+    queryKey: colorKeys.all,
+    queryFn: async () => {
+      const response = await colorService.getAllColors();
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể tải danh sách màu");
+      }
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 phút - dữ liệu ít thay đổi
+  });
+};
+
+/**
+ * Hook lấy thống kê màu
+ */
+export const useColorStatistics = () => {
+  return useQuery({
+    queryKey: colorKeys.statistics(),
+    queryFn: async () => {
+      const response = await colorService.getColorStatistics();
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể tải thống kê màu");
+      }
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 phút
   });
 };
 

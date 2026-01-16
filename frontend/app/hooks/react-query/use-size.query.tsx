@@ -13,6 +13,7 @@ export const sizeKeys = {
   all: ["sizes"] as const,
   lists: () => [...sizeKeys.all, "list"] as const,
   list: (query: GetSizeRequest) => [...sizeKeys.lists(), query] as const,
+  statistics: () => [...sizeKeys.all, "statistics"] as const,
 };
 
 // ==========================================
@@ -34,6 +35,40 @@ export const useSizeList = (query: GetSizeRequest) => {
     },
     staleTime: 5 * 60 * 1000, // 5 phút
     placeholderData: (previousData) => previousData,
+  });
+};
+
+/**
+ * Hook lấy tất cả size không phân trang (dùng cho select trong form)
+ */
+export const useAllSizes = () => {
+  return useQuery({
+    queryKey: sizeKeys.all,
+    queryFn: async () => {
+      const response = await sizeService.getAllSizes();
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể tải danh sách size");
+      }
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 phút - dữ liệu ít thay đổi
+  });
+};
+
+/**
+ * Hook lấy thống kê size
+ */
+export const useSizeStatistics = () => {
+  return useQuery({
+    queryKey: sizeKeys.statistics(),
+    queryFn: async () => {
+      const response = await sizeService.getSizeStatistics();
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể tải thống kê size");
+      }
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 phút
   });
 };
 

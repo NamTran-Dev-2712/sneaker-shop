@@ -1,9 +1,9 @@
-import { Layers, CheckCircle, Package } from "lucide-react";
+import { Package, CheckCircle, XCircle, Layers } from "lucide-react";
 import { StatisticCard } from "~/components/common/card/admin/statistic.card";
-import type { GetBrandResponse } from "~/services/shop/brand/dto/get-brand/get-brand.response";
+import type { BrandStatisticResponse } from "~/services/shop/brand/dto/statistic/brand-statistic.response";
 
 interface BrandQuickStatisticProps {
-  data: GetBrandResponse | null | undefined;
+  data: BrandStatisticResponse | null | undefined;
   isLoading: boolean;
 }
 
@@ -11,18 +11,12 @@ export const BrandQuickStatistic = ({
   data,
   isLoading,
 }: BrandQuickStatisticProps) => {
-  // Tính toán thống kê
-  const totalBrands = data?.totalItems || 0;
-  const activeBrands = data?.items?.filter((b) => b.isActive).length || 0;
-  const totalSeries =
-    data?.items?.reduce((sum, b) => sum + (b.seriesCount || 0), 0) || 0;
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatisticCard
         icon={Package}
         label="Tổng số hãng"
-        value={totalBrands}
+        value={data?.totalBrands || 0}
         iconColor="text-blue-600"
         iconBgColor="bg-blue-100 dark:bg-blue-900/30"
         isLoading={isLoading}
@@ -30,15 +24,23 @@ export const BrandQuickStatistic = ({
       <StatisticCard
         icon={CheckCircle}
         label="Đang hoạt động"
-        value={activeBrands}
+        value={data?.activeBrands || 0}
         iconColor="text-green-600"
         iconBgColor="bg-green-100 dark:bg-green-900/30"
         isLoading={isLoading}
       />
       <StatisticCard
+        icon={XCircle}
+        label="Tạm ngừng"
+        value={data?.inactiveBrands || 0}
+        iconColor="text-orange-600"
+        iconBgColor="bg-orange-100 dark:bg-orange-900/30"
+        isLoading={isLoading}
+      />
+      <StatisticCard
         icon={Layers}
         label="Tổng dòng sản phẩm"
-        value={totalSeries}
+        value={data?.totalBrandSeries || 0}
         iconColor="text-purple-600"
         iconBgColor="bg-purple-100 dark:bg-purple-900/30"
         isLoading={isLoading}

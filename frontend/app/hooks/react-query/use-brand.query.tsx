@@ -21,14 +21,47 @@ export const brandKeys = {
   list: (query: GetBrandRequest) => [...brandKeys.lists(), query] as const,
   details: () => [...brandKeys.all, "detail"] as const,
   detail: (id: number) => [...brandKeys.details(), id] as const,
+  statistics: () => [...brandKeys.all, "statistics"] as const,
 };
 
-// Hook lấy danh sách brands
+// Hook lấy danh sách brands có phân trang
 export const useBrandList = (query: GetBrandRequest) => {
   return useQuery({
     queryKey: brandKeys.list(query),
     queryFn: async () => {
       const response = await brandService.getBrand(query);
+      if (!response.success) {
+        const error = response as unknown as ApiResponseError;
+        throw new Error(getErrMessage(error));
+      }
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5, // 5 phút
+  });
+};
+
+// Hook lấy tất cả brands không phân trang (dùng cho select trong form)
+export const useAllBrands = () => {
+  return useQuery({
+    queryKey: brandKeys.all,
+    queryFn: async () => {
+      const response = await brandService.getAllBrands();
+      if (!response.success) {
+        const error = response as unknown as ApiResponseError;
+        throw new Error(getErrMessage(error));
+      }
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 10, // 10 phút - dữ liệu ít thay đổi
+  });
+};
+
+// Hook lấy thống kê brands
+export const useBrandStatistics = () => {
+  return useQuery({
+    queryKey: brandKeys.statistics(),
+    queryFn: async () => {
+      const response = await brandService.getBrandStatistics();
       if (!response.success) {
         const error = response as unknown as ApiResponseError;
         throw new Error(getErrMessage(error));

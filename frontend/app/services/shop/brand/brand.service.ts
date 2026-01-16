@@ -20,10 +20,12 @@ import type {
   UpdateBrandSeriesResponse,
 } from "./dto/update-brand/update-brand.response";
 import type {
+  GetBrandItem,
   GetBrandResponse,
   GetBrandResponseDetail,
 } from "./dto/get-brand/get-brand.response";
 import type { GetBrandRequest } from "./dto/get-brand/get-brand.request";
+import type { BrandStatisticResponse } from "./dto/statistic/brand-statistic.response";
 
 export const brandService = {
   createBrand: async (
@@ -165,6 +167,23 @@ export const brandService = {
     }
   },
 
+  getAllBrands: async (): Promise<ApiResponse<GetBrandItem[] | null>> => {
+    try {
+      const res =
+        await api.get<ApiResponse<GetBrandItem[] | null>>("/brands/all");
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
   getBrand: async (
     query: GetBrandRequest,
   ): Promise<ApiResponse<GetBrandResponse | null>> => {
@@ -200,6 +219,27 @@ export const brandService = {
     } catch (error) {
       const err = error as ApiResponseError;
 
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  getBrandStatistics: async (): Promise<
+    ApiResponse<BrandStatisticResponse | null>
+  > => {
+    try {
+      const res =
+        await api.get<ApiResponse<BrandStatisticResponse | null>>(
+          `/brands/statistics`,
+        );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
       return {
         success: false,
         statusCode: err.statusCode,

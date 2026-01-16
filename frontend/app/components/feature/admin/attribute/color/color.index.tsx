@@ -12,6 +12,7 @@ import {
   useCreateColor,
   useUpdateColor,
   useDeleteColor,
+  useColorStatistics,
 } from "~/hooks/react-query/use-color.query";
 import type { GetColorItem } from "~/services/attribute/color/dto/get-color/get-color.response";
 import type { GetColorRequest } from "~/services/attribute/color/dto/get-color/get-color.request";
@@ -36,6 +37,8 @@ export const ColorIndex = () => {
 
   // React Query hooks
   const { data, isLoading, error } = useColorList(query);
+  const { data: statisticsData, isLoading: statisticsLoading } =
+    useColorStatistics();
   const createMutation = useCreateColor();
   const updateMutation = useUpdateColor();
   const deleteMutation = useDeleteColor();
@@ -127,7 +130,10 @@ export const ColorIndex = () => {
       </div>
 
       {/* Quick Statistics */}
-      <ColorQuickStatistic data={data} isLoading={isLoading} />
+      <ColorQuickStatistic
+        data={statisticsData}
+        isLoading={statisticsLoading}
+      />
 
       {/* Filter */}
       <ColorFilter

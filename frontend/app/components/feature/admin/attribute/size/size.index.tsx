@@ -12,6 +12,7 @@ import {
   useCreateSize,
   useUpdateSize,
   useDeleteSize,
+  useSizeStatistics,
 } from "~/hooks/react-query/use-size.query";
 import type { GetSizeItem } from "~/services/attribute/size/dto/get-size/get-size.response";
 import type { GetSizeRequest } from "~/services/attribute/size/dto/get-size/get-size.request";
@@ -37,6 +38,8 @@ export const SizeIndex = () => {
 
   // React Query hooks
   const { data, isLoading, error } = useSizeList(query);
+  const { data: statisticsData, isLoading: statisticsLoading } =
+    useSizeStatistics();
   const createMutation = useCreateSize();
   const updateMutation = useUpdateSize();
   const deleteMutation = useDeleteSize();
@@ -133,7 +136,7 @@ export const SizeIndex = () => {
       </div>
 
       {/* Quick Statistics */}
-      <SizeQuickStatistic data={data} isLoading={isLoading} />
+      <SizeQuickStatistic data={statisticsData} isLoading={statisticsLoading} />
 
       {/* Filter */}
       <SizeFilter

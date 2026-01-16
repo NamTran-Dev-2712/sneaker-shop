@@ -7,7 +7,11 @@ import type { CreateColorRequest } from "./dto/create-color/create-color.request
 import type { CreateColorResponse } from "./dto/create-color/create-color.response";
 import type { UpdateColorRequest } from "./dto/update-color/update-color.request";
 import type { GetColorRequest } from "./dto/get-color/get-color.request";
-import type { GetColorResponse } from "./dto/get-color/get-color.response";
+import type {
+  GetColorItem,
+  GetColorResponse,
+} from "./dto/get-color/get-color.response";
+import type { ColorStatisticResponse } from "./dto/statistic/color-statistic.response";
 
 export const colorService = {
   createColor: async (
@@ -72,6 +76,23 @@ export const colorService = {
     }
   },
 
+  getAllColors: async (): Promise<ApiResponse<GetColorItem[] | null>> => {
+    try {
+      const res =
+        await api.get<ApiResponse<GetColorItem[] | null>>(`/colors/all`);
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
   getColors: async (
     query: GetColorRequest,
   ): Promise<ApiResponse<GetColorResponse | null>> => {
@@ -80,6 +101,28 @@ export const colorService = {
         `/colors`,
         { params: query },
       );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  getColorStatistics: async (): Promise<
+    ApiResponse<ColorStatisticResponse | null>
+  > => {
+    try {
+      const res =
+        await api.get<ApiResponse<ColorStatisticResponse | null>>(
+          `/colors/statistics`,
+        );
       return res.data;
     } catch (error) {
       const err = error as ApiResponseError;

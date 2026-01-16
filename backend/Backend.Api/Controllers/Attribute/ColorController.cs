@@ -20,6 +20,20 @@ public class ColorController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllColors()
+    {
+        var result = await _mediator.Send(new GetAllColorQuery());
+        return Ok(result);
+    }
+
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetColorStatistics()
+    {
+        var result = await _mediator.Send(new GetColorStatisticQuery());
+        return Ok(result);
+    }
+
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<IActionResult> CreateColor([FromBody] CreateColorCommand command)

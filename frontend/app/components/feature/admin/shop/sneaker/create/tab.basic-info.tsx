@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useBrandList } from "~/hooks/react-query/use-brand.query";
+import { useAllBrands } from "~/hooks/react-query/use-brand.query";
 import type { UseFormReturn } from "react-hook-form";
 import type { CreateSneakerFormData } from "~/lib/validation/admin/shop/sneaker.schema";
 import { useRef, useCallback } from "react";
@@ -44,19 +44,13 @@ export const TabBasicInfo = ({
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const subImagesInputRef = useRef<HTMLInputElement>(null);
 
-  // Lấy danh sách brands
-  const { data: brandsData, isLoading: brandsLoading } = useBrandList({
-    pageNumber: 1,
-    pageSize: 100,
-    isActive: true,
-  });
+  // Lấy danh sách brands (không phân trang)
+  const { data: brandsData, isLoading: brandsLoading } = useAllBrands();
 
   const selectedBrandId = watch("brandId");
 
   // Lấy series của brand được chọn
-  const selectedBrand = brandsData?.items?.find(
-    (b) => b.id === selectedBrandId,
-  );
+  const selectedBrand = brandsData?.find((b) => b.id === selectedBrandId);
   const brandSeries = selectedBrand?.series || [];
 
   // Handle main image change
@@ -142,7 +136,7 @@ export const TabBasicInfo = ({
             <SelectValue placeholder="Chọn hãng" />
           </SelectTrigger>
           <SelectContent>
-            {brandsData?.items?.map((brand) => (
+            {brandsData?.map((brand) => (
               <SelectItem key={brand.id} value={brand.id.toString()}>
                 {brand.name}
               </SelectItem>
