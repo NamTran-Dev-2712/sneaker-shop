@@ -46,8 +46,6 @@ api.interceptors.response.use(
 
     // Check if error is 401 (Unauthorized) and token might be expired
     if (error.response?.status === 401 && !originalRequest._retry) {
-      console.log("[api.client] Received 401, attempting token refresh...");
-
       // Prevent refresh token endpoint from triggering refresh
       if (originalRequest.url?.includes("/auth/refresh-token")) {
         const apiError: ApiResponseError = {
@@ -59,6 +57,31 @@ api.interceptors.response.use(
         };
         return Promise.reject(apiError);
       }
+
+      // Check if refreshToken cookie exists before attempting refresh
+      // If no cookie exists (user not logged in), don't attempt refresh for public APIs
+      const hasRefreshToken = document.cookie
+        .split("; ")
+        .some((cookie) => cookie.startsWith("refreshToken="));
+
+      if (!hasRefreshToken) {
+        // No refresh token cookie - user is not logged in
+        // Return original error for public APIs or proper auth error for protected APIs
+        const apiError: ApiResponseError = {
+          success: false,
+          statusCode: error.response?.status || 401,
+          message:
+            (error.response?.data as any)?.message ||
+            (error.response?.data as any)?.Message ||
+            error.message ||
+            "Unauthorized",
+          data: null,
+          errors: (error.response?.data as any)?.errors || null,
+        };
+        return Promise.reject(apiError);
+      }
+
+      console.log("[api.client] Received 401, attempting token refresh...");
 
       if (isRefreshing) {
         // If refresh is already in progress, queue this request

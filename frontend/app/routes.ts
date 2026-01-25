@@ -64,6 +64,65 @@ export default [
             "sneakers/:id/edit",
             "./routes/admin/shop/sneaker/sneaker.update.tsx",
           ),
+
+          // category accessory management routes
+          route(
+            "categories",
+            "./routes/admin/shop/category/category.management.tsx",
+          ),
+          route(
+            "categories/create",
+            "./routes/admin/shop/category/category.create.tsx",
+          ),
+          route(
+            "categories/:id/edit",
+            "./routes/admin/shop/category/category.update.tsx",
+          ),
+
+          // accessory management routes
+          route(
+            "accessories",
+            "./routes/admin/shop/accessory/accessory.management.tsx",
+          ),
+          route(
+            "accessories/create",
+            "./routes/admin/shop/accessory/accessory.create.tsx",
+          ),
+          route(
+            "accessories/:id",
+            "./routes/admin/shop/accessory/accessory.detail.tsx",
+          ),
+          route(
+            "accessories/:id/edit",
+            "./routes/admin/shop/accessory/accessory.update.tsx",
+          ),
+
+          // inventory management routes
+          route("inventory", "./routes/admin/inventory.tsx"),
+
+          // procurement management routes - vendors
+          route(
+            "vendors",
+            "./routes/admin/procurement/vendor/vendor.management.tsx",
+          ),
+          route(
+            "vendors/:id",
+            "./routes/admin/procurement/vendor/vendor.detail.tsx",
+          ),
+
+          // procurement management routes - purchase orders
+          route(
+            "purchase-orders",
+            "./routes/admin/procurement/purchase-order/purchase-order.management.tsx",
+          ),
+          route(
+            "purchase-orders/create",
+            "./routes/admin/procurement/purchase-order/purchase-order.create.tsx",
+          ),
+          route(
+            "purchase-orders/:id",
+            "./routes/admin/procurement/purchase-order/purchase-order.detail.tsx",
+          ),
         ]),
       ]),
     ]),

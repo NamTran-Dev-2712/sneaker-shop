@@ -18,6 +18,15 @@ public interface IUnitOfWork
     ISneakerVariantRepository SneakerVariants { get; }
     ISneakerSubImageRepository SneakerSubImages { get; }
     ISellableItemRepository SellableItems { get; }
+    ICategoryAccessoryRepository CategoryAccessories { get; }
+    IBrandCategoryAccessoryRepository BrandCategoryAccessories { get; }
+    IAccessoryRepository Accessories { get; }
+    IAccessoryImageRepository AccessoryImages { get; }
+    IVendorRepository Vendors { get; }
+    IVendorPriceRepository VendorPrices { get; }
+    IPurchaseOrderRepository PurchaseOrders { get; }
+    IPurchaseOrderItemRepository PurchaseOrderItems { get; }
+    IInventoryRepository Inventories { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

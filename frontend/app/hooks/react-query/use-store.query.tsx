@@ -13,6 +13,7 @@ export const storeKeys = {
   all: ["stores"] as const,
   lists: () => [...storeKeys.all, "list"] as const,
   list: (query: GetStoreRequest) => [...storeKeys.lists(), query] as const,
+  allList: () => [...storeKeys.all, "all-list"] as const,
   details: () => [...storeKeys.all, "detail"] as const,
   detail: (id: number) => [...storeKeys.details(), id] as const,
   statistics: () => [...storeKeys.all, "statistics"] as const,
@@ -31,6 +32,23 @@ export const useStoreList = (query: GetStoreRequest) => {
       return response.data;
     },
     staleTime: 1000 * 60 * 5, // 5 phút
+  });
+};
+
+// Hook lấy tất cả stores không phân trang (dùng cho select trong form/filter)
+export const useAllStores = () => {
+  return useQuery({
+    queryKey: storeKeys.allList(),
+    queryFn: async () => {
+      // Lấy tất cả stores với pageSize lớn
+      const response = await storeService.getStore({ pageSize: 100 });
+      if (!response.success) {
+        const error = response as unknown as ApiResponseError;
+        throw new Error(getErrMessage(error));
+      }
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 10, // 10 phút - dữ liệu ít thay đổi
   });
 };
 

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,8 +12,14 @@ public static class PresentationRegistration
         IConfiguration configuration
     )
     {
-        // 1. register controllers
-        services.AddControllers();
+        // 1. register controllers with JSON options
+        services
+            .AddControllers()
+            .AddJsonOptions(options =>
+            {
+                // Serialize enums as strings instead of numbers
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
         // 2. register swagger/openapi
         services.AddHealthChecks();

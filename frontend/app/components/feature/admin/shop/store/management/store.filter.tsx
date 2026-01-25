@@ -1,6 +1,6 @@
 import { Search, X, Filter, RotateCcw } from "lucide-react";
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { debounce } from "lodash-es";
+import debounce from "lodash/debounce";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {

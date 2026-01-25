@@ -109,10 +109,45 @@ apiServer.interceptors.response.use(
           storedCookie;
 
         if (!cookieHeader) {
+          // No cookie available - user is not logged in
+          // Don't attempt refresh, return original error instead of 'Session expired'
           console.warn(
-            "[api.server] ⚠️ No cookie available for refresh token request",
+            "[api.server] ⚠️ No cookie available, skipping refresh token attempt",
           );
-          throw new Error("No authentication cookie found");
+          const apiError: ApiResponseError = {
+            success: false,
+            statusCode: error.response?.status || 401,
+            message:
+              (error.response?.data as any)?.message ||
+              (error.response?.data as any)?.Message ||
+              error.message ||
+              "Unauthorized",
+            data: null,
+            errors: (error.response?.data as any)?.errors || null,
+          };
+          isRefreshing = false;
+          return Promise.reject(apiError);
+        }
+
+        // Check if cookie contains refreshToken
+        const hasRefreshToken = cookieHeader.includes("refreshToken=");
+        if (!hasRefreshToken) {
+          console.warn(
+            "[api.server] ⚠️ Cookie exists but no refreshToken found, skipping refresh",
+          );
+          const apiError: ApiResponseError = {
+            success: false,
+            statusCode: error.response?.status || 401,
+            message:
+              (error.response?.data as any)?.message ||
+              (error.response?.data as any)?.Message ||
+              error.message ||
+              "Unauthorized",
+            data: null,
+            errors: (error.response?.data as any)?.errors || null,
+          };
+          isRefreshing = false;
+          return Promise.reject(apiError);
         }
 
         console.log("[api.server] 🔄 Attempting to refresh token...", {

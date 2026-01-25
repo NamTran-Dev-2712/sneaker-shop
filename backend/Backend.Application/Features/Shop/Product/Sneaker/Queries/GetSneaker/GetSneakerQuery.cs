@@ -1,10 +1,7 @@
 using MediatR;
 
-public record GetSneakerQuery : IRequest<BaseGetResponse<GetSneakerResult>>
+public class GetSneakerQuery : BaseGetRequest, IRequest<BaseGetResponse<GetSneakerResult>>
 {
-    public int PageNumber { get; init; } = 1;
-    public int PageSize { get; init; } = 10;
-    public string? Search { get; init; }
     public int? BrandId { get; init; }
     public int? BrandSeriesId { get; init; }
     public bool? IsActive { get; init; }

@@ -11,6 +11,8 @@ import {
   ChevronDown,
   ChevronRight,
   Store,
+  Tag,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
@@ -106,7 +108,7 @@ const menuItems: MenuItem[] = [
   },
   {
     id: "products",
-    label: "Quản lý Giày",
+    label: "Quản lý Giày/ Dép",
     icon: <SneakerIcon className="h-5 w-5" />,
     children: [
       {
@@ -124,6 +126,69 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    id: "categories",
+    label: "Quản lý Loại phụ kiện",
+    icon: <Tag className="h-5 w-5" />,
+    children: [
+      {
+        id: "categories-list",
+        label: "Danh sách",
+        icon: <Tag className="h-4 w-4" />,
+        path: "/admin/categories",
+      },
+      {
+        id: "categories-create",
+        label: "Tạo mới",
+        icon: <Tag className="h-4 w-4" />,
+        path: "/admin/categories/create",
+      },
+    ],
+  },
+  {
+    id: "accessories",
+    label: "Quản lý Phụ kiện",
+    icon: <Sparkles className="h-5 w-5" />,
+    children: [
+      {
+        id: "accessories-list",
+        label: "Danh sách",
+        icon: <Sparkles className="h-4 w-4" />,
+        path: "/admin/accessories",
+      },
+      {
+        id: "accessories-create",
+        label: "Tạo mới",
+        icon: <Sparkles className="h-4 w-4" />,
+        path: "/admin/accessories/create",
+      },
+    ],
+  },
+  {
+    id: "inventory",
+    label: "Quản lý Kho",
+    icon: <Package className="h-5 w-5" />,
+    path: "/admin/inventory",
+  },
+  {
+    id: "procurement",
+    label: "Quản lý Nhập hàng",
+    icon: <Package className="h-5 w-5" />,
+    children: [
+      {
+        id: "vendors",
+        label: "Nhà cung cấp",
+        icon: <Store className="h-4 w-4" />,
+        path: "/admin/vendors",
+      },
+      {
+        id: "purchase-orders",
+        label: "Đơn nhập hàng",
+        icon: <ShoppingBag className="h-4 w-4" />,
+        path: "/admin/purchase-orders",
+      },
+    ],
+  },
+  {
     id: "settings",
     label: "Cài đặt",
     icon: <Settings className="h-5 w-5" />,
@@ -135,9 +200,11 @@ const AdminSidebar = () => {
   const location = useLocation();
   const { sidebarCollapsed } = useAdminLayout();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([
-    "employees",
-    "customers",
-    "products",
+    // "employees",
+    // "customers",
+    // "products",
+    // "categories",
+    // "accessories",
   ]);
 
   const toggleMenu = (menuId: string) => {

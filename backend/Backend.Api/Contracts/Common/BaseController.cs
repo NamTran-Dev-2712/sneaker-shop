@@ -57,4 +57,19 @@ public abstract class BaseController : ControllerBase
         var response = ApiResponse<object>.Fail(403, message);
         return StatusCode(403, response);
     }
+
+    // Success - 201 Created
+    [NonAction]
+    protected CreatedAtActionResult CreatedSuccess(
+        string? actionName,
+        object? routeValues,
+        object? value
+    )
+    {
+        return CreatedAtAction(
+            actionName,
+            routeValues,
+            ApiResponse<object>.Ok(value!, "Tạo thành công")
+        );
+    }
 }

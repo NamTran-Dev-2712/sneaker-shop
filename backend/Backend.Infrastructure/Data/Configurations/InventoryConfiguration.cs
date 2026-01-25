@@ -19,7 +19,14 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
         builder.Property(i => i.Reserved).IsRequired().HasDefaultValue(0);
 
         // Concurrency control for PostgreSQL
-        builder.Property(i => i.RowVersion).IsRowVersion().HasColumnType("bytea");
+        // Note: Must NOT use IsRowVersion() for PostgreSQL as it treats it as database-generated
+        // We need to explicitly set the value in application code
+        builder
+            .Property(i => i.RowVersion)
+            .IsRequired()
+            .HasColumnType("bytea")
+            .IsConcurrencyToken()
+            .ValueGeneratedNever(); // Critical: tells EF Core we set the value manually
 
         builder.Property(i => i.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

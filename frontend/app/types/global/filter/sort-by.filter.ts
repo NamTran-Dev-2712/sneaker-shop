@@ -16,3 +16,10 @@ export enum SortSizeBy {
   VALUE = "value",
   CREATED_AT = "createdAt",
 }
+
+export enum SortSellableItemBy {
+  SKU = "sku",
+  PRICE = "price",
+  EFFECTIVE_FROM = "effectiveFrom",
+  PRODUCT_NAME = "productName",
+}

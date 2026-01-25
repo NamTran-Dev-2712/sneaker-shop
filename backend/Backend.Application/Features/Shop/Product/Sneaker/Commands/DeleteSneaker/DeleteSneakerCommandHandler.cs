@@ -27,15 +27,39 @@ public class DeleteSneakerCommandHandler
             throw new NotFoundException("Không tìm thấy sản phẩm.");
         }
 
-        // 2. Soft delete sneaker (use domain method)
+        // 2. Check if any variant has inventory (OnHand > 0)
+        var sellableItemIds = sneaker
+            .Colorways.SelectMany(c => c.Variants)
+            .Where(v => v.SellableItem != null)
+            .Select(v => v.SellableItem!.Id)
+            .ToList();
+
+        if (sellableItemIds.Any())
+        {
+            var hasInventory = await _unitOfWork
+                .Inventories.Query()
+                .AnyAsync(
+                    inv => sellableItemIds.Contains(inv.SellableItemId) && inv.OnHand > 0,
+                    cancellationToken
+                );
+
+            if (hasInventory)
+            {
+                throw new BadException(
+                    "Không thể xóa sản phẩm vì vẫn còn tồn kho. Vui lòng xử lý hết hàng tồn kho trước."
+                );
+            }
+        }
+
+        // 3. Soft delete sneaker (use domain method)
         sneaker.SoftDelete();
 
-        // 3. Deactivate all colorways
+        // 4. Deactivate all colorways
         foreach (var colorway in sneaker.Colorways)
         {
             colorway.Deactivate();
 
-            // 4. Deactivate all sellable items for variants
+            // 5. Deactivate all sellable items for variants
             foreach (var variant in colorway.Variants)
             {
                 if (variant.SellableItem != null)
@@ -45,7 +69,7 @@ public class DeleteSneakerCommandHandler
             }
         }
 
-        // 5. Save changes
+        // 6. Save changes
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new DeleteSneakerResult { Success = true, Message = "Xóa sản phẩm thành công." };

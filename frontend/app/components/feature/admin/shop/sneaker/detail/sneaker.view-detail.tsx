@@ -10,6 +10,7 @@ import {
   Images,
   ChevronLeft,
   ChevronRight,
+  Warehouse,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -305,6 +306,7 @@ export const SneakerViewDetail = () => {
                           <th className="text-left p-3">SKU</th>
                           <th className="text-right p-3">Giá bán lẻ</th>
                           <th className="text-right p-3">Giá online</th>
+                          <th className="text-center p-3">Tồn kho</th>
                           <th className="text-center p-3">Trạng thái</th>
                         </tr>
                       </thead>
@@ -324,6 +326,27 @@ export const SneakerViewDetail = () => {
                             </td>
                             <td className="p-3 text-right">
                               {formatPrice(variant.onlinePrice)}
+                            </td>
+                            <td className="p-3 text-center">
+                              {variant.inventory ? (
+                                <div className="flex flex-col items-center gap-1">
+                                  <Badge
+                                    variant={
+                                      variant.inventory.available > 0
+                                        ? "success"
+                                        : "destructive"
+                                    }
+                                  >
+                                    {variant.inventory.available}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    ({variant.inventory.onHand} -{" "}
+                                    {variant.inventory.reserved})
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">—</span>
+                              )}
                             </td>
                             <td className="p-3 text-center">
                               {variant.isActive ? (
@@ -398,6 +421,38 @@ export const SneakerViewDetail = () => {
                     ).size
                   }
                 </span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Warehouse className="h-4 w-4" />
+                  <span>Tổng tồn kho</span>
+                </div>
+                <Badge
+                  variant={
+                    sneaker.colorways?.reduce(
+                      (sum, cw) =>
+                        sum +
+                        (cw.variants?.reduce(
+                          (vSum, v) => vSum + (v.inventory?.available || 0),
+                          0,
+                        ) || 0),
+                      0,
+                    ) || 0 > 0
+                      ? "success"
+                      : "secondary"
+                  }
+                >
+                  {sneaker.colorways?.reduce(
+                    (sum, cw) =>
+                      sum +
+                      (cw.variants?.reduce(
+                        (vSum, v) => vSum + (v.inventory?.available || 0),
+                        0,
+                      ) || 0),
+                    0,
+                  ) || 0}
+                </Badge>
               </div>
             </CardContent>
           </Card>

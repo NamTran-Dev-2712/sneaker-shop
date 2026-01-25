@@ -1,5 +1,6 @@
 import { Search, X, Filter, RotateCcw } from "lucide-react";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import debounce from "lodash/debounce";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import {
@@ -49,15 +50,29 @@ export const SneakerFilter = ({
   // Lấy danh sách brands
   const { data: brandsData } = useBrandList({ pageNumber: 1, pageSize: 100 });
 
-  // Debounce search - 500ms
+  // Debounce search with lodash
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        onSearchChange(value);
+      }, 500),
+    [onSearchChange],
+  );
+
+  // Cleanup debounce on unmount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localSearch !== search) {
-        onSearchChange(localSearch);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [localSearch, search, onSearchChange]);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setLocalSearch(value);
+      debouncedSearch(value);
+    },
+    [debouncedSearch],
+  );
 
   // Sync local search with props
   useEffect(() => {
@@ -85,7 +100,7 @@ export const SneakerFilter = ({
           <Input
             placeholder="Tìm kiếm theo tên sản phẩm..."
             value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10 pr-10"
           />
           {localSearch && (

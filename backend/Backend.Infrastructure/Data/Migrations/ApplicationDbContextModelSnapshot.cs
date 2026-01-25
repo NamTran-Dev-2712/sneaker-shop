@@ -72,6 +72,10 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
 
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text")
+                        .HasColumnName("public_id");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -131,6 +135,10 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("image_url");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text")
+                        .HasColumnName("public_id");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -363,11 +371,19 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text")
+                        .HasColumnName("public_id");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -566,6 +582,10 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -781,7 +801,6 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("bytea")
                         .HasColumnName("row_version");
 
@@ -2217,6 +2236,12 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
 
                     b.Property<string>("Name")
                         .IsRequired()

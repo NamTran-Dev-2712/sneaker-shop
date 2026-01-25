@@ -82,10 +82,19 @@ export interface GetSneakerDetailVariantDto {
   retailPrice?: number;
   onlinePrice?: number;
   isActive: boolean;
+  sellableItemId?: number;
+  inventory?: GetSneakerDetailInventoryDto;
 }
 
 export interface GetSneakerDetailSizeDto {
   id: number;
   system: string;
   value: number;
+}
+
+export interface GetSneakerDetailInventoryDto {
+  onHand: number;
+  reserved: number;
+  available: number;
+  storeName: string;
 }

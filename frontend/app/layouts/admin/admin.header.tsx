@@ -17,6 +17,8 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
+import { logout } from "~/store/auth/auth.slice";
+import { authSerivce } from "~/services/auth/auth.service";
 
 const AdminHeader = () => {
   const dispatch = useAppDispatch();
@@ -34,6 +36,11 @@ const AdminHeader = () => {
     } else {
       document.documentElement.classList.remove("dark");
     }
+  };
+
+  const handleLogout = async () => {
+    dispatch(logout());
+    await authSerivce.logout();
   };
 
   return (
@@ -132,7 +139,10 @@ const AdminHeader = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+              <DropdownMenuItem
+                className="cursor-pointer text-destructive focus:text-destructive"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Đăng xuất
               </DropdownMenuItem>

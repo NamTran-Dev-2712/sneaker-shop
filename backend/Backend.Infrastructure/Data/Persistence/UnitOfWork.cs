@@ -21,6 +21,15 @@ public class UnitOfWork : IUnitOfWork
     private ISneakerVariantRepository? _sneakerVariantRepository;
     private ISneakerSubImageRepository? _sneakerSubImageRepository;
     private ISellableItemRepository? _sellableItemRepository;
+    private ICategoryAccessoryRepository? _categoryAccessoryRepository;
+    private IBrandCategoryAccessoryRepository? _brandCategoryAccessoryRepository;
+    private IAccessoryRepository? _accessoryRepository;
+    private IAccessoryImageRepository? _accessoryImageRepository;
+    private IVendorRepository? _vendorRepository;
+    private IVendorPriceRepository? _vendorPriceRepository;
+    private IPurchaseOrderRepository? _purchaseOrderRepository;
+    private IPurchaseOrderItemRepository? _purchaseOrderItemRepository;
+    private IInventoryRepository? _inventoryRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -50,6 +59,23 @@ public class UnitOfWork : IUnitOfWork
         _sneakerSubImageRepository ??= new SneakerSubImageRepository(_context);
     public ISellableItemRepository SellableItems =>
         _sellableItemRepository ??= new SellableItemRepository(_context);
+    public ICategoryAccessoryRepository CategoryAccessories =>
+        _categoryAccessoryRepository ??= new CategoryAccessoryRepository(_context);
+    public IBrandCategoryAccessoryRepository BrandCategoryAccessories =>
+        _brandCategoryAccessoryRepository ??= new BrandCategoryAccessoryRepository(_context);
+    public IAccessoryRepository Accessories =>
+        _accessoryRepository ??= new AccessoryRepository(_context);
+    public IAccessoryImageRepository AccessoryImages =>
+        _accessoryImageRepository ??= new AccessoryImageRepository(_context);
+    public IVendorRepository Vendors => _vendorRepository ??= new VendorRepository(_context);
+    public IVendorPriceRepository VendorPrices =>
+        _vendorPriceRepository ??= new VendorPriceRepository(_context);
+    public IPurchaseOrderRepository PurchaseOrders =>
+        _purchaseOrderRepository ??= new PurchaseOrderRepository(_context);
+    public IPurchaseOrderItemRepository PurchaseOrderItems =>
+        _purchaseOrderItemRepository ??= new PurchaseOrderItemRepository(_context);
+    public IInventoryRepository Inventories =>
+        _inventoryRepository ??= new InventoryRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

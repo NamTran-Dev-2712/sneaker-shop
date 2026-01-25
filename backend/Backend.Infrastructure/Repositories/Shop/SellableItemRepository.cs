@@ -33,9 +33,54 @@ public class SellableItemRepository : GenericRepository<SellableItem>, ISellable
         return sku;
     }
 
+    public async Task<string> GenerateAccessorySkuAsync(string categoryCode, string brandCode)
+    {
+        // Format: ACC-{CategoryCode}-{BrandCode}-{Sequence}
+        var category = NormalizeCode(categoryCode, 5);
+        var brand = NormalizeCode(brandCode, 5);
+
+        var baseSku = $"ACC-{category}-{brand}".ToUpper();
+
+        // Find next available sequence number
+        var existingSkus = await _dbSet
+            .AsNoTracking()
+            .Where(si => si.Sku.StartsWith(baseSku))
+            .Select(si => si.Sku)
+            .ToListAsync();
+
+        if (existingSkus.Count == 0)
+        {
+            return $"{baseSku}-001";
+        }
+
+        // Extract sequence numbers and find max
+        var maxSequence = existingSkus
+            .Select(sku =>
+            {
+                var parts = sku.Split('-');
+                if (parts.Length > 0 && int.TryParse(parts[^1], out var seq))
+                    return seq;
+                return 0;
+            })
+            .Max();
+
+        return $"{baseSku}-{(maxSequence + 1):D3}";
+    }
+
     public async Task<bool> ExistsBySkuAsync(string sku)
     {
-        return await _dbSet.AnyAsync(si => si.Sku == sku);
+        return await _dbSet.AsNoTracking().AnyAsync(si => si.Sku == sku);
+    }
+
+    public async Task<SellableItem?> GetByAccessoryIdAsync(
+        int accessoryId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await _dbSet.FirstOrDefaultAsync(
+            si => si.AccessoryId == accessoryId && si.Type == SellableType.ACCESSORY,
+            cancellationToken
+        );
     }
 
     private static string NormalizeCode(string input, int maxLength)
