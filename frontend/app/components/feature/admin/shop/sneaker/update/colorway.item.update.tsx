@@ -36,6 +36,10 @@ interface ColorwayItemUpdateProps {
   onRemove: () => void;
   canRemove: boolean;
   existingCoverImageUrl?: string;
+  onVariantRemove?: (
+    colorwayId: number | undefined,
+    variantId: number | undefined,
+  ) => void;
 }
 
 export const ColorwayItemUpdate = ({
@@ -44,6 +48,7 @@ export const ColorwayItemUpdate = ({
   onRemove,
   canRemove,
   existingCoverImageUrl,
+  onVariantRemove,
 }: ColorwayItemUpdateProps) => {
   const {
     setValue,
@@ -131,6 +136,22 @@ export const ColorwayItemUpdate = ({
       onlinePrice: lastVariant?.onlinePrice ?? undefined,
     });
   }, [variantsArray, watch, index]);
+
+  // Remove variant and notify parent if it's an existing variant
+  const handleRemoveVariant = useCallback(
+    (variantIndex: number) => {
+      const variantId = watch(`colorways.${index}.variants.${variantIndex}.id`);
+      const colorwayId = watch(`colorways.${index}.id`);
+
+      // Notify parent about the removal of existing variant
+      if (variantId && colorwayId && onVariantRemove) {
+        onVariantRemove(colorwayId, variantId);
+      }
+
+      variantsArray.remove(variantIndex);
+    },
+    [variantsArray, watch, index, onVariantRemove],
+  );
 
   return (
     <Card>
@@ -335,16 +356,23 @@ export const ColorwayItemUpdate = ({
                 )}
 
               <div className="space-y-3">
-                {variantsArray.fields.map((field, variantIndex) => (
-                  <VariantItem
-                    key={field.id}
-                    form={form}
-                    colorwayIndex={index}
-                    variantIndex={variantIndex}
-                    onRemove={() => variantsArray.remove(variantIndex)}
-                    canRemove={variantsArray.fields.length > 1}
-                  />
-                ))}
+                {variantsArray.fields.map((field, variantIndex) => {
+                  // Get variant id from form data to check if it's existing
+                  const variantId = watch(
+                    `colorways.${index}.variants.${variantIndex}.id`,
+                  );
+                  return (
+                    <VariantItem
+                      key={field.id}
+                      form={form}
+                      colorwayIndex={index}
+                      variantIndex={variantIndex}
+                      onRemove={() => handleRemoveVariant(variantIndex)}
+                      canRemove={variantsArray.fields.length > 1}
+                      existingVariantId={variantId}
+                    />
+                  );
+                })}
               </div>
             </div>
           </CardContent>

@@ -16,6 +16,9 @@ public record UpdateSneakerCommand : IRequest<UpdateSneakerResult>
     public List<IFormFile>? NewSubImages { get; init; } // Add new sub-images
     public List<int>? RemoveSubImageIds { get; init; } // Remove existing sub-images by ID
 
+    // Colorway management
+    public List<int>? RemoveColorwayIds { get; init; } // Remove existing colorways by ID
+
     // Optional: Colorway changes (add new or update existing)
     public List<UpdateColorwayInput>? Colorways { get; init; }
 }
@@ -29,6 +32,7 @@ public record UpdateColorwayInput
 
     public bool? IsActive { get; init; }
     public List<UpdateVariantInput>? Variants { get; init; }
+    public List<int>? RemoveVariantIds { get; init; } // Remove existing variants by ID
 }
 
 public record UpdateVariantInput

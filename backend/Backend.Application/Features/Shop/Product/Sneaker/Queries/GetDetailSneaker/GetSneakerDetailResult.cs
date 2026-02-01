@@ -7,6 +7,8 @@ public record GetSneakerDetailResult
     public required string MainImage { get; init; }
     public required List<SneakerDetailSubImageDto> SubImages { get; init; }
     public decimal? BasePrice { get; init; }
+    public int Selled { get; init; }
+    public int ViewCount { get; init; }
     public required bool IsActive { get; init; }
     public required DateTime CreatedAt { get; init; }
     public required DateTime UpdatedAt { get; init; }

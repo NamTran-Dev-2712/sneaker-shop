@@ -23,13 +23,15 @@ import { Badge } from "~/components/ui/badge";
 import useAuth from "~/store/auth/auth.hook";
 import { useAppDispatch } from "~/hooks/redux";
 import { logout } from "~/store/auth/auth.slice";
+import { authSerivce } from "~/services/auth/auth.service";
 
 const UserMenu = () => {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     dispatch(logout());
+    await authSerivce.logout();
   };
 
   // Lấy initials từ tên người dùng

@@ -34,6 +34,8 @@ export interface GetSneakerDetailResponse {
   mainImage: string;
   subImages: GetSneakerDetailSubImageDto[];
   basePrice?: number;
+  selled: number;
+  viewCount: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

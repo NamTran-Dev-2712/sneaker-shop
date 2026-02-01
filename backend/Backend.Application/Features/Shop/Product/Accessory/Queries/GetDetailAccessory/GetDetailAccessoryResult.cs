@@ -6,6 +6,8 @@ public record GetDetailAccessoryResult
     public required string MainImage { get; init; }
     public string? Description { get; init; }
     public decimal? BasePrice { get; init; }
+    public int Selled { get; init; }
+    public int ViewCount { get; init; }
     public required DateTime CreatedAt { get; init; }
     public required DateTime UpdatedAt { get; init; }
     public required AccessoryDetailCategoryDto Category { get; init; }

@@ -10,8 +10,10 @@ public record UpdateSneakerResult
 
     // Summary of changes made
     public int ColorwaysAdded { get; init; }
+    public int ColorwaysRemoved { get; init; }
     public int VariantsAdded { get; init; }
     public int VariantsUpdated { get; init; }
+    public int VariantsRemoved { get; init; }
     public int SubImagesAdded { get; init; }
     public int SubImagesRemoved { get; init; }
 }

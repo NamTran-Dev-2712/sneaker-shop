@@ -25,6 +25,10 @@ public class AccessoryConfiguration : IEntityTypeConfiguration<Accessory>
         builder.Property(a => a.BasePrice).HasPrecision(18, 2);
 
         builder.Property(a => a.IsDeleted).IsRequired().HasDefaultValue(false);
+        builder.Property(a => a.Selled).IsRequired().HasDefaultValue(0);
+        builder.Property(a => a.ViewCount).IsRequired().HasDefaultValue(0);
+        builder.Property(a => a.RatingCount).IsRequired().HasDefaultValue(0);
+        builder.Property(a => a.AverageRating).IsRequired().HasDefaultValue(0);
 
         builder.Property(a => a.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

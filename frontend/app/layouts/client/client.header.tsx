@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Menu } from "lucide-react";
+import { Menu, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import {
   NavigationMenu,
@@ -16,54 +16,16 @@ import useAuth from "~/store/auth/auth.hook";
 import UserMenu from "~/components/common/layout/user-menu";
 import CartButton from "~/components/common/layout/cart-button";
 import SearchButton from "~/components/common/layout/search-button";
+import { useAllBrands } from "~/hooks/react-query/use-brand.query";
+import { useCategoryAll } from "~/hooks/react-query/use-category.query";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isLogin } = useAuth();
 
-  // Dữ liệu menu giày
-  const shoeBrands = [
-    {
-      name: "Nike",
-      series: ["Air Max", "Air Jordan", "Air Force 1", "Dunk", "Blazer"],
-    },
-    {
-      name: "Adidas",
-      series: ["Ultraboost", "NMD", "Yeezy", "Stan Smith", "Superstar"],
-    },
-    {
-      name: "Converse",
-      series: ["Chuck Taylor", "One Star", "Jack Purcell", "Pro Leather"],
-    },
-    {
-      name: "Vans",
-      series: ["Old Skool", "Authentic", "Sk8-Hi", "Era", "Slip-On"],
-    },
-    {
-      name: "New Balance",
-      series: ["550", "574", "990", "327", "2002R"],
-    },
-  ];
-
-  // Dữ liệu menu phụ kiện
-  const accessories = [
-    {
-      category: "Dây giày",
-      brands: ["Nike", "Adidas", "Generic"],
-    },
-    {
-      category: "Vớ/Tất",
-      brands: ["Nike", "Adidas", "Puma", "Uniqlo"],
-    },
-    {
-      category: "Vệ sinh giày",
-      brands: ["Crep Protect", "Jason Markk", "Reshoevn8r"],
-    },
-    {
-      category: "Phụ kiện bảo quản",
-      brands: ["Sneaker Shield", "Force Fields", "Shoe Trees"],
-    },
-  ];
+  // Fetch brands and categories from API
+  const { data: brands } = useAllBrands();
+  const { data: categories } = useCategoryAll();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/80">
@@ -96,26 +58,34 @@ const Header = () => {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Giày</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid w-200 gap-3 p-6 md:grid-cols-5">
-                      {shoeBrands.map((brand) => (
-                        <div key={brand.name} className="space-y-2">
-                          <h4 className="font-semibold text-primary">
+                    <div className="w-[400px] p-4">
+                      <div className="mb-4">
+                        <Link
+                          to="/sneakers"
+                          className="flex items-center justify-between p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors"
+                        >
+                          <div>
+                            <span className="font-semibold text-primary">
+                              Xem tất cả giày
+                            </span>
+                            <p className="text-sm text-muted-foreground">
+                              Khám phá bộ sưu tập sneaker
+                            </p>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-primary" />
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {brands?.slice(0, 8).map((brand) => (
+                          <Link
+                            key={brand.id}
+                            to={`/sneakers?brandId=${brand.id}`}
+                            className="block rounded-md p-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          >
                             {brand.name}
-                          </h4>
-                          <ul className="space-y-1">
-                            {brand.series.map((series) => (
-                              <li key={series}>
-                                <Link
-                                  to={`/shoes/${brand.name.toLowerCase()}/${series.toLowerCase().replace(/\s+/g, "-")}`}
-                                  className="block select-none rounded-md p-2 text-sm leading-none text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                                >
-                                  {series}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -124,26 +94,34 @@ const Header = () => {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Phụ kiện</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid w-150 gap-3 p-6 md:grid-cols-4">
-                      {accessories.map((accessory) => (
-                        <div key={accessory.category} className="space-y-2">
-                          <h4 className="font-semibold text-primary">
-                            {accessory.category}
-                          </h4>
-                          <ul className="space-y-1">
-                            {accessory.brands.map((brand) => (
-                              <li key={brand}>
-                                <Link
-                                  to={`/accessories/${accessory.category.toLowerCase().replace(/\s+/g, "-")}/${brand.toLowerCase()}`}
-                                  className="block select-none rounded-md p-2 text-sm leading-none text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                                >
-                                  {brand}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
+                    <div className="w-[400px] p-4">
+                      <div className="mb-4">
+                        <Link
+                          to="/accessories"
+                          className="flex items-center justify-between p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors"
+                        >
+                          <div>
+                            <span className="font-semibold text-primary">
+                              Xem tất cả phụ kiện
+                            </span>
+                            <p className="text-sm text-muted-foreground">
+                              Phụ kiện chăm sóc giày
+                            </p>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-primary" />
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {categories?.slice(0, 8).map((category) => (
+                          <Link
+                            key={category.id}
+                            to={`/accessories?categoryId=${category.id}`}
+                            className="block rounded-md p-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          >
+                            {category.name}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -262,53 +240,51 @@ const Header = () => {
 
                   {/* Giày Mobile */}
                   <div>
-                    <h3 className="mb-2 text-lg font-semibold">Giày</h3>
-                    {shoeBrands.map((brand) => (
-                      <details key={brand.name} className="mb-2">
-                        <summary className="cursor-pointer font-medium text-primary">
+                    <Link
+                      to="/sneakers"
+                      className="flex items-center justify-between mb-2 text-lg font-semibold"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Giày
+                      <ChevronRight className="h-5 w-5" />
+                    </Link>
+                    <div className="ml-2 space-y-1">
+                      {brands?.slice(0, 6).map((brand) => (
+                        <Link
+                          key={brand.id}
+                          to={`/sneakers?brandId=${brand.id}`}
+                          className="block py-1 text-sm text-muted-foreground hover:text-foreground"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
                           {brand.name}
-                        </summary>
-                        <ul className="ml-4 mt-2 space-y-1">
-                          {brand.series.map((series) => (
-                            <li key={series}>
-                              <Link
-                                to={`/shoes/${brand.name.toLowerCase()}/${series.toLowerCase().replace(/\s+/g, "-")}`}
-                                className="block py-1 text-sm text-muted-foreground hover:text-foreground"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                              >
-                                {series}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </details>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                   <Separator />
 
                   {/* Phụ kiện Mobile */}
                   <div>
-                    <h3 className="mb-2 text-lg font-semibold">Phụ kiện</h3>
-                    {accessories.map((accessory) => (
-                      <details key={accessory.category} className="mb-2">
-                        <summary className="cursor-pointer font-medium text-primary">
-                          {accessory.category}
-                        </summary>
-                        <ul className="ml-4 mt-2 space-y-1">
-                          {accessory.brands.map((brand) => (
-                            <li key={brand}>
-                              <Link
-                                to={`/accessories/${accessory.category.toLowerCase().replace(/\s+/g, "-")}/${brand.toLowerCase()}`}
-                                className="block py-1 text-sm text-muted-foreground hover:text-foreground"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                              >
-                                {brand}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </details>
-                    ))}
+                    <Link
+                      to="/accessories"
+                      className="flex items-center justify-between mb-2 text-lg font-semibold"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Phụ kiện
+                      <ChevronRight className="h-5 w-5" />
+                    </Link>
+                    <div className="ml-2 space-y-1">
+                      {categories?.slice(0, 6).map((category) => (
+                        <Link
+                          key={category.id}
+                          to={`/accessories?categoryId=${category.id}`}
+                          className="block py-1 text-sm text-muted-foreground hover:text-foreground"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                   <Separator />
 

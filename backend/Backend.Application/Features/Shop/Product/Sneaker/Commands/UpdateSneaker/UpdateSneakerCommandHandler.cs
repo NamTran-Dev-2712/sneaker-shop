@@ -39,7 +39,8 @@ public class UpdateSneakerCommandHandler
         bool hasNestedChanges =
             (command.Colorways != null && command.Colorways.Count > 0)
             || (command.NewSubImages != null && command.NewSubImages.Count > 0)
-            || (command.RemoveSubImageIds != null && command.RemoveSubImageIds.Count > 0);
+            || (command.RemoveSubImageIds != null && command.RemoveSubImageIds.Count > 0)
+            || (command.RemoveColorwayIds != null && command.RemoveColorwayIds.Count > 0);
 
         if (hasNestedChanges)
         {
@@ -154,7 +155,45 @@ public class UpdateSneakerCommandHandler
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        // ============== PHASE 3: Process colorways ==============
+        // ============== PHASE 3: Remove colorways ==============
+        int colorwaysRemoved = 0;
+
+        if (command.RemoveColorwayIds != null && command.RemoveColorwayIds.Count > 0)
+        {
+            foreach (var colorwayId in command.RemoveColorwayIds)
+            {
+                var colorway = sneaker.Colorways.FirstOrDefault(c => c.Id == colorwayId);
+                if (colorway != null)
+                {
+                    // Delete colorway cover image from cloudinary if exists
+                    if (!string.IsNullOrEmpty(colorway.PublicId))
+                    {
+                        await _imageService.DeleteImageAsync(colorway.PublicId);
+                    }
+
+                    // Get all variants for this colorway
+                    var variants = colorway.Variants.ToList();
+
+                    foreach (var variant in variants)
+                    {
+                        // Delete SellableItem and related data
+                        if (variant.SellableItem != null)
+                        {
+                            _unitOfWork.SellableItems.Remove(variant.SellableItem);
+                        }
+                        _unitOfWork.SneakerVariants.Remove(variant);
+                    }
+
+                    // Remove colorway
+                    _unitOfWork.SneakerColorways.Remove(colorway);
+                    colorwaysRemoved++;
+                }
+            }
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        // ============== PHASE 4: Process colorways ==============
+        int variantsRemoved = 0;
 
         if (command.Colorways != null && command.Colorways.Count > 0)
         {
@@ -171,6 +210,31 @@ public class UpdateSneakerCommandHandler
                     );
                     if (existingColorway != null)
                     {
+                        // Remove variants if requested
+                        if (
+                            colorwayInput.RemoveVariantIds != null
+                            && colorwayInput.RemoveVariantIds.Count > 0
+                        )
+                        {
+                            foreach (var variantId in colorwayInput.RemoveVariantIds)
+                            {
+                                var variant = existingColorway.Variants.FirstOrDefault(v =>
+                                    v.Id == variantId
+                                );
+                                if (variant != null)
+                                {
+                                    // Delete SellableItem first (due to FK constraint)
+                                    if (variant.SellableItem != null)
+                                    {
+                                        _unitOfWork.SellableItems.Remove(variant.SellableItem);
+                                    }
+                                    _unitOfWork.SneakerVariants.Remove(variant);
+                                    variantsRemoved++;
+                                }
+                            }
+                            await _unitOfWork.SaveChangesAsync(cancellationToken);
+                        }
+
                         // Update cover image if provided
                         if (colorwayInput.CoverImage != null)
                         {
@@ -236,8 +300,10 @@ public class UpdateSneakerCommandHandler
             IsActive = sneaker.IsActive,
             UpdatedAt = sneaker.UpdatedAt,
             ColorwaysAdded = colorwaysAdded,
+            ColorwaysRemoved = colorwaysRemoved,
             VariantsAdded = variantsAdded,
             VariantsUpdated = variantsUpdated,
+            VariantsRemoved = variantsRemoved,
             SubImagesAdded = subImagesAdded,
             SubImagesRemoved = subImagesRemoved,
         };

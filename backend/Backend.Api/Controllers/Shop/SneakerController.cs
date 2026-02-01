@@ -35,6 +35,29 @@ public class SneakerController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("slug/{slug}")]
+    public async Task<IActionResult> GetSneakerBySlug(string slug)
+    {
+        var query = new GetSneakerBySlugQuery { Slug = slug };
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpGet("featured")]
+    public async Task<IActionResult> GetFeaturedSneakers([FromQuery] GetFeaturedSneakerQuery query)
+    {
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpPost("{id:int}/view")]
+    public async Task<IActionResult> IncrementViewCount(int id)
+    {
+        var command = new IncrementSneakerViewCountCommand(id);
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
     [Consumes("multipart/form-data")]

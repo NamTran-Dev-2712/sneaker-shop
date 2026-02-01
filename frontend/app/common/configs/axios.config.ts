@@ -16,6 +16,26 @@ const api: AxiosInstance = axios.create({
   },
   timeout: 20000,
   withCredentials: true,
+  // Serialize array params correctly for ASP.NET Core
+  // colorIds: [1, 2, 3] -> colorIds=1&colorIds=2&colorIds=3
+  paramsSerializer: {
+    serialize: (params) => {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null) return;
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            if (item !== undefined && item !== null) {
+              searchParams.append(key, String(item));
+            }
+          });
+        } else {
+          searchParams.append(key, String(value));
+        }
+      });
+      return searchParams.toString();
+    },
+  },
 });
 
 let isRefreshing = false;

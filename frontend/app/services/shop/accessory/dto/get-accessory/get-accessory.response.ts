@@ -34,6 +34,8 @@ export interface GetAccessoryDetailResponse {
   mainImage: string;
   description?: string;
   basePrice?: number;
+  selled: number;
+  viewCount: number;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   category: AccessoryListCategoryDto;

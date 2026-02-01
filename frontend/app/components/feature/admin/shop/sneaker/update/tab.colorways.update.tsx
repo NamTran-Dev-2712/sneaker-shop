@@ -10,12 +10,19 @@ interface TabColorwaysUpdateProps {
   form: UseFormReturn<CreateSneakerFormData>;
   colorwaysArray: UseFieldArrayReturn<CreateSneakerFormData, "colorways">;
   existingColorways?: Array<{ coverImage?: string }>;
+  onColorwayRemove?: (colorwayId: number | undefined) => void;
+  onVariantRemove?: (
+    colorwayId: number | undefined,
+    variantId: number | undefined,
+  ) => void;
 }
 
 export const TabColorwaysUpdate = ({
   form,
   colorwaysArray,
   existingColorways = [],
+  onColorwayRemove,
+  onVariantRemove,
 }: TabColorwaysUpdateProps) => {
   const { fields, append, remove } = colorwaysArray;
   const {
@@ -62,10 +69,18 @@ export const TabColorwaysUpdate = ({
   // Remove colorway and shift Redux indices
   const handleRemoveColorway = useCallback(
     (index: number) => {
+      // Get the colorway ID before removing (if it exists in DB)
+      const colorwayId = watch(`colorways.${index}.id`);
+
+      // Notify parent about the removal of existing colorway
+      if (colorwayId && onColorwayRemove) {
+        onColorwayRemove(colorwayId);
+      }
+
       remove(index);
       shiftColorwayIndices(index);
     },
-    [remove, shiftColorwayIndices],
+    [remove, shiftColorwayIndices, watch, onColorwayRemove],
   );
 
   return (
@@ -115,6 +130,7 @@ export const TabColorwaysUpdate = ({
               onRemove={() => handleRemoveColorway(index)}
               canRemove={fields.length > 1}
               existingCoverImageUrl={existingColorways[index]?.coverImage}
+              onVariantRemove={onVariantRemove}
             />
           ))}
         </div>

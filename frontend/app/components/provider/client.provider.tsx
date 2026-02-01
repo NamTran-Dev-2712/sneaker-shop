@@ -5,6 +5,8 @@ import { Role } from "~/types/entities/user.type";
 const ClientProvider = ({ children }: { children: React.ReactNode }) => {
   const auth = useAuth();
 
+  console.log(auth.user);
+
   if (auth.user?.role === Role.ADMIN) {
     return <Navigate to="/admin" />;
   } else if (auth.user?.role === Role.STAFF) {

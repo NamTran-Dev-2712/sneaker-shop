@@ -28,6 +28,10 @@ public class SneakerConfiguration : IEntityTypeConfiguration<Sneaker>
         builder.Property(s => s.IsActive).IsRequired().HasDefaultValue(true);
 
         builder.Property(s => s.IsDeleted).IsRequired().HasDefaultValue(false);
+        builder.Property(s => s.Selled).IsRequired().HasDefaultValue(0);
+        builder.Property(s => s.ViewCount).IsRequired().HasDefaultValue(0);
+        builder.Property(s => s.RatingCount).IsRequired().HasDefaultValue(0);
+        builder.Property(s => s.AverageRating).IsRequired().HasDefaultValue(0);
 
         builder.Property(s => s.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

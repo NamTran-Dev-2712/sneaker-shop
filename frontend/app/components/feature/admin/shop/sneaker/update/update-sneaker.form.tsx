@@ -35,6 +35,14 @@ export const UpdateSneakerForm = () => {
   const [newSubImageFiles, setNewSubImageFiles] = useState<File[]>([]);
   const newSubImagesInputRef = useRef<HTMLInputElement>(null);
 
+  // Track colorway IDs to remove
+  const [removeColorwayIds, setRemoveColorwayIds] = useState<number[]>([]);
+
+  // Track variant IDs to remove per colorway (key = colorway ID, value = array of variant IDs)
+  const [removeVariantIds, setRemoveVariantIds] = useState<
+    Record<number, number[]>
+  >({});
+
   // Redux hook for image previews
   const {
     newSubImagePreviews,
@@ -212,6 +220,11 @@ export const UpdateSneakerForm = () => {
       formData.append("removeSubImageIds", id.toString());
     });
 
+    // Colorways to remove
+    removeColorwayIds.forEach((id) => {
+      formData.append("removeColorwayIds", id.toString());
+    });
+
     // Append colorways
     data.colorways?.forEach((colorway, colorwayIndex) => {
       if (colorway.id) {
@@ -219,6 +232,15 @@ export const UpdateSneakerForm = () => {
           `colorways[${colorwayIndex}].id`,
           colorway.id.toString(),
         );
+
+        // Append variants to remove for this colorway
+        const variantsToRemove = removeVariantIds[colorway.id] || [];
+        variantsToRemove.forEach((variantId) => {
+          formData.append(
+            `colorways[${colorwayIndex}].removeVariantIds`,
+            variantId.toString(),
+          );
+        });
       }
       if (colorway.colorId) {
         formData.append(
@@ -461,6 +483,19 @@ export const UpdateSneakerForm = () => {
               form={form as any}
               colorwaysArray={colorwaysArray as any}
               existingColorways={existingColorways}
+              onColorwayRemove={(colorwayId) => {
+                if (colorwayId) {
+                  setRemoveColorwayIds((prev) => [...prev, colorwayId]);
+                }
+              }}
+              onVariantRemove={(colorwayId, variantId) => {
+                if (colorwayId && variantId) {
+                  setRemoveVariantIds((prev) => ({
+                    ...prev,
+                    [colorwayId]: [...(prev[colorwayId] || []), variantId],
+                  }));
+                }
+              }}
             />
           </TabsContent>
         </Tabs>

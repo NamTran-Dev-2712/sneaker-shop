@@ -30,6 +30,12 @@ namespace Backend.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("AverageRating")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("average_rating");
+
                     b.Property<decimal?>("BasePrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -76,6 +82,18 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("public_id");
 
+                    b.Property<int>("RatingCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("rating_count");
+
+                    b.Property<int>("Selled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("selled");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -87,6 +105,12 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("ViewCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("view_count");
 
                     b.HasKey("Id")
                         .HasName("pk_accessories");
@@ -1826,6 +1850,12 @@ namespace Backend.Infrastructure.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("AverageRating")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("average_rating");
+
                     b.Property<decimal?>("BasePrice")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
@@ -1880,6 +1910,18 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("public_id");
 
+                    b.Property<int>("RatingCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("rating_count");
+
+                    b.Property<int>("Selled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("selled");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -1891,6 +1933,12 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("ViewCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("view_count");
 
                     b.HasKey("Id")
                         .HasName("pk_sneakers");

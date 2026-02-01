@@ -13,6 +13,9 @@ import type {
   GetAccessoryResponse,
 } from "./dto/get-accessory/get-accessory.response";
 import type { GetAccessoryStatisticResponse } from "./dto/statistic/get-accessory-statistic.response";
+import type { GetFeaturedAccessoryRequest } from "./dto/get-featured/get-featured-accessory.request";
+import type { GetFeaturedAccessoryItem } from "./dto/get-featured/get-featured-accessory.response";
+import type { IncrementAccessoryViewCountResponse } from "./dto/increment-view/increment-view.response";
 
 export const accessoryService = {
   createAccessory: async (
@@ -132,6 +135,27 @@ export const accessoryService = {
     }
   },
 
+  getAccessoryBySlug: async (
+    slug: string,
+  ): Promise<ApiResponse<GetAccessoryDetailResponse | null>> => {
+    try {
+      const res = await api.get<ApiResponse<GetAccessoryDetailResponse | null>>(
+        `/accessory/slug/${slug}`,
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
   getAccessoryStatistics: async (): Promise<
     ApiResponse<GetAccessoryStatisticResponse | null>
   > => {
@@ -139,6 +163,49 @@ export const accessoryService = {
       const res = await api.get<
         ApiResponse<GetAccessoryStatisticResponse | null>
       >(`/accessory/statistics`);
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  getFeaturedAccessories: async (
+    query: GetFeaturedAccessoryRequest,
+  ): Promise<ApiResponse<GetFeaturedAccessoryItem[] | null>> => {
+    try {
+      const res = await api.get<ApiResponse<GetFeaturedAccessoryItem[] | null>>(
+        "/accessory/featured",
+        {
+          params: query,
+        },
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  incrementViewCount: async (
+    id: number,
+  ): Promise<ApiResponse<IncrementAccessoryViewCountResponse | null>> => {
+    try {
+      const res = await api.post<
+        ApiResponse<IncrementAccessoryViewCountResponse | null>
+      >(`/accessory/${id}/view`);
       return res.data;
     } catch (error) {
       const err = error as ApiResponseError;

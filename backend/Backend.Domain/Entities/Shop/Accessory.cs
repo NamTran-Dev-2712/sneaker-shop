@@ -11,6 +11,10 @@ public class Accessory : BaseEntity
     public string? PublicId { get; set; } // Cloudinary public ID for main image deletion
     public decimal? BasePrice { get; set; }
     public bool IsDeleted { get; set; } = false;
+    public int Selled { get; set; } = 0;
+    public int ViewCount { get; set; } = 0;
+    public int RatingCount { get; set; } = 0;
+    public decimal AverageRating { get; set; } = 0;
 
     // Navigation properties
     public CategoryAccessory Category { get; set; } = null!;

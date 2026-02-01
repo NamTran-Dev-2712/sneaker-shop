@@ -19,6 +19,8 @@ interface VariantItemProps {
   variantIndex: number;
   onRemove: () => void;
   canRemove: boolean;
+  /** If variant has an existing ID (from DB), size cannot be changed */
+  existingVariantId?: number;
 }
 
 /**
@@ -46,6 +48,7 @@ export const VariantItem = ({
   variantIndex,
   onRemove,
   canRemove,
+  existingVariantId,
 }: VariantItemProps) => {
   const {
     setValue,
@@ -154,8 +157,16 @@ export const VariantItem = ({
               { shouldValidate: true },
             );
           }}
+          disabled={!!existingVariantId}
         >
-          <SelectTrigger>
+          <SelectTrigger
+            className={existingVariantId ? "opacity-70 cursor-not-allowed" : ""}
+            title={
+              existingVariantId
+                ? "Không thể thay đổi size của biến thể đã tồn tại. Hãy xóa và tạo mới nếu cần."
+                : undefined
+            }
+          >
             <SelectValue placeholder="Chọn size" />
           </SelectTrigger>
           <SelectContent>

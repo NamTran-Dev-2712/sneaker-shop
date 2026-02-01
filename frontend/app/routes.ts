@@ -13,6 +13,16 @@ export default [
       layout("./layouts/client/client.layout.tsx", [
         // public routes
         index("./routes/public/home.tsx"),
+        route("about", "./routes/public/about.tsx"),
+        route("contact", "./routes/public/contact.tsx"),
+
+        // shop routes - sneakers
+        route("sneakers", "./routes/shop/sneaker/list.tsx"),
+        route("sneakers/:slug", "./routes/shop/sneaker/detail.tsx"),
+
+        // shop routes - accessories
+        route("accessories", "./routes/shop/accessory/list.tsx"),
+        route("accessories/:slug", "./routes/shop/accessory/detail.tsx"),
 
         // auth routes
         layout("./components/provider/guest-only.provider.tsx", [

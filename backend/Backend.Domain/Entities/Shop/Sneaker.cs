@@ -10,6 +10,10 @@ public class Sneaker : BaseEntity
     public string MainImage { get; set; } = string.Empty;
     public string PublicId { get; set; } = string.Empty;
     public decimal? BasePrice { get; set; } // Giá tham khảo (giá thấp nhất)
+    public int Selled { get; set; } = 0;
+    public int ViewCount { get; set; } = 0;
+    public int RatingCount { get; set; } = 0;
+    public decimal AverageRating { get; set; } = 0;
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
 
