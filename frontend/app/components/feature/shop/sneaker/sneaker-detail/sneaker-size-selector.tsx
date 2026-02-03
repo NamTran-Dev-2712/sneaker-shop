@@ -1,19 +1,37 @@
 import { cn } from "~/lib/utils";
 import type { GetSneakerDetailVariantDto } from "~/services/shop/sneaker/dto/get-sneaker/get-sneaker.response";
 import { SneakerSizeGuide, SYSTEM_COLORS } from "./sneaker-size-guide";
-import { Badge } from "~/components/ui/badge";
 
 interface SneakerSizeSelectorProps {
   variants: GetSneakerDetailVariantDto[];
   selectedSizeId: number | null;
   onSizeChange: (sizeId: number) => void;
+  selectedStoreId?: number | null;
+  getVariantStock?: (variantId: number) => number;
 }
 
 export const SneakerSizeSelector = ({
   variants,
   selectedSizeId,
   onSizeChange,
+  selectedStoreId,
+  getVariantStock,
 }: SneakerSizeSelectorProps) => {
+  // Show message if no store is selected
+  if (!selectedStoreId) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="font-semibold">Kích cỡ</div>
+          <SneakerSizeGuide />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Vui lòng chọn chi nhánh trước để xem size còn hàng
+        </p>
+      </div>
+    );
+  }
+
   if (!variants || variants.length === 0) {
     return (
       <div className="space-y-3">
@@ -29,6 +47,10 @@ export const SneakerSizeSelector = ({
   }
 
   const selectedVariant = variants.find((v) => v.size.id === selectedSizeId);
+  const selectedStock =
+    selectedVariant && getVariantStock
+      ? getVariantStock(selectedVariant.id)
+      : 0;
 
   return (
     <div className="space-y-3">
@@ -47,9 +69,10 @@ export const SneakerSizeSelector = ({
       <div className="flex flex-wrap gap-2">
         {variants.map((variant) => {
           const isSelected = selectedSizeId === variant.size.id;
-          const isAvailable =
-            variant.inventory && variant.inventory.available > 0;
-          const stockQuantity = variant.inventory?.available || 0;
+          const stockQuantity = getVariantStock
+            ? getVariantStock(variant.id)
+            : 0;
+          const isAvailable = stockQuantity > 0;
           const systemColor =
             SYSTEM_COLORS[variant.size.system] ||
             "bg-gray-100 text-gray-800 border-gray-200";
@@ -57,6 +80,7 @@ export const SneakerSizeSelector = ({
           return (
             <button
               key={variant.id}
+              type="button"
               className={cn(
                 "relative flex flex-col items-center justify-center min-w-[70px] p-2 rounded-lg border transition-all duration-200 group",
                 isSelected
@@ -101,19 +125,19 @@ export const SneakerSizeSelector = ({
       </div>
 
       {/* Stock info for selected size */}
-      {selectedVariant && selectedVariant.inventory && (
+      {selectedVariant && selectedStock > 0 && (
         <p
           className={cn(
             "text-sm",
-            selectedVariant.inventory.available <= 5
+            selectedStock <= 5
               ? "text-orange-600 font-medium"
               : "text-muted-foreground",
           )}
         >
-          {selectedVariant.inventory.available <= 5 ? (
-            <>⚠️ Chỉ còn {selectedVariant.inventory.available} sản phẩm</>
+          {selectedStock <= 5 ? (
+            <>⚠️ Chỉ còn {selectedStock} sản phẩm tại chi nhánh này</>
           ) : (
-            <>Còn {selectedVariant.inventory.available} sản phẩm</>
+            <>Còn {selectedStock} sản phẩm tại chi nhánh này</>
           )}
         </p>
       )}

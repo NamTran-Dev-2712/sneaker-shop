@@ -47,15 +47,19 @@ export interface GetAccessoryDetailResponse {
 export interface AccessoryDetailSellableItemDto {
   id: number;
   sku: string;
+  barcode?: string;
   retailPrice?: number;
   onlinePrice?: number;
   isActive: boolean;
-  inventory?: AccessoryDetailInventoryDto;
+  inventories: AccessoryDetailInventoryDto[];
 }
 
 export interface AccessoryDetailInventoryDto {
+  id: number;
+  storeId: number;
+  storeName: string;
+  storeAddress: string;
   onHand: number;
   reserved: number;
   available: number;
-  storeName: string;
 }

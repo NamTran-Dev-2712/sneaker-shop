@@ -206,10 +206,12 @@ export const UpdateAccessoryForm = () => {
     }
   };
 
-  // Handle remove main image
+  // Handle remove main image - clear preview to allow selecting new image
   const handleRemoveMainImage = () => {
-    setValue("mainImage", accessory?.mainImage || ("" as unknown as File));
-    setMainImagePreview(accessory?.mainImage || null);
+    // Clear the preview to show the upload UI so user can select new image
+    setMainImagePreview(null);
+    // Keep the old URL as form value for validation (will be replaced when new image is selected)
+    // The actual image sent to backend depends on whether user uploads a new File
   };
 
   // Handle sub images change
@@ -579,7 +581,9 @@ export const UpdateAccessoryForm = () => {
                     Danh mục <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={watchCategoryId?.toString()}
+                    value={
+                      watchCategoryId ? String(watchCategoryId) : undefined
+                    }
                     onValueChange={(value) =>
                       setValue("categoryId", Number(value))
                     }
@@ -591,7 +595,7 @@ export const UpdateAccessoryForm = () => {
                       {categories?.map((category) => (
                         <SelectItem
                           key={category.id}
-                          value={category.id.toString()}
+                          value={String(category.id)}
                         >
                           {category.name}
                         </SelectItem>
@@ -610,22 +614,28 @@ export const UpdateAccessoryForm = () => {
                     Hãng <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={watch("brandId")?.toString()}
+                    value={watchBrandId ? String(watchBrandId) : undefined}
                     onValueChange={(value) =>
                       setValue("brandId", Number(value))
                     }
-                    disabled={!watchCategoryId}
+                    disabled={
+                      !watchCategoryId || selectedCategoryBrands.length === 0
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue
                         placeholder={
-                          watchCategoryId ? "Chọn hãng" : "Chọn danh mục trước"
+                          !watchCategoryId
+                            ? "Chọn danh mục trước"
+                            : selectedCategoryBrands.length === 0
+                              ? "Danh mục chưa có hãng"
+                              : "Chọn hãng"
                         }
                       />
                     </SelectTrigger>
                     <SelectContent>
                       {selectedCategoryBrands.map((brand) => (
-                        <SelectItem key={brand.id} value={brand.id.toString()}>
+                        <SelectItem key={brand.id} value={String(brand.id)}>
                           {brand.name}
                         </SelectItem>
                       ))}

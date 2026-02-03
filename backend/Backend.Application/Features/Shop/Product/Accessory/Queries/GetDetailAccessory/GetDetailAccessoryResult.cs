@@ -46,13 +46,16 @@ public record AccessoryDetailSellableItemDto
     public decimal? RetailPrice { get; init; }
     public decimal? OnlinePrice { get; init; }
     public required bool IsActive { get; init; }
-    public AccessoryDetailInventoryDto? Inventory { get; init; }
+    public required List<AccessoryDetailInventoryDto> Inventories { get; init; }
 }
 
 public record AccessoryDetailInventoryDto
 {
+    public required int Id { get; init; }
+    public required int StoreId { get; init; }
+    public required string StoreName { get; init; }
+    public required string StoreAddress { get; init; }
     public required int OnHand { get; init; }
     public required int Reserved { get; init; }
     public int Available => OnHand - Reserved;
-    public required string StoreName { get; init; }
 }

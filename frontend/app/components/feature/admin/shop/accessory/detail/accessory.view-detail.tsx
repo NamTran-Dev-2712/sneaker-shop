@@ -323,40 +323,35 @@ export const AccessoryViewDetail = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {accessory.sellableItem?.inventory ? (
+              {accessory.sellableItem?.inventories &&
+              accessory.sellableItem.inventories.length > 0 ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Cửa hàng</span>
-                    <span className="font-medium">
-                      {accessory.sellableItem.inventory.storeName}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Tồn kho</span>
-                    <span className="font-medium">
-                      {accessory.sellableItem.inventory.onHand}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Đã đặt</span>
-                    <span className="font-medium text-orange-500">
-                      {accessory.sellableItem.inventory.reserved}
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Có thể bán</span>
-                    <Badge
-                      variant={
-                        accessory.sellableItem.inventory.available > 0
-                          ? "success"
-                          : "destructive"
-                      }
-                      className="text-base px-3"
+                  {accessory.sellableItem.inventories.map((inv) => (
+                    <div
+                      key={inv.storeId}
+                      className="p-3 border rounded-lg space-y-2"
                     >
-                      {accessory.sellableItem.inventory.available}
-                    </Badge>
-                  </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">{inv.storeName}</span>
+                        <Badge
+                          variant={
+                            inv.available > 0 ? "success" : "destructive"
+                          }
+                        >
+                          {inv.available}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {inv.storeAddress}
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Tồn kho: {inv.onHand}</span>
+                        <span className="text-orange-500">
+                          Đã đặt: {inv.reserved}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-4 text-center">

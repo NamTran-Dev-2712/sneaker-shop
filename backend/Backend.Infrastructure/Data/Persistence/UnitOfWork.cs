@@ -30,6 +30,8 @@ public class UnitOfWork : IUnitOfWork
     private IPurchaseOrderRepository? _purchaseOrderRepository;
     private IPurchaseOrderItemRepository? _purchaseOrderItemRepository;
     private IInventoryRepository? _inventoryRepository;
+    private ICartRepository? _cartRepository;
+    private ICartItemRepository? _cartItemRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -76,6 +78,9 @@ public class UnitOfWork : IUnitOfWork
         _purchaseOrderItemRepository ??= new PurchaseOrderItemRepository(_context);
     public IInventoryRepository Inventories =>
         _inventoryRepository ??= new InventoryRepository(_context);
+    public ICartRepository Carts => _cartRepository ??= new CartRepository(_context);
+    public ICartItemRepository CartItems =>
+        _cartItemRepository ??= new CartItemRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

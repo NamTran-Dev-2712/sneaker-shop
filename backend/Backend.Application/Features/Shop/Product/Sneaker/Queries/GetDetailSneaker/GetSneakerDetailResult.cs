@@ -64,7 +64,7 @@ public record SneakerDetailVariantDto
     public decimal? OnlinePrice { get; init; }
     public required bool IsActive { get; init; }
     public int? SellableItemId { get; init; }
-    public SneakerDetailInventoryDto? Inventory { get; init; }
+    public required List<SneakerDetailInventoryDto> Inventories { get; init; }
 }
 
 public record SneakerDetailSizeDto
@@ -76,8 +76,11 @@ public record SneakerDetailSizeDto
 
 public record SneakerDetailInventoryDto
 {
+    public required int Id { get; init; }
+    public required int StoreId { get; init; }
+    public required string StoreName { get; init; }
+    public required string StoreAddress { get; init; }
     public required int OnHand { get; init; }
     public required int Reserved { get; init; }
     public int Available => OnHand - Reserved;
-    public required string StoreName { get; init; }
 }

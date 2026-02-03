@@ -15,8 +15,13 @@ export const AuthSlice = createSlice({
       state.isLogin = false;
       state.user = null;
     },
+    updateCartItemCount: (state, action: PayloadAction<number>) => {
+      if (state.user) {
+        state.user.cartItemCount = action.payload;
+      }
+    },
   },
 });
 
-export const { login, logout } = AuthSlice.actions;
+export const { login, logout, updateCartItemCount } = AuthSlice.actions;
 export default AuthSlice.reducer;

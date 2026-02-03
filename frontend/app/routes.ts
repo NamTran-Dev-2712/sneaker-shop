@@ -39,7 +39,9 @@ export default [
         ),
 
         // protected routes (authenticated)
-        // layout("./components/provider/auth.provider.tsx", []),
+        layout("./components/provider/auth.provider.tsx", [
+          route("cart", "./routes/shop/cart/cart.index.tsx"),
+        ]),
       ]),
     ]),
 

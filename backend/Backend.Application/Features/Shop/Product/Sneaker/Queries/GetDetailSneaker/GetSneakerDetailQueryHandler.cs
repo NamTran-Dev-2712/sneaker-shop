@@ -88,19 +88,21 @@ public class GetSneakerDetailQueryHandler
                                     v.SellableItem != null ? v.SellableItem.OnlinePrice : null,
                                 IsActive = v.SellableItem != null && v.SellableItem.IsActive,
                                 SellableItemId = v.SellableItem != null ? v.SellableItem.Id : null,
-                                Inventory =
-                                    v.SellableItem != null && v.SellableItem.Inventories.Any()
+                                Inventories =
+                                    v.SellableItem != null
                                         ? v
-                                            .SellableItem.Inventories.Select(
-                                                inv => new SneakerDetailInventoryDto
-                                                {
-                                                    OnHand = inv.OnHand,
-                                                    Reserved = inv.Reserved,
-                                                    StoreName = inv.Store.Name,
-                                                }
-                                            )
-                                            .FirstOrDefault()
-                                        : null,
+                                            .SellableItem.Inventories.OrderBy(inv => inv.Store.Name)
+                                            .Select(inv => new SneakerDetailInventoryDto
+                                            {
+                                                Id = inv.Id,
+                                                StoreId = inv.StoreId,
+                                                StoreName = inv.Store.Name,
+                                                StoreAddress = inv.Store.Address ?? "",
+                                                OnHand = inv.OnHand,
+                                                Reserved = inv.Reserved,
+                                            })
+                                            .ToList()
+                                        : new List<SneakerDetailInventoryDto>(),
                             })
                             .ToList(),
                     })

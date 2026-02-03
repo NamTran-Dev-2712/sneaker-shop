@@ -21,7 +21,7 @@ import { useCategoryAll } from "~/hooks/react-query/use-category.query";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { isLogin } = useAuth();
+  const { isLogin, user } = useAuth();
 
   // Fetch brands and categories from API
   const { data: brands } = useAllBrands();
@@ -174,7 +174,7 @@ const Header = () => {
             ) : (
               // Đã đăng nhập - hiển thị Cart và User Menu
               <>
-                <CartButton itemCount={0} />
+                <CartButton itemCount={user?.cartItemCount ?? 0} />
                 <div className="hidden md:block">
                   <UserMenu />
                 </div>

@@ -328,21 +328,28 @@ export const SneakerViewDetail = () => {
                               {formatPrice(variant.onlinePrice)}
                             </td>
                             <td className="p-3 text-center">
-                              {variant.inventory ? (
+                              {variant.inventories &&
+                              variant.inventories.length > 0 ? (
                                 <div className="flex flex-col items-center gap-1">
-                                  <Badge
-                                    variant={
-                                      variant.inventory.available > 0
-                                        ? "success"
-                                        : "destructive"
-                                    }
-                                  >
-                                    {variant.inventory.available}
-                                  </Badge>
-                                  <span className="text-xs text-muted-foreground">
-                                    ({variant.inventory.onHand} -{" "}
-                                    {variant.inventory.reserved})
-                                  </span>
+                                  {variant.inventories.map((inv) => (
+                                    <div
+                                      key={inv.storeId}
+                                      className="flex items-center gap-1"
+                                    >
+                                      <Badge
+                                        variant={
+                                          inv.available > 0
+                                            ? "success"
+                                            : "destructive"
+                                        }
+                                      >
+                                        {inv.available}
+                                      </Badge>
+                                      <span className="text-xs text-muted-foreground">
+                                        {inv.storeName}
+                                      </span>
+                                    </div>
+                                  ))}
                                 </div>
                               ) : (
                                 <span className="text-muted-foreground">—</span>
@@ -434,7 +441,12 @@ export const SneakerViewDetail = () => {
                       (sum, cw) =>
                         sum +
                         (cw.variants?.reduce(
-                          (vSum, v) => vSum + (v.inventory?.available || 0),
+                          (vSum, v) =>
+                            vSum +
+                            (v.inventories?.reduce(
+                              (invSum, inv) => invSum + inv.available,
+                              0,
+                            ) || 0),
                           0,
                         ) || 0),
                       0,
@@ -447,7 +459,12 @@ export const SneakerViewDetail = () => {
                     (sum, cw) =>
                       sum +
                       (cw.variants?.reduce(
-                        (vSum, v) => vSum + (v.inventory?.available || 0),
+                        (vSum, v) =>
+                          vSum +
+                          (v.inventories?.reduce(
+                            (invSum, inv) => invSum + inv.available,
+                            0,
+                          ) || 0),
                         0,
                       ) || 0),
                     0,

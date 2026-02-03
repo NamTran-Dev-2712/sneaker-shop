@@ -82,3 +82,4 @@ Chi tiết hơn xem trong `docs/`:
 - `docs/JWT_AUTHENTICATION.md` - Auth implementation
 - `docs/CLOUDINARY_IMAGE_UPLOAD.md` - Image upload
 - `docs/SHOP_API_DOCUMENTATION.md` - API reference
+- `docs/CART_API_DOCUMENTATION.md` - Cart API reference

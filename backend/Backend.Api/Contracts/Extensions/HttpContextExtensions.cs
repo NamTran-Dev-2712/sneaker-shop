@@ -10,6 +10,14 @@ public static class HttpContextExtensions
         return userId;
     }
 
+    public static int? GetCustomerId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst("CustomerId");
+        if (claim == null || !int.TryParse(claim.Value, out var customerId))
+            return null;
+        return customerId;
+    }
+
     public static string? GetAccountEmail(this HttpContext context)
     {
         return context.User?.FindFirst(ClaimTypes.Email)?.Value;

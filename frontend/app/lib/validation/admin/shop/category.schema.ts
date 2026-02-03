@@ -25,9 +25,9 @@ export const createCategorySchema = z.object({
     .min(1, "Vui lòng thêm ít nhất 1 hãng cho danh mục"),
 });
 
-// Schema cho brand khi update (có thể có id nếu là existing brand)
+// Schema cho brand khi update (có thể có brandId nếu là existing brand)
 export const updateBrandInputSchema = z.object({
-  id: z.number().optional(), // Có id nếu là existing brand, không có nếu là brand mới
+  brandId: z.number().optional(), // Có brandId nếu là existing brand, không có nếu là brand mới
   name: z
     .string()
     .min(1, "Tên hãng không được để trống")

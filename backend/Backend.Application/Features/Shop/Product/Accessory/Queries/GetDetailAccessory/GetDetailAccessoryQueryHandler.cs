@@ -62,18 +62,21 @@ public class GetDetailAccessoryQueryHandler
                             RetailPrice = a.SellableItem.RetailPrice,
                             OnlinePrice = a.SellableItem.OnlinePrice,
                             IsActive = a.SellableItem.IsActive,
-                            Inventory = a.SellableItem.Inventories.Any()
-                                ? a
-                                    .SellableItem.Inventories.Select(
-                                        inv => new AccessoryDetailInventoryDto
+                            Inventories =
+                                a.SellableItem != null
+                                    ? a
+                                        .SellableItem.Inventories.OrderBy(inv => inv.Store.Name)
+                                        .Select(inv => new AccessoryDetailInventoryDto
                                         {
+                                            Id = inv.Id,
+                                            StoreId = inv.StoreId,
+                                            StoreName = inv.Store.Name,
+                                            StoreAddress = inv.Store.Address ?? "",
                                             OnHand = inv.OnHand,
                                             Reserved = inv.Reserved,
-                                            StoreName = inv.Store.Name,
-                                        }
-                                    )
-                                    .FirstOrDefault()
-                                : null,
+                                        })
+                                        .ToList()
+                                    : new List<AccessoryDetailInventoryDto>(),
                         }
                         : null,
             })

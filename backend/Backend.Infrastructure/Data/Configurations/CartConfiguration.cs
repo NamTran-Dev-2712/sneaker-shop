@@ -11,6 +11,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
 
         // Properties
         builder.Property(c => c.CustomerId).IsRequired();
+        builder.Property(c => c.TotalCount).IsRequired().HasDefaultValue(0);
 
         builder.Property(c => c.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 

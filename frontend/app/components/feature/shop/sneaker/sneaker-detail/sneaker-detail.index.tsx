@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams, Link } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import {
   Heart,
   Share2,
@@ -12,6 +12,8 @@ import {
   RotateCcw,
   Minus,
   Plus,
+  MapPin,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -21,6 +23,8 @@ import {
   useIncrementSneakerViewCount,
   useFeaturedSneakers,
 } from "~/hooks/react-query/use-sneaker.query";
+import { useAddToCart } from "~/hooks/react-query/use-cart.query";
+import useAuth from "~/store/auth/auth.hook";
 import { SneakerCard } from "~/components/common/card/client/sneaker.card";
 import { SneakerImageGallery } from "./sneaker-image-gallery";
 import { SneakerColorSelector } from "./sneaker-color-selector";
@@ -42,13 +46,18 @@ export const SneakerDetailIndex = ({
   slug: propSlug,
 }: SneakerDetailIndexProps) => {
   const { slug: paramSlug } = useParams();
+  const navigate = useNavigate();
   const slug = propSlug || paramSlug || "";
+
+  // Auth state
+  const { isLogin } = useAuth();
 
   // State
   const [selectedColorwayId, setSelectedColorwayId] = useState<number | null>(
     null,
   );
   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
 
   // Queries - pass initialData to prevent unnecessary API call
@@ -60,6 +69,7 @@ export const SneakerDetailIndex = ({
 
   const { data: relatedProducts } = useFeaturedSneakers("BestSelling", 4);
   const incrementViewCount = useIncrementSneakerViewCount();
+  const addToCartMutation = useAddToCart();
 
   // Set default colorway when sneaker loads
   useEffect(() => {
@@ -70,7 +80,9 @@ export const SneakerDetailIndex = ({
     ) {
       // Select the first colorway that has stock
       const firstWithStock = sneaker.colorways.find((c) =>
-        c.variants?.some((v) => v.inventory && v.inventory.available > 0),
+        c.variants?.some((v) =>
+          v.inventories?.some((inv) => inv.available > 0),
+        ),
       );
       setSelectedColorwayId(firstWithStock?.id || sneaker.colorways[0].id);
     }
@@ -95,14 +107,53 @@ export const SneakerDetailIndex = ({
     return sneaker?.colorways?.find((c) => c.id === selectedColorwayId);
   }, [sneaker?.colorways, selectedColorwayId]);
 
-  // Get variants for current colorway (with stock)
+  // Get all unique stores from current colorway's variants
+  const availableStores = useMemo(() => {
+    if (!currentColorway?.variants) return [];
+    const storeMap = new Map<
+      number,
+      { id: number; name: string; address: string }
+    >();
+    currentColorway.variants.forEach((variant) => {
+      variant.inventories?.forEach((inv) => {
+        if (!storeMap.has(inv.storeId)) {
+          storeMap.set(inv.storeId, {
+            id: inv.storeId,
+            name: inv.storeName,
+            address: inv.storeAddress,
+          });
+        }
+      });
+    });
+    return Array.from(storeMap.values());
+  }, [currentColorway]);
+
+  // Get available stock for a variant at selected store
+  const getVariantStock = useCallback(
+    (variantId: number) => {
+      if (!selectedStoreId || !currentColorway?.variants) return 0;
+      const variant = currentColorway.variants.find((v) => v.id === variantId);
+      const inventory = variant?.inventories?.find(
+        (inv) => inv.storeId === selectedStoreId,
+      );
+      return inventory?.available ?? 0;
+    },
+    [currentColorway, selectedStoreId],
+  );
+
+  // Get variants for current colorway (with stock at selected store)
   const availableVariants = useMemo(() => {
+    if (!selectedStoreId) return [];
     return (
       currentColorway?.variants?.filter(
-        (v) => v.isActive && v.inventory && v.inventory.available > 0,
+        (v) =>
+          v.isActive &&
+          v.inventories?.some(
+            (inv) => inv.storeId === selectedStoreId && inv.available > 0,
+          ),
       ) || []
     );
-  }, [currentColorway]);
+  }, [currentColorway, selectedStoreId]);
 
   // Get selected variant
   const selectedVariant = useMemo(() => {
@@ -162,8 +213,33 @@ export const SneakerDetailIndex = ({
   };
 
   const handleQuantityChange = (delta: number) => {
-    const maxQuantity = selectedVariant?.inventory?.available || 1;
+    const maxQuantity = selectedVariant
+      ? getVariantStock(selectedVariant.id)
+      : 1;
     setQuantity((prev) => Math.max(1, Math.min(maxQuantity, prev + delta)));
+  };
+
+  // Handle add to cart
+  const handleAddToCart = () => {
+    if (!isLogin) {
+      navigate("/login");
+      return;
+    }
+
+    if (!selectedVariant || !selectedStoreId) return;
+
+    // Find the inventory for selected store
+    const inventory = selectedVariant.inventories?.find(
+      (inv) => inv.storeId === selectedStoreId,
+    );
+
+    if (!inventory || !selectedVariant.sellableItemId) return;
+
+    addToCartMutation.mutate({
+      sellableItemId: selectedVariant.sellableItemId,
+      inventoryId: inventory.id,
+      quantity,
+    });
   };
 
   // Loading state
@@ -279,11 +355,67 @@ export const SneakerDetailIndex = ({
               />
             )}
 
+            {/* Store Selection */}
+            {availableStores.length > 0 ? (
+              <div className="space-y-3">
+                <div className="font-semibold flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Chọn chi nhánh
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {availableStores.map((store) => (
+                    <button
+                      key={store.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedStoreId(store.id);
+                        setSelectedSizeId(null);
+                        setQuantity(1);
+                      }}
+                      className={`px-4 py-2 rounded-lg border text-sm transition-all ${
+                        selectedStoreId === store.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="font-medium">{store.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {store.address}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {!selectedStoreId && (
+                  <p className="text-sm text-amber-600">
+                    Vui lòng chọn chi nhánh để xem số lượng tồn kho
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium text-amber-800">
+                      Sản phẩm chưa có tồn kho
+                    </p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Màu sắc này hiện chưa được nhập hàng tại bất kỳ chi nhánh
+                      nào. Vui lòng chọn màu khác hoặc liên hệ cửa hàng để được
+                      hỗ trợ.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Size Selection */}
             <SneakerSizeSelector
               variants={currentColorway?.variants || []}
               selectedSizeId={selectedSizeId}
               onSizeChange={setSelectedSizeId}
+              selectedStoreId={selectedStoreId}
+              getVariantStock={getVariantStock}
             />
 
             {/* Quantity */}
@@ -310,7 +442,10 @@ export const SneakerDetailIndex = ({
                     onClick={() => handleQuantityChange(1)}
                     disabled={
                       !selectedVariant ||
-                      quantity >= (selectedVariant.inventory?.available || 0)
+                      quantity >=
+                        (selectedVariant
+                          ? getVariantStock(selectedVariant.id)
+                          : 0)
                     }
                   >
                     <Plus className="h-4 w-4" />
@@ -324,10 +459,16 @@ export const SneakerDetailIndex = ({
               <Button
                 size="lg"
                 className="flex-1"
-                disabled={!selectedSizeId || !selectedVariant}
+                disabled={
+                  !selectedStoreId ||
+                  !selectedSizeId ||
+                  !selectedVariant ||
+                  addToCartMutation.isPending
+                }
+                onClick={handleAddToCart}
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                Thêm vào giỏ
+                {addToCartMutation.isPending ? "Đang thêm..." : "Thêm vào giỏ"}
               </Button>
               <Button size="lg" variant="outline">
                 <Heart className="h-5 w-5" />

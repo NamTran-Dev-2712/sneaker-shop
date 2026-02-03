@@ -527,6 +527,12 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("customer_id");
 
+                    b.Property<int>("TotalCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("total_count");
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -562,6 +568,10 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<int>("InventoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("inventory_id");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
@@ -581,6 +591,9 @@ namespace Backend.Infrastructure.Data.Migrations
 
                     b.HasIndex("CartId")
                         .HasDatabaseName("ix_cart_items_cart_id");
+
+                    b.HasIndex("InventoryId")
+                        .HasDatabaseName("ix_cart_items_inventory_id");
 
                     b.HasIndex("SellableItemId")
                         .HasDatabaseName("ix_cart_items_sellable_item_id");
@@ -2646,6 +2659,13 @@ namespace Backend.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_cart_items_carts_cart_id");
 
+                    b.HasOne("Inventory", "Inventory")
+                        .WithMany()
+                        .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_cart_items_inventories_inventory_id");
+
                     b.HasOne("SellableItem", "SellableItem")
                         .WithMany("CartItems")
                         .HasForeignKey("SellableItemId")
@@ -2654,6 +2674,8 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasConstraintName("fk_cart_items_sellable_items_sellable_item_id");
 
                     b.Navigation("Cart");
+
+                    b.Navigation("Inventory");
 
                     b.Navigation("SellableItem");
                 });

@@ -1,0 +1,30 @@
+{
+  "name": "fullstack_sneaker_shop",
+  "version": "1.0.0",
+  "description": "**Sneaker Shop** là một hệ thống bán lẻ giày sneaker và phụ kiện theo mô hình **Omnichannel** (Online – POS – Offline Assisted), được thiết kế nhằm:",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:chromium": "npx playwright test --project=chromium",
+    "test:debug": "npx playwright test --debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TranNam2712/sneaker-shop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TranNam2712/sneaker-shop/issues"
+  },
+  "homepage": "https://github.com/TranNam2712/sneaker-shop#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "@types/node": "^25.2.0"
+  }
+}

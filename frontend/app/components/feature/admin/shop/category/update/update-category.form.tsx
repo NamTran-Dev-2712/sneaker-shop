@@ -71,7 +71,7 @@ export const UpdateCategoryForm = () => {
     if (category) {
       const existingBrands: UpdateBrandInput[] =
         category.brands?.map((brand) => ({
-          id: brand.id,
+          brandId: brand.id,
           name: brand.name,
           thumbnailImage: brand.thumbnailUrl,
           isNew: false,
@@ -149,9 +149,9 @@ export const UpdateCategoryForm = () => {
   // Handle remove brand
   const handleRemoveBrand = (index: number) => {
     const brand = fields[index];
-    // Nếu là existing brand (có id), thêm vào danh sách xóa
-    if (brand && brand.id && !brand.isNew) {
-      setBrandIdsToRemove((prev) => [...prev, brand.id as number]);
+    // Nếu là existing brand (có brandId), thêm vào danh sách xóa
+    if (brand && brand.brandId && !brand.isNew) {
+      setBrandIdsToRemove((prev) => [...prev, brand.brandId as number]);
     }
     remove(index);
     // Update previews
@@ -186,11 +186,11 @@ export const UpdateCategoryForm = () => {
           );
         }
         addIndex++;
-      } else if (brand.id) {
+      } else if (brand.brandId) {
         // Existing brand to update
         formData.append(
           `brandsToUpdate[${updateIndex}].id`,
-          brand.id.toString(),
+          brand.brandId.toString(),
         );
         formData.append(`brandsToUpdate[${updateIndex}].name`, brand.name);
         if (brand.thumbnailImage instanceof File) {
@@ -405,7 +405,7 @@ export const UpdateCategoryForm = () => {
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-xs">
-                            ID: {field.id}
+                            ID: {field.brandId}
                           </Badge>
                         )}
                       </div>
@@ -454,7 +454,7 @@ export const UpdateCategoryForm = () => {
                       if (category) {
                         const existingBrands: UpdateBrandInput[] =
                           category.brands?.map((brand) => ({
-                            id: brand.id,
+                            brandId: brand.id,
                             name: brand.name,
                             thumbnailImage: brand.thumbnailUrl,
                             isNew: false,

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, Link } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import {
   Heart,
   Share2,
@@ -13,6 +13,8 @@ import {
   Minus,
   Plus,
   Package,
+  MapPin,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -22,6 +24,8 @@ import {
   useIncrementAccessoryViewCount,
   useFeaturedAccessories,
 } from "~/hooks/react-query/use-accessory.query";
+import { useAddToCart } from "~/hooks/react-query/use-cart.query";
+import useAuth from "~/store/auth/auth.hook";
 import { AccessoryCard } from "~/components/common/card/client/accessory.card";
 import { AccessoryImageGallery } from "./accessory-image-gallery";
 import {
@@ -41,8 +45,13 @@ export const AccessoryDetailIndex = ({
   slug: propSlug,
 }: AccessoryDetailIndexProps) => {
   const { slug: paramSlug } = useParams();
+  const navigate = useNavigate();
   const slug = propSlug || paramSlug || "";
   const [quantity, setQuantity] = useState(1);
+  const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
+
+  // Auth state
+  const { isLogin } = useAuth();
 
   // Use slug-based query, pass initialData to prevent unnecessary API call
   const {
@@ -53,6 +62,7 @@ export const AccessoryDetailIndex = ({
 
   const { data: relatedProducts } = useFeaturedAccessories("BestSelling", 4);
   const incrementViewCount = useIncrementAccessoryViewCount();
+  const addToCartMutation = useAddToCart();
 
   // Increment view count on mount
   useEffect(() => {
@@ -79,8 +89,25 @@ export const AccessoryDetailIndex = ({
     return imageList;
   }, [accessory]);
 
-  // Get stock quantity from sellable item inventory
-  const stockQuantity = accessory?.sellableItem?.inventory?.available || 0;
+  // Get all available stores from inventories
+  const availableStores = useMemo(() => {
+    if (!accessory?.sellableItem?.inventories) return [];
+    return accessory.sellableItem.inventories.map((inv) => ({
+      id: inv.storeId,
+      name: inv.storeName,
+      address: inv.storeAddress,
+    }));
+  }, [accessory]);
+
+  // Get stock quantity for selected store
+  const stockQuantity = useMemo(() => {
+    if (!selectedStoreId || !accessory?.sellableItem?.inventories) return 0;
+    const inventory = accessory.sellableItem.inventories.find(
+      (inv) => inv.storeId === selectedStoreId,
+    );
+    return inventory?.available ?? 0;
+  }, [accessory, selectedStoreId]);
+
   const isInStock = stockQuantity > 0;
 
   // Calculate price
@@ -107,6 +134,31 @@ export const AccessoryDetailIndex = ({
   const handleQuantityChange = (delta: number) => {
     const maxQuantity = stockQuantity || 1;
     setQuantity((prev) => Math.max(1, Math.min(maxQuantity, prev + delta)));
+  };
+
+  // Handle add to cart
+  const handleAddToCart = () => {
+    // Check if user is logged in
+    if (!isLogin) {
+      navigate("/login");
+      return;
+    }
+
+    // Validate selection
+    if (!selectedStoreId || !accessory?.sellableItem?.id) return;
+
+    // Find selected inventory
+    const selectedInventory = accessory.sellableItem.inventories?.find(
+      (inv) => inv.storeId === selectedStoreId,
+    );
+
+    if (!selectedInventory) return;
+
+    addToCartMutation.mutate({
+      sellableItemId: accessory.sellableItem.id,
+      inventoryId: selectedInventory.id,
+      quantity: quantity,
+    });
   };
 
   // Loading state
@@ -208,24 +260,80 @@ export const AccessoryDetailIndex = ({
               )}
             </div>
 
+            {/* Store Selection */}
+            {availableStores.length > 0 ? (
+              <div className="space-y-3">
+                <div className="font-semibold flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Chọn chi nhánh
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {availableStores.map((store) => (
+                    <button
+                      key={store.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedStoreId(store.id);
+                        setQuantity(1);
+                      }}
+                      className={`px-4 py-2 rounded-lg border text-sm transition-all ${
+                        selectedStoreId === store.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="font-medium">{store.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {store.address}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {!selectedStoreId && (
+                  <p className="text-sm text-amber-600">
+                    Vui lòng chọn chi nhánh để xem số lượng tồn kho
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium text-amber-800">
+                      Sản phẩm chưa có tồn kho
+                    </p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Sản phẩm này hiện chưa được nhập hàng tại bất kỳ chi nhánh
+                      nào. Vui lòng liên hệ cửa hàng để được hỗ trợ.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Stock Status */}
-            <div className="flex items-center gap-2">
-              {isInStock ? (
-                <>
-                  <Badge
-                    variant="outline"
-                    className="text-green-600 border-green-200 bg-green-50"
-                  >
-                    Còn hàng
+            {selectedStoreId && (
+              <div className="flex items-center gap-2">
+                {isInStock ? (
+                  <>
+                    <Badge
+                      variant="outline"
+                      className="text-green-600 border-green-200 bg-green-50"
+                    >
+                      Còn hàng
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      ({stockQuantity} sản phẩm có sẵn tại chi nhánh này)
+                    </span>
+                  </>
+                ) : (
+                  <Badge variant="destructive">
+                    Hết hàng tại chi nhánh này
                   </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    ({stockQuantity} sản phẩm có sẵn)
-                  </span>
-                </>
-              ) : (
-                <Badge variant="destructive">Hết hàng</Badge>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Quantity */}
             <div className="space-y-3">
@@ -259,9 +367,25 @@ export const AccessoryDetailIndex = ({
 
             {/* Actions */}
             <div className="flex gap-3 pt-4">
-              <Button size="lg" className="flex-1" disabled={!isInStock}>
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Thêm vào giỏ
+              <Button
+                size="lg"
+                className="flex-1"
+                disabled={
+                  !selectedStoreId || !isInStock || addToCartMutation.isPending
+                }
+                onClick={handleAddToCart}
+              >
+                {addToCartMutation.isPending ? (
+                  <>
+                    <div className="h-5 w-5 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Đang thêm...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    Thêm vào giỏ
+                  </>
+                )}
               </Button>
               <Button size="lg" variant="outline">
                 <Heart className="h-5 w-5" />

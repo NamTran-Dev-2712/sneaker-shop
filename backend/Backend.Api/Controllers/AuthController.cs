@@ -36,6 +36,7 @@ public class AuthController : BaseController
             new
             {
                 result.AccountId,
+                result.CustomerId,
                 result.Email,
                 result.IsEmailVerified,
                 result.Phone,
@@ -43,6 +44,7 @@ public class AuthController : BaseController
                 result.Avatar,
                 result.Birthday,
                 result.Role,
+                result.CartItemCount,
             }
         );
     }

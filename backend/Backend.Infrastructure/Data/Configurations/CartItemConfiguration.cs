@@ -13,6 +13,7 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
         builder.Property(ci => ci.CartId).IsRequired();
 
         builder.Property(ci => ci.SellableItemId).IsRequired();
+        builder.Property(ci => ci.InventoryId).IsRequired();
 
         builder.Property(ci => ci.Quantity).IsRequired();
 
@@ -26,5 +27,6 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
         // Indexes
         builder.HasIndex(ci => ci.CartId);
         builder.HasIndex(ci => ci.SellableItemId);
+        builder.HasIndex(ci => ci.InventoryId);
     }
 }

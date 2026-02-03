@@ -30,8 +30,8 @@ export const SneakerColorSelector = ({
       <div className="flex flex-wrap gap-3">
         {colorways.map((colorway) => {
           const isSelected = selectedColorwayId === colorway.id;
-          const hasStock = colorway.variants?.some(
-            (v) => v.inventory && v.inventory.available > 0,
+          const hasStock = colorway.variants?.some((v) =>
+            v.inventories?.some((inv) => inv.available > 0),
           );
 
           return (

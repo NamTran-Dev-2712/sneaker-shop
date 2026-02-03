@@ -29,19 +29,28 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileRe
             );
         }
 
-        // 3. Get customer information if linked
+        // 3. Get customer information and cart count if linked
         Customer? customer = null;
+        int cartItemCount = 0;
         if (account.CustomerAccount != null)
         {
             customer = await _unitOfWork
                 .Repository<Customer>()
                 .GetByIdAsync(account.CustomerAccount.CustomerId);
+
+            // Get cart item count
+            var cart = await _unitOfWork.Carts.GetByCustomerIdWithItemsAsync(
+                account.CustomerAccount.CustomerId,
+                cancellationToken
+            );
+            cartItemCount = cart?.TotalCount ?? 0;
         }
 
         // 4. Return profile result
         return new ProfileResult
         {
             AccountId = account.Id,
+            CustomerId = customer?.Id,
             Email = account.Email ?? string.Empty,
             IsEmailVerified = account.IsEmailVerified,
             Phone = account.Phone,
@@ -49,6 +58,7 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileRe
             Avatar = account.Avatar,
             Birthday = customer?.Birthday,
             Role = account.Role,
+            CartItemCount = cartItemCount,
         };
     }
 }
