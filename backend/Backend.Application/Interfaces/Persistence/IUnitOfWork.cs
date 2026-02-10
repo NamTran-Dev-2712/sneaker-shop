@@ -29,6 +29,8 @@ public interface IUnitOfWork
     IInventoryRepository Inventories { get; }
     ICartRepository Carts { get; }
     ICartItemRepository CartItems { get; }
+    ISlideRepository Slides { get; }
+    IExternalAuthProviderRepository ExternalAuthProviders { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

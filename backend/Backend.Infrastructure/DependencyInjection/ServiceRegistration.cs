@@ -11,6 +11,9 @@ public static class ServiceInfrastructureRegistration
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISlugService, SlugService>();
 
+        // Register Google OAuth service (uses Google.Apis.Auth library internally)
+        services.AddSingleton<IGoogleOAuthService, GoogleOAuthService>();
+
         // Register RazorLight engine for email templates
         var templatesPath = Path.Combine(AppContext.BaseDirectory, "Templates");
         var razorEngine = new RazorLightEngineBuilder()

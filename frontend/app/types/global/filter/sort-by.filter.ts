@@ -17,6 +17,11 @@ export enum SortSizeBy {
   CREATED_AT = "createdAt",
 }
 
+export enum SortSlideBy {
+  TITLE = "title",
+  CREATED_AT = "createdAt",
+}
+
 export enum SortSellableItemBy {
   SKU = "sku",
   PRICE = "price",

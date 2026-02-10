@@ -808,6 +808,55 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.ToTable("customer_accounts", (string)null);
                 });
 
+            modelBuilder.Entity("ExternalAuthProvider", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("integer")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("ProviderUserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("provider_user_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_external_auth_providers");
+
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("ix_external_auth_providers_account_id");
+
+                    b.HasIndex("Provider", "ProviderUserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_external_auth_providers_provider_provider_user_id");
+
+                    b.ToTable("external_auth_providers", (string)null);
+                });
+
             modelBuilder.Entity("Inventory", b =>
                 {
                     b.Property<int>("Id")
@@ -1854,6 +1903,75 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.ToTable("sizes", (string)null);
                 });
 
+            modelBuilder.Entity("Slide", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ButtonText")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("button_text");
+
+                    b.Property<string>("ButtonUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("button_url");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_url");
+
+                    b.Property<string>("Subtitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("subtitle");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.HasKey("Id")
+                        .HasName("pk_slides");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_slides_created_at");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("ix_slides_title");
+
+                    b.ToTable("slides", (string)null);
+                });
+
             modelBuilder.Entity("Sneaker", b =>
                 {
                     b.Property<int>("Id")
@@ -2701,6 +2819,18 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("ExternalAuthProvider", b =>
+                {
+                    b.HasOne("Account", "Account")
+                        .WithMany("ExternalAuthProviders")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_external_auth_providers_accounts_account_id");
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("Inventory", b =>
                 {
                     b.HasOne("SellableItem", "SellableItem")
@@ -3166,6 +3296,8 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.Navigation("CreatedOrders");
 
                     b.Navigation("CustomerAccount");
+
+                    b.Navigation("ExternalAuthProviders");
 
                     b.Navigation("LoyaltyTransactions");
 

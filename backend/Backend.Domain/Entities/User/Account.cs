@@ -22,6 +22,8 @@ public class Account : BaseEntity
     public ICollection<PurchaseOrder> PurchaseOrders { get; set; } = new List<PurchaseOrder>();
     public ICollection<Return> Returns { get; set; } = new List<Return>();
     public ICollection<RestockRequest> RestockRequests { get; set; } = new List<RestockRequest>();
+    public ICollection<ExternalAuthProvider> ExternalAuthProviders { get; set; } =
+        new List<ExternalAuthProvider>();
 
     private Account(string phone, string email, string? passwordHash)
     {
@@ -48,6 +50,32 @@ public class Account : BaseEntity
         }
 
         return new Account(phone, email, passwordHash);
+    }
+
+    // Factory method for external OAuth accounts (Google, Facebook, etc.)
+    public static Account CreateForExternalAuth(string email, string? avatar = null)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            throw new ArgumentException("Email is required for external auth account.");
+        }
+
+        return new Account
+        {
+            Email = email,
+            Phone = string.Empty,
+            Password = null,
+            Avatar = avatar,
+            IsEmailVerified = true,
+            Role = Role.CUSTOMER,
+            IsActive = true,
+        };
+    }
+
+    public void MarkEmailAsVerified()
+    {
+        IsEmailVerified = true;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void LinkToCustomer(int customerId)
@@ -115,6 +143,11 @@ public class Account : BaseEntity
 
     public bool CanLogin()
     {
-        return IsActive && HasEmailOrPhone() && !string.IsNullOrWhiteSpace(Password);
+        return IsActive && HasEmailOrPhone();
+    }
+
+    public bool HasPassword()
+    {
+        return !string.IsNullOrWhiteSpace(Password);
     }
 }

@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<AdminProfile> AdminProfiles { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<CustomerAccount> CustomerAccounts { get; set; }
+    public DbSet<ExternalAuthProvider> ExternalAuthProviders { get; set; }
 
     // Store DbSet
     public DbSet<Store> Stores { get; set; }
@@ -47,6 +48,9 @@ public class ApplicationDbContext : DbContext
     // Cart DbSets
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
+
+    // Slide DbSets
+    public DbSet<Slide> Slides { get; set; }
 
     // Loyalty & Voucher DbSets
     public DbSet<LoyaltyAccount> LoyaltyAccounts { get; set; }

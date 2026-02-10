@@ -1,9 +1,9 @@
 import { Button } from "~/components/ui/button";
+import { authSerivce } from "~/services/auth/auth.service";
 
 const SocialLogin = () => {
   const handleGoogleLogin = () => {
-    console.log("Login with Google");
-    // TODO: Implement Google OAuth
+    authSerivce.startGoogleLogin("/");
   };
 
   const handleFacebookLogin = () => {

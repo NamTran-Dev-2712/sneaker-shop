@@ -51,7 +51,7 @@ const menuItems: MenuItem[] = [
   },
   {
     id: "colors-sizes",
-    label: "Quản lý Màu & Size",
+    label: "Quản lý Màu/ Size & Slide",
     icon: <UserCog className="h-5 w-5" />,
     children: [
       {
@@ -65,6 +65,12 @@ const menuItems: MenuItem[] = [
         label: "Danh sách Size",
         icon: <Users className="h-4 w-4" />,
         path: "/admin/attributes/sizes",
+      },
+      {
+        id: "slides-list",
+        label: "Danh sách Slide",
+        icon: <Users className="h-4 w-4" />,
+        path: "/admin/attributes/slides",
       },
     ],
   },

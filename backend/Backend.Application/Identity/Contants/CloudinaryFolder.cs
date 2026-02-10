@@ -9,4 +9,5 @@ public class CloudinaryFolder
     public const string Accessories = "accessories";
     public const string AccessoryImages = "accessories/images";
     public const string AccessoryBrands = "accessories/brands";
+    public const string Slides = "slides";
 }

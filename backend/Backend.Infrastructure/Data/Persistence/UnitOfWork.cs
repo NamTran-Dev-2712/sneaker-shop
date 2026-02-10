@@ -32,6 +32,8 @@ public class UnitOfWork : IUnitOfWork
     private IInventoryRepository? _inventoryRepository;
     private ICartRepository? _cartRepository;
     private ICartItemRepository? _cartItemRepository;
+    private ISlideRepository? _slideRepository;
+    private IExternalAuthProviderRepository? _externalAuthProviderRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -81,6 +83,9 @@ public class UnitOfWork : IUnitOfWork
     public ICartRepository Carts => _cartRepository ??= new CartRepository(_context);
     public ICartItemRepository CartItems =>
         _cartItemRepository ??= new CartItemRepository(_context);
+    public ISlideRepository Slides => _slideRepository ??= new SlideRepository(_context);
+    public IExternalAuthProviderRepository ExternalAuthProviders =>
+        _externalAuthProviderRepository ??= new ExternalAuthProviderRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, LogIn, Mail } from "lucide-react";
 import {
   loginSchema,
@@ -22,11 +22,34 @@ import { login } from "~/store/auth/auth.slice";
 import type { LoginRequest } from "~/services/auth/dto/login/login.request";
 import { convertPhoneVietNamToInternational } from "~/common/helpers/phone.helper";
 
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  google_access_denied: "Bạn đã từ chối quyền truy cập Google.",
+  invalid_state: "Phiên đăng nhập không hợp lệ. Vui lòng thử lại.",
+  session_expired: "Phiên đăng nhập đã hết hạn. Vui lòng thử lại.",
+  missing_code: "Đăng nhập Google thất bại. Vui lòng thử lại.",
+  oauth_failed: "Đăng nhập Google thất bại. Vui lòng thử lại sau.",
+  email_not_verified: "Email Google chưa được xác minh.",
+  service_unavailable: "Dịch vụ đăng nhập tạm thời không khả dụng.",
+};
+
 const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Handle OAuth error from redirect
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      const message =
+        searchParams.get("message") ||
+        OAUTH_ERROR_MESSAGES[error] ||
+        "Đăng nhập thất bại. Vui lòng thử lại.";
+      showErrorToast(message);
+    }
+  }, [searchParams]);
 
   const {
     register,

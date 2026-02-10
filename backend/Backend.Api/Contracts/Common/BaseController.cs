@@ -72,4 +72,100 @@ public abstract class BaseController : ControllerBase
             ApiResponse<object>.Ok(value!, "Tạo thành công")
         );
     }
+
+    // Auth Cookie Helpers
+    [NonAction]
+    protected void SetAuthCookies(
+        string accessToken,
+        string refreshToken,
+        IConfiguration configuration
+    )
+    {
+        var accessExpirationMinutes = int.Parse(
+            configuration["JwtSettings:AccessExpirationInMinutes"] ?? "60"
+        );
+        var refreshExpirationDays = int.Parse(
+            configuration["JwtSettings:RefreshExpirationInDays"] ?? "7"
+        );
+
+        var accessCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(accessExpirationMinutes),
+            Path = "/",
+        };
+
+        Response.Cookies.Append("accessToken", accessToken, accessCookieOptions);
+
+        var refreshCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(refreshExpirationDays),
+            Path = "/",
+        };
+
+        Response.Cookies.Append("refreshToken", refreshToken, refreshCookieOptions);
+    }
+
+    /// <summary>
+    /// Set auth cookies with SameSite=Lax for OAuth redirect flows (cross-origin redirect).
+    /// SameSite=Strict cookies are not sent on cross-origin redirects, causing the browser
+    /// to not include cookies on the first request after OAuth redirect.
+    /// </summary>
+    [NonAction]
+    protected void SetAuthCookiesForOAuth(
+        string accessToken,
+        string refreshToken,
+        IConfiguration configuration
+    )
+    {
+        var accessExpirationMinutes = int.Parse(
+            configuration["JwtSettings:AccessExpirationInMinutes"] ?? "60"
+        );
+        var refreshExpirationDays = int.Parse(
+            configuration["JwtSettings:RefreshExpirationInDays"] ?? "7"
+        );
+
+        var accessCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(accessExpirationMinutes),
+            Path = "/",
+        };
+
+        Response.Cookies.Append("accessToken", accessToken, accessCookieOptions);
+
+        var refreshCookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddDays(refreshExpirationDays),
+            Path = "/",
+        };
+
+        Response.Cookies.Append("refreshToken", refreshToken, refreshCookieOptions);
+    }
+
+    [NonAction]
+    protected void ClearAuthCookies()
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(-1),
+            Path = "/",
+        };
+
+        Response.Cookies.Delete("accessToken", cookieOptions);
+        Response.Cookies.Delete("refreshToken", cookieOptions);
+    }
 }

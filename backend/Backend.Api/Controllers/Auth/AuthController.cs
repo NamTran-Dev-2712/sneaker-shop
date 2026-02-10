@@ -29,7 +29,7 @@ public class AuthController : BaseController
         var result = await _mediator.Send(command);
 
         // Set HttpOnly cookies for security
-        SetAuthCookies(result.AccessToken, result.RefreshToken);
+        SetAuthCookies(result.AccessToken, result.RefreshToken, _configuration);
 
         // Return user info without tokens
         return Ok(
@@ -92,7 +92,7 @@ public class AuthController : BaseController
         var result = await _mediator.Send(command);
 
         // Set new cookies
-        SetAuthCookies(result.AccessToken, result.RefreshToken);
+        SetAuthCookies(result.AccessToken, result.RefreshToken, _configuration);
 
         return Ok(new { message = "Tokens refreshed successfully" });
     }
@@ -132,54 +132,5 @@ public class AuthController : BaseController
 
         var result = await _mediator.Send(command);
         return Ok(result);
-    }
-
-    private void SetAuthCookies(string accessToken, string refreshToken)
-    {
-        var accessExpirationMinutes = int.Parse(
-            _configuration["JwtSettings:AccessExpirationInMinutes"] ?? "60"
-        );
-        var refreshExpirationDays = int.Parse(
-            _configuration["JwtSettings:RefreshExpirationInDays"] ?? "7"
-        );
-
-        // Access Token Cookie
-        var accessCookieOptions = new CookieOptions
-        {
-            HttpOnly = true, // Prevent XSS attacks
-            Secure = true, // HTTPS only
-            SameSite = SameSiteMode.Strict, // Prevent CSRF attacks
-            Expires = DateTimeOffset.UtcNow.AddMinutes(accessExpirationMinutes),
-            Path = "/",
-        };
-
-        Response.Cookies.Append("accessToken", accessToken, accessCookieOptions);
-
-        // Refresh Token Cookie
-        var refreshCookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(refreshExpirationDays),
-            Path = "/",
-        };
-
-        Response.Cookies.Append("refreshToken", refreshToken, refreshCookieOptions);
-    }
-
-    private void ClearAuthCookies()
-    {
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(-1),
-            Path = "/",
-        };
-
-        Response.Cookies.Delete("accessToken", cookieOptions);
-        Response.Cookies.Delete("refreshToken", cookieOptions);
     }
 }

@@ -46,6 +46,8 @@ public static class DbContextRegistration
         // Attribute repositories
         services.AddScoped<IColorRepository, ColorRepository>();
         services.AddScoped<ISizeRepository, SizeRepository>();
+        services.AddScoped<ISlideRepository, SlideRepository>();
+        services.AddScoped<IExternalAuthProviderRepository, ExternalAuthProviderRepository>();
 
         // Product repositories
         services.AddScoped<ISneakerRepository, SneakerRepository>();

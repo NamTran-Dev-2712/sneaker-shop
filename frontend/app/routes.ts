@@ -58,6 +58,7 @@ export default [
           // attribute management routes
           route("attributes/colors", "./routes/admin/attribute/color.tsx"),
           route("attributes/sizes", "./routes/admin/attribute/size.tsx"),
+          route("attributes/slides", "./routes/admin/attribute/slide.tsx"),
 
           // sneaker management routes
           route(
