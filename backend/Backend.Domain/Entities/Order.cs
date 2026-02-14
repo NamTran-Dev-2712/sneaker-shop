@@ -17,6 +17,9 @@ public class Order : BaseEntity
     public string? Note { get; set; }
     public DateTime? PlacedAt { get; set; }
 
+    /// <summary>Client-generated UUID to prevent duplicate order creation.</summary>
+    public string? IdempotencyKey { get; set; }
+
     // Navigation properties
     public Store? Store { get; set; }
     public Customer? Customer { get; set; }

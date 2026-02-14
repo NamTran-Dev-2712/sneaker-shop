@@ -32,6 +32,10 @@ public class UnitOfWork : IUnitOfWork
     private IInventoryRepository? _inventoryRepository;
     private ICartRepository? _cartRepository;
     private ICartItemRepository? _cartItemRepository;
+    private IOrderRepository? _orderRepository;
+    private IOrderItemRepository? _orderItemRepository;
+    private IPaymentRepository? _paymentRepository;
+    private IOrderFulfillmentRepository? _orderFulfillmentRepository;
     private ISlideRepository? _slideRepository;
     private IExternalAuthProviderRepository? _externalAuthProviderRepository;
 
@@ -83,6 +87,12 @@ public class UnitOfWork : IUnitOfWork
     public ICartRepository Carts => _cartRepository ??= new CartRepository(_context);
     public ICartItemRepository CartItems =>
         _cartItemRepository ??= new CartItemRepository(_context);
+    public IOrderRepository Orders => _orderRepository ??= new OrderRepository(_context);
+    public IOrderItemRepository OrderItems =>
+        _orderItemRepository ??= new OrderItemRepository(_context);
+    public IPaymentRepository Payments => _paymentRepository ??= new PaymentRepository(_context);
+    public IOrderFulfillmentRepository OrderFulfillments =>
+        _orderFulfillmentRepository ??= new OrderFulfillmentRepository(_context);
     public ISlideRepository Slides => _slideRepository ??= new SlideRepository(_context);
     public IExternalAuthProviderRepository ExternalAuthProviders =>
         _externalAuthProviderRepository ??= new ExternalAuthProviderRepository(_context);

@@ -75,6 +75,12 @@ public static class DbContextRegistration
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<ICartItemRepository, CartItemRepository>();
 
+        // order repositories
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IOrderFulfillmentRepository, OrderFulfillmentRepository>();
+
         return services;
     }
 }

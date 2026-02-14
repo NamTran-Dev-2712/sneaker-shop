@@ -22,6 +22,25 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 
         builder.Property(oi => oi.LineTotal).IsRequired().HasPrecision(18, 2);
 
+        // Snapshot columns
+        builder
+            .Property(oi => oi.ProductNameSnapshot)
+            .IsRequired()
+            .HasMaxLength(500)
+            .HasDefaultValue(string.Empty);
+
+        builder
+            .Property(oi => oi.SkuSnapshot)
+            .IsRequired()
+            .HasMaxLength(100)
+            .HasDefaultValue(string.Empty);
+
+        builder.Property(oi => oi.VariantNameSnapshot).HasMaxLength(200);
+
+        builder.Property(oi => oi.UnitPriceSnapshot).IsRequired().HasPrecision(18, 2);
+
+        builder.Property(oi => oi.PrimaryImageUrlSnapshot).HasMaxLength(1000);
+
         builder.Property(oi => oi.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.Property(oi => oi.UpdatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");

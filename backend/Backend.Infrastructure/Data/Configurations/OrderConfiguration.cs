@@ -28,6 +28,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.Note).HasMaxLength(1000);
 
+        builder.Property(o => o.IdempotencyKey).HasMaxLength(72);
+
         builder.Property(o => o.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.Property(o => o.UpdatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -41,6 +43,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasIndex(o => o.StaffId);
         builder.HasIndex(o => o.PlacedAt);
         builder.HasIndex(o => o.CreatedAt);
+
+        // Unique filtered index for idempotency — only non-null keys must be unique
+        builder
+            .HasIndex(o => o.IdempotencyKey)
+            .IsUnique()
+            .HasFilter("idempotency_key IS NOT NULL");
 
         // Composite indexes for common queries
         builder.HasIndex(o => new { o.Status, o.CreatedAt });

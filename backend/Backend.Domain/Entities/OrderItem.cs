@@ -9,6 +9,13 @@ public class OrderItem : BaseEntity
     public decimal Discount { get; set; } = 0;
     public decimal LineTotal { get; set; }
 
+    // Snapshot fields — captured at order creation time for historical accuracy
+    public string ProductNameSnapshot { get; set; } = string.Empty;
+    public string SkuSnapshot { get; set; } = string.Empty;
+    public string? VariantNameSnapshot { get; set; } // e.g. "Red / 42"
+    public decimal UnitPriceSnapshot { get; set; }
+    public string? PrimaryImageUrlSnapshot { get; set; }
+
     // Navigation properties
     public Order Order { get; set; } = null!;
     public SellableItem SellableItem { get; set; } = null!;

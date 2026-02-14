@@ -41,6 +41,16 @@ export default [
         // protected routes (authenticated)
         layout("./components/provider/auth.provider.tsx", [
           route("cart", "./routes/shop/cart/cart.index.tsx"),
+
+          // checkout routes — guarded by checkout provider (redirects to cart if no items)
+          layout("./components/provider/checkout.provider.tsx", [
+            route("checkout/shipping", "./routes/order/checkout.shipping.tsx"),
+            route("checkout/payment", "./routes/order/checkout.payment.tsx"),
+            route("checkout/review", "./routes/order/checkout.review.tsx"),
+          ]),
+
+          // checkout success — outside checkout guard (checkout state is cleared after order)
+          route("checkout/success", "./routes/order/checkout.success.tsx"),
         ]),
       ]),
     ]),
