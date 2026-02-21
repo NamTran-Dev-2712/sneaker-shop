@@ -115,8 +115,7 @@ public class AuthController : BaseController
 
     [Authorize]
     [HttpPut("profile")]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileCommand command)
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command)
     {
         var accountId = HttpContext.GetAccountId();
         if (accountId == null)
@@ -124,11 +123,28 @@ public class AuthController : BaseController
             return Unauthorized("Authentication không hợp lệ.");
         }
 
-        // Ensure user can only update their own profile
-        if (command.AccountId != accountId.Value)
+        // Override AccountId from JWT to prevent client tampering
+        var securedCommand = command with
         {
-            return Forbid("Bạn không có quyền cập nhật profile này.");
+            AccountId = accountId.Value,
+        };
+
+        var result = await _mediator.Send(securedCommand);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("profile/avatar")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateAvatar([FromForm] IFormFile avatar)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
         }
+
+        var command = new UpdateAvatarCommand { AccountId = accountId.Value, Avatar = avatar };
 
         var result = await _mediator.Send(command);
         return Ok(result);

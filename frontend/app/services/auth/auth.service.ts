@@ -6,6 +6,9 @@ import api from "~/common/configs/axios.config";
 import type { RegisterRequest } from "./dto/register/register.request";
 import type { LoginRequest } from "./dto/login/login.request";
 import type { LoginResponse } from "./dto/login/login.response";
+import type { UpdateProfileRequest } from "./dto/update-profile/update-profile.request";
+import type { UpdateProfileResponse } from "./dto/update-profile/update-profile.response";
+import type { UpdateAvatarResponse } from "./dto/update-avatar/update-avatar.response";
 
 const getApiUrl = (): string => {
   if (typeof window !== "undefined" && window.ENV?.VITE_API_URL) {
@@ -112,5 +115,57 @@ export const authSerivce = {
       ? `${baseApiUrl}/auth/google/start?returnUrl=${encodeURIComponent(returnUrl)}`
       : `${baseApiUrl}/auth/google/start`;
     window.location.href = url;
+  },
+
+  updateProfile: async (
+    request: UpdateProfileRequest,
+  ): Promise<ApiResponse<UpdateProfileResponse | null>> => {
+    try {
+      const res = await api.put<ApiResponse<UpdateProfileResponse | null>>(
+        "/auth/profile",
+        request,
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  updateAvatar: async (
+    file: File,
+  ): Promise<ApiResponse<UpdateAvatarResponse | null>> => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const res = await api.put<ApiResponse<UpdateAvatarResponse | null>>(
+        "/auth/profile/avatar",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
   },
 };

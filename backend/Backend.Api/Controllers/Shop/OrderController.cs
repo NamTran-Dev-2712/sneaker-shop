@@ -28,4 +28,34 @@ public class OrderController : BaseController
         var result = await _mediator.Send(command);
         return CreatedSuccess(nameof(CreateOrder), new { orderId = result.OrderId }, result);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetMyOrders([FromQuery] GetMyOrdersQuery query)
+    {
+        var customerId = HttpContext.GetCustomerId();
+        if (customerId == null)
+        {
+            return Unauthorized(new { message = "Không thể xác định thông tin khách hàng." });
+        }
+
+        query.CustomerId = customerId.Value;
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetOrderDetail(int id)
+    {
+        var customerId = HttpContext.GetCustomerId();
+        if (customerId == null)
+        {
+            return Unauthorized(new { message = "Không thể xác định thông tin khách hàng." });
+        }
+
+        var query = new GetOrderDetailQuery { CustomerId = customerId.Value, OrderId = id };
+
+        var result = await _mediator.Send(query);
+        return Ok(result);
+    }
 }

@@ -20,7 +20,6 @@ import type { ApiResponseError } from "~/types/global/api.response";
 import { useAppDispatch } from "~/hooks/redux";
 import { login } from "~/store/auth/auth.slice";
 import type { LoginRequest } from "~/services/auth/dto/login/login.request";
-import { convertPhoneVietNamToInternational } from "~/common/helpers/phone.helper";
 
 const OAUTH_ERROR_MESSAGES: Record<string, string> = {
   google_access_denied: "Bạn đã từ chối quyền truy cập Google.",
@@ -69,9 +68,7 @@ const LoginForm = () => {
 
       const loginRequest: LoginRequest = {
         password: data.password,
-        ...(isEmail
-          ? { email: data.identifier }
-          : { phone: convertPhoneVietNamToInternational(data.identifier) }),
+        ...(isEmail ? { email: data.identifier } : { phone: data.identifier }),
       };
 
       const response = await authSerivce.login(loginRequest);

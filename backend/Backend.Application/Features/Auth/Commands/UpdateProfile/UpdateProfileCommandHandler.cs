@@ -4,12 +4,10 @@ public class UpdateProfileCommandHandler
     : IRequestHandler<UpdateProfileCommand, UpdateProfileResult>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IImageService _imageService;
 
-    public UpdateProfileCommandHandler(IUnitOfWork unitOfWork, IImageService imageService)
+    public UpdateProfileCommandHandler(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
-        _imageService = imageService;
     }
 
     public async Task<UpdateProfileResult> Handle(
@@ -17,31 +15,36 @@ public class UpdateProfileCommandHandler
         CancellationToken cancellationToken
     )
     {
-        // 1. Get existing account
-        var account = await _unitOfWork.Repository<Account>().GetByIdAsync(command.AccountId);
+        // 1. Get existing account WITH CustomerAccount navigation
+        var account = await _unitOfWork
+            .Repository<Account>()
+            .GetByIdAsync(command.AccountId, a => a.CustomerAccount!);
+
         if (account == null || !account.IsActive)
         {
             throw new NotFoundException("Tài khoản không tồn tại hoặc không hoạt động.");
         }
 
-        // 2. Upload new avatar if provided (auto-delete old one)
-        ImageUploadResult? newAvatarUpload = null;
-        if (command.Avatar != null)
-        {
-            newAvatarUpload = await _imageService.ReplaceImageAsync(
-                command.Avatar,
-                CloudinaryFolder.Avatars,
-                account.PublicIdAvatar
-            );
-        }
+        // 2. Update account profile (email + phone only, avatar is a separate command)
+        account.UpdateProfile(command.Email, command.Phone, account.Avatar, account.PublicIdAvatar);
 
-        // 3. Update account profile
-        account.UpdateProfile(
-            command.Email,
-            command.Phone,
-            newAvatarUpload?.Url ?? account.Avatar,
-            newAvatarUpload?.PublicId ?? account.PublicIdAvatar
-        );
+        // 3. Update customer info (FullName, Birthday) if account is linked
+        Customer? customer = null;
+        if (account.CustomerAccount != null)
+        {
+            customer = await _unitOfWork
+                .Repository<Customer>()
+                .GetByIdAsync(account.CustomerAccount.CustomerId);
+
+            if (customer != null)
+            {
+                customer.UpdateInfo(
+                    command.Email,
+                    command.FullName ?? customer.FullName,
+                    command.Birthday ?? customer.Birthday
+                );
+            }
+        }
 
         // 4. Save changes
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -53,6 +56,8 @@ public class UpdateProfileCommandHandler
             Email = account.Email,
             Phone = account.Phone,
             Avatar = account.Avatar,
+            FullName = customer?.FullName,
+            Birthday = customer?.Birthday,
             UpdatedAt = account.UpdatedAt,
         };
     }

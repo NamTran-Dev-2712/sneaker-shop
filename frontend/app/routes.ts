@@ -42,6 +42,11 @@ export default [
         layout("./components/provider/auth.provider.tsx", [
           route("cart", "./routes/shop/cart/cart.index.tsx"),
 
+          // user profile & orders routes
+          route("profile", "./routes/user/profile.tsx"),
+          route("orders", "./routes/user/orders.tsx"),
+          route("orders/:id", "./routes/user/order-detail.tsx"),
+
           // checkout routes — guarded by checkout provider (redirects to cart if no items)
           layout("./components/provider/checkout.provider.tsx", [
             route("checkout/shipping", "./routes/order/checkout.shipping.tsx"),

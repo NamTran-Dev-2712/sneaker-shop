@@ -21,7 +21,6 @@ import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import SocialLogin from "../social-login";
 import UploadImage from "~/components/common/shared/upload-image";
-import { convertPhoneVietNamToInternational } from "~/common/helpers/phone.helper";
 import { authSerivce } from "~/services/auth/auth.service";
 import { getErrMessage } from "~/common/helpers/get-err-message.helper";
 import type { ApiResponseError } from "~/types/global/api.response";
@@ -51,10 +50,7 @@ const RegisterForm = () => {
       const formattedData: FormData = new FormData();
       formattedData.append("fullName", data.fullName);
       formattedData.append("email", data.email);
-      formattedData.append(
-        "phone",
-        convertPhoneVietNamToInternational(data.phone),
-      );
+      formattedData.append("phone", data.phone);
       formattedData.append("birthday", data.birthday);
       formattedData.append("password", data.password);
       if (data.avatar) {

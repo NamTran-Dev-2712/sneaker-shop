@@ -40,8 +40,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
         RuleFor(x => x.Phone)
             .NotEmpty()
             .WithMessage("Số điện thoại là bắt buộc.")
-            .Matches(@"^\+?[1-9]\d{1,14}$")
-            .WithMessage("Định dạng số điện thoại không hợp lệ.")
+            .Matches(@"^[0-9]{10,11}$")
+            .WithMessage("Số điện thoại phải có 10-11 chữ số.")
             .When(x => !string.IsNullOrEmpty(x.Phone))
             .MustAsync(
                 async (phone, cancellation) =>
