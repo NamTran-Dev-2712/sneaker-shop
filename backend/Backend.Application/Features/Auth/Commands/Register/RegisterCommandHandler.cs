@@ -7,7 +7,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IImageService _imageService;
-    private readonly IMailSender _mailSender;
+    private readonly IEmailJobQueue _emailJobQueue;
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _configuration;
 
@@ -16,7 +16,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         IUnitOfWork unitOfWork,
         IPasswordHasher passwordHasher,
         IImageService imageService,
-        IMailSender mailSender,
+        IEmailJobQueue emailJobQueue,
         ITokenService tokenService,
         IConfiguration configuration
     )
@@ -25,7 +25,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         _unitOfWork = unitOfWork;
         _passwordHasher = passwordHasher;
         _imageService = imageService;
-        _mailSender = mailSender;
+        _emailJobQueue = emailJobQueue;
         _tokenService = tokenService;
         _configuration = configuration;
     }
@@ -88,34 +88,21 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         // 4. Persist all changes in single transaction
         await _unitOfWork.SaveChangesAsync();
 
-        // 5. Send verification email (async, don't block response)
+        // 5. Enqueue verification email via background job
         if (!string.IsNullOrEmpty(account.Email))
         {
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    var verificationToken = _tokenService.GenerateEmailVerificationToken(
-                        account.Id,
-                        account.Email
-                    );
+            var verificationToken = _tokenService.GenerateEmailVerificationToken(
+                account.Id,
+                account.Email
+            );
+            var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5000";
+            var verificationLink = $"{baseUrl}/api/auth/verify-email?token={verificationToken}";
 
-                    var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "http://localhost:5000";
-                    var verificationLink =
-                        $"{baseUrl}/api/auth/verify-email?token={verificationToken}";
-
-                    await _mailSender.SendVerificationEmailAsync(
-                        account.Email,
-                        command.FullName,
-                        verificationLink
-                    );
-                }
-                catch (Exception e)
-                {
-                    // Log the exception (omitted for brevity)
-                    throw new Exception($"Error sending verification email: {e.Message}", e);
-                }
-            });
+            _emailJobQueue.EnqueueVerificationEmail(
+                account.Email,
+                command.FullName,
+                verificationLink
+            );
         }
 
         // 6. Return result

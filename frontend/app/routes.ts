@@ -75,6 +75,9 @@ export default [
           route("attributes/sizes", "./routes/admin/attribute/size.tsx"),
           route("attributes/slides", "./routes/admin/attribute/slide.tsx"),
 
+          // staff management routes
+          route("employees", "./routes/admin/user/staff.tsx"),
+
           // sneaker management routes
           route(
             "sneakers",
@@ -151,6 +154,16 @@ export default [
             "purchase-orders/:id",
             "./routes/admin/procurement/purchase-order/purchase-order.detail.tsx",
           ),
+        ]),
+      ]),
+    ]),
+
+    // staff routes
+    ...prefix("staff", [
+      layout("./components/provider/staff.provider.tsx", [
+        layout("./layouts/staff/staff.layout.tsx", [
+          index("./routes/staff/dashboard.tsx"),
+          route("profile", "./routes/staff/profile.tsx"),
         ]),
       ]),
     ]),

@@ -74,4 +74,25 @@ public class MailSenderService : IMailSender
 
         await SendEmailAsync(toEmail, "Verify Your Email - Sneaker Shop", htmlBody);
     }
+
+    public async Task SendStaffCredentialsEmailAsync(
+        string toEmail,
+        string fullName,
+        string rawPassword,
+        string storeName
+    )
+    {
+        var model = new StaffCredentialsModel
+        {
+            FullName = fullName,
+            Email = toEmail,
+            Password = rawPassword,
+            StoreName = storeName,
+        };
+
+        var templatePath = "Email/StaffCredentialsTemplate.cshtml";
+        var htmlBody = await _razorEngine.CompileRenderAsync(templatePath, model);
+
+        await SendEmailAsync(toEmail, "Thông tin tài khoản nhân viên - Sneaker Shop", htmlBody);
+    }
 }

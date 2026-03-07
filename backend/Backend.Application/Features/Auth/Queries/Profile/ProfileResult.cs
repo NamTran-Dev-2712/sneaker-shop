@@ -10,4 +10,15 @@ public record ProfileResult
     public string? Birthday { get; init; }
     public required Role Role { get; init; }
     public int CartItemCount { get; init; }
+    public StaffProfileInfo? StaffProfile { get; init; }
+}
+
+public record StaffProfileInfo
+{
+    public required int StaffId { get; init; }
+    public required int StoreId { get; init; }
+    public required string StoreName { get; init; }
+    public required string StoreCode { get; init; }
+    public string? StoreAddress { get; init; }
+    public string? StorePhone { get; init; }
 }

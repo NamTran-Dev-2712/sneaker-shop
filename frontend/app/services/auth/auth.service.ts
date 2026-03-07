@@ -9,6 +9,8 @@ import type { LoginResponse } from "./dto/login/login.response";
 import type { UpdateProfileRequest } from "./dto/update-profile/update-profile.request";
 import type { UpdateProfileResponse } from "./dto/update-profile/update-profile.response";
 import type { UpdateAvatarResponse } from "./dto/update-avatar/update-avatar.response";
+import type { ChangePasswordRequest } from "./dto/change-password/change-password.request";
+import type { ChangePasswordResponse } from "./dto/change-password/change-password.response";
 
 const getApiUrl = (): string => {
   if (typeof window !== "undefined" && window.ENV?.VITE_API_URL) {
@@ -129,6 +131,27 @@ export const authSerivce = {
     } catch (error) {
       const err = error as ApiResponseError;
 
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  changePassword: async (
+    request: ChangePasswordRequest,
+  ): Promise<ApiResponse<ChangePasswordResponse | null>> => {
+    try {
+      const res = await api.put<ApiResponse<ChangePasswordResponse | null>>(
+        "/auth/password",
+        request,
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
       return {
         success: false,
         statusCode: err.statusCode,

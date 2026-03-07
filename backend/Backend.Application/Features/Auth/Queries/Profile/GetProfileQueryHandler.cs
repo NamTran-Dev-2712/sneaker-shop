@@ -46,7 +46,32 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileRe
             cartItemCount = cart?.TotalCount ?? 0;
         }
 
-        // 4. Return profile result
+        // 4. Get staff profile info if role is STAFF
+        StaffProfileInfo? staffProfileInfo = null;
+        if (account.Role == Role.STAFF)
+        {
+            var staffProfile = account.StaffProfile;
+            if (staffProfile != null)
+            {
+                var staffWithDetails = await _unitOfWork.Staffs.GetByIdWithDetailsAsync(
+                    staffProfile.Id
+                );
+                if (staffWithDetails != null)
+                {
+                    staffProfileInfo = new StaffProfileInfo
+                    {
+                        StaffId = staffWithDetails.Id,
+                        StoreId = staffWithDetails.StoreId,
+                        StoreName = staffWithDetails.Store.Name,
+                        StoreCode = staffWithDetails.Store.Code,
+                        StoreAddress = staffWithDetails.Store.Address,
+                        StorePhone = staffWithDetails.Store.Phone,
+                    };
+                }
+            }
+        }
+
+        // 5. Return profile result
         return new ProfileResult
         {
             AccountId = account.Id,
@@ -54,11 +79,15 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileRe
             Email = account.Email ?? string.Empty,
             IsEmailVerified = account.IsEmailVerified,
             Phone = account.Phone,
-            FullName = customer?.FullName ?? string.Empty,
+            FullName =
+                account.Role == Role.STAFF
+                    ? (account.StaffProfile?.FullName ?? string.Empty)
+                    : (customer?.FullName ?? string.Empty),
             Avatar = account.Avatar,
             Birthday = customer?.Birthday,
             Role = account.Role,
             CartItemCount = cartItemCount,
+            StaffProfile = staffProfileInfo,
         };
     }
 }

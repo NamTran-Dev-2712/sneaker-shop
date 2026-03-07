@@ -149,4 +149,19 @@ public class AuthController : BaseController
         var result = await _mediator.Send(command);
         return Ok(result);
     }
+
+    [Authorize]
+    [HttpPut("password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
+        }
+
+        var securedCommand = command with { AccountId = accountId.Value };
+        var result = await _mediator.Send(securedCommand);
+        return Ok(result);
+    }
 }

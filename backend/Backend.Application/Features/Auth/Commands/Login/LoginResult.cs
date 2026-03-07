@@ -12,4 +12,5 @@ public record LoginResult
     public int CartItemCount { get; init; }
     public required string AccessToken { get; init; }
     public required string RefreshToken { get; init; }
+    public StaffProfileInfo? StaffProfile { get; init; }
 }

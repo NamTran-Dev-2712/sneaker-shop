@@ -84,7 +84,8 @@ public class AuthRepository : IAuthRepository
                 a =>
                     (a.Email != null && a.Email.ToLower() == normalizedInput)
                     || a.Phone.ToLower() == normalizedInput,
-                a => a.CustomerAccount!
+                a => a.CustomerAccount!,
+                a => a.StaffProfile!
             );
 
         return account;

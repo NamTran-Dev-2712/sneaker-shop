@@ -10,7 +10,7 @@ const ClientProvider = ({ children }: { children: React.ReactNode }) => {
   if (auth.user?.role === Role.ADMIN) {
     return <Navigate to="/admin" />;
   } else if (auth.user?.role === Role.STAFF) {
-    return <Navigate to="/staff/orders" />;
+    return <Navigate to="/staff/" />;
   }
 
   return <>{children ? children : <Outlet />}</>;

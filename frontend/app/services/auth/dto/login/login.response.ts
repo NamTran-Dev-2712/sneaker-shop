@@ -1,5 +1,14 @@
 import type { Role } from "~/types/entities/user.type";
 
+export interface StaffProfileInfo {
+  staffId: number;
+  storeId: number;
+  storeName: string;
+  storeCode: string;
+  storeAddress?: string;
+  storePhone?: string;
+}
+
 export interface LoginResponse {
   accountId: number;
   customerId?: number;
@@ -11,4 +20,5 @@ export interface LoginResponse {
   birthday?: string;
   role: Role;
   cartItemCount: number;
+  staffProfile?: StaffProfileInfo;
 }

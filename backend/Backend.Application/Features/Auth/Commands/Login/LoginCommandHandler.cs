@@ -64,6 +64,27 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
             cartItemCount = cart?.TotalCount ?? 0;
         }
 
+        // 4b. Get staff profile info if role is STAFF
+        StaffProfileInfo? staffProfileInfo = null;
+        if (account.Role == Role.STAFF && account.StaffProfile != null)
+        {
+            var staffWithDetails = await _unitOfWork.Staffs.GetByIdWithDetailsAsync(
+                account.StaffProfile.Id
+            );
+            if (staffWithDetails != null)
+            {
+                staffProfileInfo = new StaffProfileInfo
+                {
+                    StaffId = staffWithDetails.Id,
+                    StoreId = staffWithDetails.StoreId,
+                    StoreName = staffWithDetails.Store.Name,
+                    StoreCode = staffWithDetails.Store.Code,
+                    StoreAddress = staffWithDetails.Store.Address,
+                    StorePhone = staffWithDetails.Store.Phone,
+                };
+            }
+        }
+
         // 5. Generate JWT claims
         var claims = new List<Claim>
         {
@@ -83,6 +104,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
             }
         }
 
+        if (account.Role == Role.STAFF && account.StaffProfile != null)
+        {
+            claims.Add(new Claim("StaffId", account.StaffProfile.Id.ToString()));
+            if (!string.IsNullOrEmpty(account.StaffProfile.FullName))
+            {
+                claims.Add(new Claim(ClaimTypes.Name, account.StaffProfile.FullName));
+            }
+        }
+
         // 6. Generate tokens
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken(claims);
@@ -95,13 +125,17 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
             Email = account.Email ?? string.Empty,
             IsEmailVerified = account.IsEmailVerified,
             Phone = account.Phone,
-            FullName = customer?.FullName ?? string.Empty,
+            FullName =
+                account.Role == Role.STAFF
+                    ? (account.StaffProfile?.FullName ?? string.Empty)
+                    : (customer?.FullName ?? string.Empty),
             Avatar = account.Avatar,
             Birthday = customer?.Birthday,
             Role = account.Role,
             CartItemCount = cartItemCount,
             AccessToken = accessToken,
             RefreshToken = refreshToken,
+            StaffProfile = staffProfileInfo,
         };
     }
 }

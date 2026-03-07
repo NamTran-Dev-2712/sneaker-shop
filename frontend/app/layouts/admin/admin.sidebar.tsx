@@ -78,20 +78,7 @@ const menuItems: MenuItem[] = [
     id: "employees",
     label: "Quản lý Nhân viên",
     icon: <UserCog className="h-5 w-5" />,
-    children: [
-      {
-        id: "employees-list",
-        label: "Danh sách",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/employees",
-      },
-      {
-        id: "employees-create",
-        label: "Tạo mới",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/employees/create",
-      },
-    ],
+    path: "/admin/employees",
   },
   {
     id: "customers",

@@ -25,6 +25,11 @@ public static class ServiceInfrastructureRegistration
 
         services.AddScoped<IMailSender, MailSenderService>();
 
+        // Background email queue (singleton channel + hosted processor)
+        services.AddSingleton<EmailJobQueue>();
+        services.AddSingleton<IEmailJobQueue>(sp => sp.GetRequiredService<EmailJobQueue>());
+        services.AddHostedService<EmailProcessorService>();
+
         return services;
     }
 }
