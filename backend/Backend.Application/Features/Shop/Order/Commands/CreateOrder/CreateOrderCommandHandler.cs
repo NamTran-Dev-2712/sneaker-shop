@@ -44,6 +44,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
     {
         var fulfillmentType = Enum.Parse<FulfillmentType>(command.FulfillmentType, true);
         var paymentMethod = Enum.Parse<PaymentMethod>(command.PaymentMethod, true);
+        var isCodPayment = paymentMethod == PaymentMethod.COD;
 
         // 1. Validate all inventory items and reserve stock
         var orderItems = new List<OrderItem>();
@@ -129,6 +130,12 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
         };
         order.Place();
 
+        // Prepaid online orders are auto-confirmed by system (no manual paid step before packing).
+        if (!isCodPayment)
+        {
+            order.UpdateStatus(OrderStatus.CONFIRMED);
+        }
+
         await _unitOfWork.Orders.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -145,9 +152,9 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
         {
             OrderId = order.Id,
             Method = paymentMethod,
-            Status =
-                paymentMethod == PaymentMethod.COD ? PaymentStatus.PENDING : PaymentStatus.PENDING,
+            Status = isCodPayment ? PaymentStatus.PENDING : PaymentStatus.PAID,
             Amount = total,
+            PaidAt = isCodPayment ? null : DateTime.UtcNow,
         };
 
         await _unitOfWork.Payments.AddAsync(payment, cancellationToken);

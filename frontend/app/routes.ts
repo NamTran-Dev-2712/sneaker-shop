@@ -163,6 +163,8 @@ export default [
       layout("./components/provider/staff.provider.tsx", [
         layout("./layouts/staff/staff.layout.tsx", [
           index("./routes/staff/dashboard.tsx"),
+          route("orders", "./routes/staff/orders/orders.tsx"),
+          route("orders/:id", "./routes/staff/orders/order-detail.tsx"),
           route("profile", "./routes/staff/profile.tsx"),
         ]),
       ]),

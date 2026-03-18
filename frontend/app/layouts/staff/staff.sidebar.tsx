@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router";
 import { cn } from "~/lib/utils";
-import { LayoutDashboard, User } from "lucide-react";
+import { LayoutDashboard, Package, User } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 
@@ -23,6 +23,12 @@ const menuItems: MenuItem[] = [
     label: "Hồ sơ cá nhân",
     icon: <User className="h-5 w-5" />,
     path: "/staff/profile",
+  },
+  {
+    id: "orders",
+    label: "Quản lý đơn hàng",
+    icon: <Package className="h-5 w-5" />,
+    path: "/staff/orders",
   },
 ];
 

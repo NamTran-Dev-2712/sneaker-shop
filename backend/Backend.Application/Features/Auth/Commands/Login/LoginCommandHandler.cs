@@ -107,6 +107,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
         if (account.Role == Role.STAFF && account.StaffProfile != null)
         {
             claims.Add(new Claim("StaffId", account.StaffProfile.Id.ToString()));
+            claims.Add(new Claim("StoreId", account.StaffProfile.StoreId.ToString()));
             if (!string.IsNullOrEmpty(account.StaffProfile.FullName))
             {
                 claims.Add(new Claim(ClaimTypes.Name, account.StaffProfile.FullName));
