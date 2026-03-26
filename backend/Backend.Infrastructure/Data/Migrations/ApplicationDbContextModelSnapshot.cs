@@ -857,6 +857,109 @@ namespace Backend.Infrastructure.Data.Migrations
                     b.ToTable("external_auth_providers", (string)null);
                 });
 
+            modelBuilder.Entity("FinanceLedgerEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("GENERAL")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<int?>("SourceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int?>("StoreId")
+                        .HasColumnType("integer")
+                        .HasColumnName("store_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id")
+                        .HasName("pk_finance_ledger_entries");
+
+                    b.HasIndex("CreatedBy")
+                        .HasDatabaseName("ix_finance_ledger_entries_created_by");
+
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("ix_finance_ledger_entries_occurred_at");
+
+                    b.HasIndex("SourceType")
+                        .HasDatabaseName("ix_finance_ledger_entries_source_type");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_finance_ledger_entries_status");
+
+                    b.HasIndex("StoreId")
+                        .HasDatabaseName("ix_finance_ledger_entries_store_id");
+
+                    b.HasIndex("SourceType", "SourceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_finance_ledger_entries_source_type_source_id")
+                        .HasFilter("source_id IS NOT NULL");
+
+                    b.HasIndex("Status", "OccurredAt")
+                        .HasDatabaseName("ix_finance_ledger_entries_status_occurred_at");
+
+                    b.HasIndex("StoreId", "OccurredAt")
+                        .HasDatabaseName("ix_finance_ledger_entries_store_id_occurred_at");
+
+                    b.ToTable("finance_ledger_entries", (string)null);
+                });
+
             modelBuilder.Entity("Inventory", b =>
                 {
                     b.Property<int>("Id")
@@ -2870,6 +2973,25 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasConstraintName("fk_external_auth_providers_accounts_account_id");
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("FinanceLedgerEntry", b =>
+                {
+                    b.HasOne("Account", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_finance_ledger_entries_accounts_created_by");
+
+                    b.HasOne("Store", "Store")
+                        .WithMany()
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_finance_ledger_entries_stores_store_id");
+
+                    b.Navigation("Creator");
+
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Inventory", b =>

@@ -159,6 +159,34 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
 
         await _unitOfWork.Payments.AddAsync(payment, cancellationToken);
 
+        if (!isCodPayment)
+        {
+            var hasIncomeEntry = await _unitOfWork.FinanceLedgerEntries.ExistsBySourceAsync(
+                FinanceEntrySourceType.ORDER_PAYMENT,
+                order.Id,
+                cancellationToken
+            );
+
+            if (!hasIncomeEntry)
+            {
+                await _unitOfWork.FinanceLedgerEntries.AddAsync(
+                    new FinanceLedgerEntry
+                    {
+                        Status = FinanceEntryStatus.INCOME,
+                        Amount = total,
+                        Category = "ORDER",
+                        Description = $"Thanh toán online đơn hàng ORD-{order.Id:D6}",
+                        SourceType = FinanceEntrySourceType.ORDER_PAYMENT,
+                        SourceId = order.Id,
+                        StoreId = order.StoreId,
+                        CreatedBy = order.CreatedBy,
+                        OccurredAt = payment.PaidAt ?? DateTime.UtcNow,
+                    },
+                    cancellationToken
+                );
+            }
+        }
+
         // 6. Create fulfillment record
         var fulfillment = new OrderFulfillment { OrderId = order.Id, Type = fulfillmentType };
 

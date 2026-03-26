@@ -58,4 +58,23 @@ public class OrderController : BaseController
         var result = await _mediator.Send(query);
         return Ok(result);
     }
+
+    [HttpPost("{id:int}/confirm-received")]
+    public async Task<IActionResult> ConfirmReceived(int id)
+    {
+        var customerId = HttpContext.GetCustomerId();
+        if (customerId == null)
+        {
+            return Unauthorized(new { message = "Không thể xác định thông tin khách hàng." });
+        }
+
+        var command = new ConfirmOrderReceivedCommand
+        {
+            OrderId = id,
+            CustomerId = customerId.Value,
+        };
+
+        var result = await _mediator.Send(command);
+        return OkCustom(result, "Xác nhận đã nhận hàng thành công.");
+    }
 }

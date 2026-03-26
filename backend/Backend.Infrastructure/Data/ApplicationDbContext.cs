@@ -69,6 +69,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<ReturnItem> ReturnItems { get; set; }
     public DbSet<RestockRequest> RestockRequests { get; set; }
 
+    // Finance DbSets
+    public DbSet<FinanceLedgerEntry> FinanceLedgerEntries { get; set; }
+
     public IDbContextTransaction? GetCurrentTransaction() => _currentTransaction;
 
     public bool HasActiveTransaction => _currentTransaction != null;

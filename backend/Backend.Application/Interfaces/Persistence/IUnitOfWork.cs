@@ -35,6 +35,7 @@ public interface IUnitOfWork
     IOrderFulfillmentRepository OrderFulfillments { get; }
     ISlideRepository Slides { get; }
     IExternalAuthProviderRepository ExternalAuthProviders { get; }
+    IFinanceLedgerEntryRepository FinanceLedgerEntries { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

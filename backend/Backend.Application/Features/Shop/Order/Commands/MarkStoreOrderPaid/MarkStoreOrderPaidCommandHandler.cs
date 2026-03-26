@@ -55,6 +55,31 @@ public class MarkStoreOrderPaidCommandHandler
         order.MarkAsPaid();
         order.StaffId = command.StaffAccountId;
 
+        var hasIncomeEntry = await _unitOfWork.FinanceLedgerEntries.ExistsBySourceAsync(
+            FinanceEntrySourceType.ORDER_PAYMENT,
+            order.Id,
+            cancellationToken
+        );
+
+        if (!hasIncomeEntry)
+        {
+            await _unitOfWork.FinanceLedgerEntries.AddAsync(
+                new FinanceLedgerEntry
+                {
+                    Status = FinanceEntryStatus.INCOME,
+                    Amount = payment.Amount,
+                    Category = "ORDER",
+                    Description = $"Thanh toán đơn hàng ORD-{order.Id:D6}",
+                    SourceType = FinanceEntrySourceType.ORDER_PAYMENT,
+                    SourceId = order.Id,
+                    StoreId = order.StoreId,
+                    CreatedBy = command.StaffAccountId,
+                    OccurredAt = payment.PaidAt ?? DateTime.UtcNow,
+                },
+                cancellationToken
+            );
+        }
+
         _unitOfWork.Payments.Update(payment);
         _unitOfWork.Orders.Update(order);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

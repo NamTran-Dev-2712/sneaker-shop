@@ -74,4 +74,23 @@ export const orderService = {
       };
     }
   },
+
+  confirmReceived: async (id: number): Promise<ApiResponse<unknown>> => {
+    try {
+      const res = await api.post<ApiResponse<unknown>>(
+        `/orders/${id}/confirm-received`,
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
 };

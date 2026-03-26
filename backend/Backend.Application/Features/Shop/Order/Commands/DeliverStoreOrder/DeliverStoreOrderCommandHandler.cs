@@ -37,15 +37,13 @@ public class DeliverStoreOrderCommandHandler
             throw new NotFoundException("Không tìm thấy thông tin giao/nhận của đơn hàng.");
         }
 
-        var isDeliveryFlow = order.OrderFulfillment.Type == FulfillmentType.DELIVERY;
-        var isValidStatus =
-            (isDeliveryFlow && order.Status == OrderStatus.SHIPPED)
-            || (!isDeliveryFlow && order.Status == OrderStatus.PACKED);
-
-        if (!isValidStatus)
+        if (
+            order.OrderFulfillment.Type != FulfillmentType.PICKUP
+            || order.Status != OrderStatus.PACKED
+        )
         {
             throw new BadException(
-                "Không thể hoàn tất đơn hàng ở trạng thái hiện tại. DELIVERY phải ở SHIPPED, PICKUP phải ở PACKED."
+                "Nhân viên chỉ có thể hoàn tất đơn PICKUP ở trạng thái PACKED. Đơn DELIVERY phải do khách hàng xác nhận đã nhận hàng."
             );
         }
 
@@ -60,6 +58,32 @@ public class DeliverStoreOrderCommandHandler
         )
         {
             payment.MarkAsPaid();
+
+            var hasIncomeEntry = await _unitOfWork.FinanceLedgerEntries.ExistsBySourceAsync(
+                FinanceEntrySourceType.ORDER_PAYMENT,
+                order.Id,
+                cancellationToken
+            );
+
+            if (!hasIncomeEntry)
+            {
+                await _unitOfWork.FinanceLedgerEntries.AddAsync(
+                    new FinanceLedgerEntry
+                    {
+                        Status = FinanceEntryStatus.INCOME,
+                        Amount = payment.Amount,
+                        Category = "ORDER",
+                        Description = $"Thanh toán COD đơn hàng ORD-{order.Id:D6}",
+                        SourceType = FinanceEntrySourceType.ORDER_PAYMENT,
+                        SourceId = order.Id,
+                        StoreId = order.StoreId,
+                        CreatedBy = command.StaffAccountId,
+                        OccurredAt = payment.PaidAt ?? DateTime.UtcNow,
+                    },
+                    cancellationToken
+                );
+            }
+
             _unitOfWork.Payments.Update(payment);
         }
 

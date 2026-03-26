@@ -45,6 +45,7 @@ public class UpdateStatusPurchaseOrderCommandHandler
                 if (command.NewStatus == PurchaseStatus.RECEIVED)
                 {
                     await AddToInventoryAsync(purchaseOrder, cancellationToken);
+                    await CreateExpenseLedgerEntryAsync(purchaseOrder, cancellationToken);
                 }
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -159,5 +160,43 @@ public class UpdateStatusPurchaseOrderCommandHandler
         {
             await _unitOfWork.Inventories.AddRangeAsync(newInventories, cancellationToken);
         }
+    }
+
+    private async Task CreateExpenseLedgerEntryAsync(
+        PurchaseOrder purchaseOrder,
+        CancellationToken cancellationToken
+    )
+    {
+        var alreadyExists = await _unitOfWork.FinanceLedgerEntries.ExistsBySourceAsync(
+            FinanceEntrySourceType.PURCHASE_ORDER,
+            purchaseOrder.Id,
+            cancellationToken
+        );
+
+        if (alreadyExists)
+        {
+            return;
+        }
+
+        var totalCost = purchaseOrder.Items.Sum(x => x.Quantity * x.UnitCost);
+        if (totalCost <= 0)
+        {
+            return;
+        }
+
+        var entry = new FinanceLedgerEntry
+        {
+            Status = FinanceEntryStatus.EXPENSE,
+            Amount = totalCost,
+            Category = "PROCUREMENT",
+            Description = $"Nhập hàng từ đơn PO-{purchaseOrder.Id:D6}",
+            SourceType = FinanceEntrySourceType.PURCHASE_ORDER,
+            SourceId = purchaseOrder.Id,
+            StoreId = purchaseOrder.StoreId,
+            CreatedBy = purchaseOrder.CreatedBy,
+            OccurredAt = DateTime.UtcNow,
+        };
+
+        await _unitOfWork.FinanceLedgerEntries.AddAsync(entry, cancellationToken);
     }
 }

@@ -17,7 +17,10 @@ import { Separator } from "~/components/ui/separator";
 import { Skeleton } from "~/components/ui/skeleton";
 import { formatCurrency } from "~/common/helpers/format-currency.helper";
 import { formatDate } from "~/common/helpers/format-date.helper";
-import { useOrderDetail } from "~/hooks/react-query/use-order.query";
+import {
+  useConfirmOrderReceived,
+  useOrderDetail,
+} from "~/hooks/react-query/use-order.query";
 
 // ========================
 // Status config (reuse from order-card pattern)
@@ -104,6 +107,7 @@ const OrderDetailPage = () => {
   const { id } = useParams();
   const orderId = Number(id);
   const { data: order, isLoading, isError, error } = useOrderDetail(orderId);
+  const confirmReceivedMutation = useConfirmOrderReceived(orderId);
 
   if (isLoading) return <DetailSkeleton />;
 
@@ -140,6 +144,9 @@ const OrderDetailPage = () => {
     className: "border-gray-400 text-gray-600 bg-gray-50",
   };
 
+  const canConfirmReceived =
+    order.status === "SHIPPED" && order.fulfillmentType === "DELIVERY";
+
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* Back button */}
@@ -170,13 +177,33 @@ const OrderDetailPage = () => {
             </p>
           )}
         </div>
-        <Badge
-          variant="outline"
-          className={`text-sm px-3 py-1 w-fit ${statusConfig.className}`}
-        >
-          {statusConfig.label}
-        </Badge>
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <Badge
+            variant="outline"
+            className={`text-sm px-3 py-1 w-fit ${statusConfig.className}`}
+          >
+            {statusConfig.label}
+          </Badge>
+
+          {canConfirmReceived && (
+            <Button
+              onClick={() => confirmReceivedMutation.mutate()}
+              disabled={confirmReceivedMutation.isPending}
+            >
+              {confirmReceivedMutation.isPending
+                ? "Đang xác nhận..."
+                : "Xác nhận đã nhận hàng"}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {canConfirmReceived && (
+        <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
+          Đơn hàng đã được bàn giao cho đơn vị vận chuyển. Vui lòng xác nhận khi
+          bạn đã nhận hàng thành công.
+        </div>
+      )}
 
       {/* Main content — responsive grid */}
       <div className="grid gap-6 md:grid-cols-3">

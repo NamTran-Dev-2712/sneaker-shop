@@ -3,7 +3,7 @@ import { orderService } from "~/services/order/order.service";
 import type { CreateOrderRequest } from "~/services/order/dto/create-order/create-order.request";
 import type { GetMyOrdersRequest } from "~/services/order/dto/get-my-orders/get-my-orders.request";
 import { cartKeys } from "./use-cart.query";
-import { showErrorToast } from "~/components/common/toast";
+import { showErrorToast, showSuccessToast } from "~/components/common/toast";
 
 // ==========================================
 // Query Keys
@@ -84,6 +84,28 @@ export const useCreateOrder = () => {
       showErrorToast(
         error.message || "Không thể tạo đơn hàng. Vui lòng thử lại.",
       );
+    },
+  });
+};
+
+export const useConfirmOrderReceived = (orderId: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await orderService.confirmReceived(orderId);
+      if (!response.success) {
+        throw new Error(response.message || "Không thể xác nhận đã nhận hàng");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      showSuccessToast("Xác nhận đã nhận hàng thành công.");
+      queryClient.invalidateQueries({ queryKey: orderKeys.detail(orderId) });
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+    },
+    onError: (error: Error) => {
+      showErrorToast(error.message || "Xác nhận thất bại. Vui lòng thử lại.");
     },
   });
 };

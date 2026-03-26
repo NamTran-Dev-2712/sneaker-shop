@@ -86,7 +86,7 @@ const StaffOrderDetailPage = () => {
       });
     }
 
-    if ((order.status === "PACKED" && isPickup) || order.status === "SHIPPED") {
+    if (order.status === "PACKED" && isPickup) {
       result.push({
         key: "deliver",
         label: "Hoàn tất đơn",

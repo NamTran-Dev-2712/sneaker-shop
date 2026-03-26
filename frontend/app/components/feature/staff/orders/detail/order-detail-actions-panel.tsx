@@ -30,6 +30,9 @@ const OrderDetailActionsPanel = ({
   onTrackingCodeChange,
   onCancelReasonChange,
 }: OrderDetailActionsPanelProps) => {
+  const isWaitingCustomerConfirm =
+    order.fulfillmentType === "DELIVERY" && order.status === "SHIPPED";
+
   return (
     <div className="space-y-6">
       <Card>
@@ -99,7 +102,9 @@ const OrderDetailActionsPanel = ({
         <CardContent className="space-y-2">
           {actions.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Không có thao tác hợp lệ cho trạng thái hiện tại.
+              {isWaitingCustomerConfirm
+                ? "Đơn đã bàn giao cho đơn vị vận chuyển. Chờ khách hàng xác nhận đã nhận hàng."
+                : "Không có thao tác hợp lệ cho trạng thái hiện tại."}
             </p>
           ) : (
             actions.map((action) => (
