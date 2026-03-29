@@ -7,4 +7,10 @@ public interface IOrderRepository : IGenericRepository<Order>
         string idempotencyKey,
         CancellationToken cancellationToken = default
     );
+
+    /// <summary>
+    /// Fetch an order with Payments using SELECT FOR UPDATE (pessimistic lock).
+    /// Use inside a transaction to prevent concurrent state mutations (e.g., double mark-paid).
+    /// </summary>
+    Task<Order?> GetByIdWithLockAsync(int orderId, CancellationToken cancellationToken = default);
 }

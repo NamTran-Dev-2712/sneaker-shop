@@ -19,6 +19,7 @@ public class GetStaffOrderDetailQueryHandler
         var order = await _unitOfWork
             .Orders.Query()
             .AsNoTracking()
+            .AsSplitQuery() // Prevents cartesian explosion from multiple collection Includes
             .Include(o => o.OrderItems)
             .Include(o => o.Payments)
             .Include(o => o.Store)
@@ -30,14 +31,10 @@ public class GetStaffOrderDetailQueryHandler
             .FirstOrDefaultAsync(o => o.Id == query.OrderId, cancellationToken);
 
         if (order == null)
-        {
             throw new NotFoundException("Không tìm thấy đơn hàng.");
-        }
 
         if (order.StoreId != query.StoreId)
-        {
             throw new ForbiddenException("Bạn không có quyền xem đơn hàng này.");
-        }
 
         var payment = order.Payments.OrderByDescending(x => x.UpdatedAt).FirstOrDefault();
         var fulfillment = order.OrderFulfillment;

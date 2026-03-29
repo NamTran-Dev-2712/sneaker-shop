@@ -1205,6 +1205,13 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("note");
 
+                    b.Property<string>("OrderRef")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("order_ref")
+                        .HasComputedColumnSql("LOWER('ord-' || id::text)", true);
+
                     b.Property<DateTime?>("PlacedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("placed_at");
@@ -1282,6 +1289,9 @@ namespace Backend.Infrastructure.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_orders_idempotency_key")
                         .HasFilter("idempotency_key IS NOT NULL");
+
+                    b.HasIndex("OrderRef")
+                        .HasDatabaseName("ix_orders_order_ref");
 
                     b.HasIndex("PlacedAt")
                         .HasDatabaseName("ix_orders_placed_at");
@@ -1563,6 +1573,11 @@ namespace Backend.Infrastructure.Data.Migrations
 
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_payments_status");
+
+                    b.HasIndex("Provider", "ProviderTxnId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_provider_provider_txn_id")
+                        .HasFilter("provider_txn_id IS NOT NULL");
 
                     b.HasIndex("Status", "PaidAt")
                         .HasDatabaseName("ix_payments_status_paid_at");

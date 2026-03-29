@@ -10,6 +10,7 @@ public static class ServiceInfrastructureRegistration
         services.AddScoped<IImageService, ImageService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISlugService, SlugService>();
+        services.AddScoped<IVnPayService, VnPayService>();
 
         // Register Google OAuth service (uses Google.Apis.Auth library internally)
         services.AddSingleton<IGoogleOAuthService, GoogleOAuthService>();
@@ -29,6 +30,7 @@ public static class ServiceInfrastructureRegistration
         services.AddSingleton<EmailJobQueue>();
         services.AddSingleton<IEmailJobQueue>(sp => sp.GetRequiredService<EmailJobQueue>());
         services.AddHostedService<EmailProcessorService>();
+        services.AddHostedService<VnPayPendingPaymentCleanupService>();
 
         return services;
     }

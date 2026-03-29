@@ -2,7 +2,7 @@
 name: debug-agent
 description: "Use when you need root-cause analysis for failing behavior, runtime errors, flaky tests, or regression triage. Triggers: bug, error, exception, failing test, stack trace, reproduce, root cause, fix regression."
 tools: [read, search, edit, execute, todo, agent]
-model: Gemini 3.1 Pro (Preview) (copilot)
+model: GPT-5.3-Codex (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

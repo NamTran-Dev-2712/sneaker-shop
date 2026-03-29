@@ -3,11 +3,15 @@ import { useNavigate } from "react-router";
 import { useAppDispatch } from "~/hooks/redux";
 import useCheckout from "~/store/checkout/checkout.hook";
 import { setCurrentStep } from "~/store/checkout/checkout.slice";
-import { useCreateOrder } from "~/hooks/react-query/use-order.query";
+import {
+  useCreateOrder,
+  useCreateVnPayPaymentUrl,
+} from "~/hooks/react-query/use-order.query";
 import type { CreateOrderRequest } from "~/services/order/dto/create-order/create-order.request";
 import { formatCurrency } from "~/common/helpers/format-currency.helper";
-import { FulfillmentType } from "~/types/entities/order.type";
+import { FulfillmentType, PaymentMethod } from "~/types/entities/order.type";
 import type { CheckoutItem } from "~/types/entities/checkout.type";
+import { showErrorToast } from "~/components/common/toast";
 
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -58,6 +62,7 @@ const CheckoutReview = () => {
   const navigate = useNavigate();
   const checkout = useCheckout();
   const createOrderMutation = useCreateOrder();
+  const createVnPayPaymentUrlMutation = useCreateVnPayPaymentUrl();
   const [isPlacingOrders, setIsPlacingOrders] = useState(false);
 
   const orderGroups = useMemo(
@@ -73,6 +78,17 @@ const CheckoutReview = () => {
 
   const handlePlaceOrder = async () => {
     if (!checkout.idempotencyKey || isPlacingOrders) return;
+
+    if (
+      checkout.paymentInfo.paymentMethod === PaymentMethod.VNPAY &&
+      orderGroups.length > 1
+    ) {
+      showErrorToast(
+        "VNPay hiện chỉ hỗ trợ thanh toán 1 cửa hàng mỗi lần. Vui lòng tách giỏ hàng.",
+      );
+      return;
+    }
+
     setIsPlacingOrders(true);
 
     try {
@@ -113,6 +129,15 @@ const CheckoutReview = () => {
         // Sequential order creation — await each to guarantee atomicity per order
         const data = await createOrderMutation.mutateAsync(request);
         createdOrderIds.push(data.orderId);
+
+        if (checkout.paymentInfo.paymentMethod === PaymentMethod.VNPAY) {
+          const paymentData = await createVnPayPaymentUrlMutation.mutateAsync(
+            data.orderId,
+          );
+
+          window.location.assign(paymentData.paymentUrl);
+          return;
+        }
       }
 
       // All orders placed — navigate to success page

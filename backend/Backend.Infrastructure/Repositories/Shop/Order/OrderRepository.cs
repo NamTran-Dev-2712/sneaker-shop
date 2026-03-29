@@ -18,4 +18,19 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             .Include(o => o.OrderFulfillment)
             .FirstOrDefaultAsync(o => o.IdempotencyKey == idempotencyKey, cancellationToken);
     }
+
+    public async Task<Order?> GetByIdWithLockAsync(
+        int orderId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // SELECT ... FOR UPDATE — acquires a row-level lock for the duration of the transaction.
+        // Concurrent callers will block here until the lock is released, preventing double-writes.
+        // Must be called inside an active transaction (ExecuteInTransactionAsync).
+        return await _context
+            .Set<Order>()
+            .FromSqlInterpolated($"SELECT * FROM orders WHERE id = {orderId} FOR UPDATE")
+            .Include(o => o.Payments)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

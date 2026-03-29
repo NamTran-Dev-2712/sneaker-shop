@@ -1,6 +1,9 @@
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Api;
@@ -97,6 +100,37 @@ public static class PresentationRegistration
             });
 
         services.AddAuthorization();
+
+        // Rate limiting — protects state-transition endpoints from concurrent abuse
+        services.AddRateLimiter(options =>
+        {
+            options.AddSlidingWindowLimiter(
+                "staff-mutations",
+                opt =>
+                {
+                    opt.PermitLimit = 10;
+                    opt.Window = TimeSpan.FromSeconds(10);
+                    opt.SegmentsPerWindow = 5;
+                    opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    opt.QueueLimit = 0; // reject immediately — no queuing
+                }
+            );
+
+            options.OnRejected = async (ctx, ct) =>
+            {
+                ctx.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                ctx.HttpContext.Response.Headers.RetryAfter = "10";
+                await ctx.HttpContext.Response.WriteAsJsonAsync(
+                    new
+                    {
+                        success = false,
+                        statusCode = 429,
+                        message = "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+                    },
+                    ct
+                );
+            };
+        });
 
         return services;
     }

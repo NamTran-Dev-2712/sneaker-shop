@@ -30,6 +30,18 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.IdempotencyKey).HasMaxLength(72);
 
+        // Computed column for search — LOWER('ord-' || id::text)
+        // Enables efficient ID search without full table scan
+        // NOTE: To add a GIN/trigram index, run manually after migration:
+        //   CREATE EXTENSION IF NOT EXISTS pg_trgm;
+        //   CREATE INDEX idx_orders_order_ref_trgm ON orders USING GIN (order_ref gin_trgm_ops);
+        builder
+            .Property(o => o.OrderRef)
+            .HasComputedColumnSql("LOWER('ord-' || id::text)", stored: true)
+            .HasMaxLength(30);
+
+        builder.HasIndex(o => o.OrderRef).HasDatabaseName("ix_orders_order_ref");
+
         builder.Property(o => o.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.Property(o => o.UpdatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");

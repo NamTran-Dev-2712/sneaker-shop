@@ -20,6 +20,12 @@ public class Order : BaseEntity
     /// <summary>Client-generated UUID to prevent duplicate order creation.</summary>
     public string? IdempotencyKey { get; set; }
 
+    /// <summary>
+    /// Computed column: LOWER('ord-' || id::text). Stored in DB for search index.
+    /// Read-only from application — set and maintained by the database.
+    /// </summary>
+    public string? OrderRef { get; private set; }
+
     // Navigation properties
     public Store? Store { get; set; }
     public Customer? Customer { get; set; }

@@ -1,5 +1,5 @@
+using System.Data;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 public class MarkStoreOrderPaidCommandHandler
     : IRequestHandler<MarkStoreOrderPaidCommand, MarkStoreOrderPaidResult>
@@ -16,51 +16,58 @@ public class MarkStoreOrderPaidCommandHandler
         CancellationToken cancellationToken
     )
     {
-        var order = await _unitOfWork
-            .Orders.Query()
-            .Include(o => o.Payments)
-            .FirstOrDefaultAsync(o => o.Id == command.OrderId, cancellationToken);
+        return await _unitOfWork.ExecuteInTransactionAsync(
+            async () => await ProcessMarkPaidAsync(command, cancellationToken),
+            IsolationLevel.ReadCommitted
+        );
+    }
+
+    private async Task<MarkStoreOrderPaidResult> ProcessMarkPaidAsync(
+        MarkStoreOrderPaidCommand command,
+        CancellationToken cancellationToken
+    )
+    {
+        // SELECT ... FOR UPDATE — row-level lock prevents concurrent double-payment
+        var order = await _unitOfWork.Orders.GetByIdWithLockAsync(
+            command.OrderId,
+            cancellationToken
+        );
 
         if (order == null)
-        {
             throw new NotFoundException("Không tìm thấy đơn hàng.");
-        }
 
         if (order.StoreId != command.StoreId)
-        {
             throw new ForbiddenException("Bạn không có quyền xử lý đơn hàng này.");
-        }
 
         if (order.Status != OrderStatus.CONFIRMED)
-        {
             throw new BadException(
                 "Chỉ có thể ghi nhận thanh toán cho đơn hàng ở trạng thái CONFIRMED."
             );
-        }
 
         var payment = order.Payments.OrderByDescending(x => x.UpdatedAt).FirstOrDefault();
         if (payment == null)
-        {
             throw new NotFoundException("Đơn hàng chưa có thông tin thanh toán.");
-        }
 
         if (payment.Method == PaymentMethod.COD)
-        {
             throw new BadException(
                 "Đơn COD không có bước xác nhận thanh toán trung gian. Thanh toán được ghi nhận khi hoàn tất giao/nhận."
             );
-        }
+
+        if (payment.Method == PaymentMethod.VNPAY)
+            throw new BadException(
+                "Đơn VNPay được cập nhật tự động theo callback từ cổng thanh toán, không hỗ trợ xác nhận tay."
+            );
 
         payment.MarkAsPaid();
         order.MarkAsPaid();
         order.StaffId = command.StaffAccountId;
 
+        // Finance entry — inside same transaction, fully atomic
         var hasIncomeEntry = await _unitOfWork.FinanceLedgerEntries.ExistsBySourceAsync(
             FinanceEntrySourceType.ORDER_PAYMENT,
             order.Id,
             cancellationToken
         );
-
         if (!hasIncomeEntry)
         {
             await _unitOfWork.FinanceLedgerEntries.AddAsync(

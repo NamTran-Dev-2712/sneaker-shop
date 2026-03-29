@@ -74,6 +74,7 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   BANK_TRANSFER: "Chuyển khoản",
   COD: "Thanh toán khi nhận hàng",
   EWALLET: "Ví điện tử",
+  VNPAY: "VNPay",
 };
 
 const PAYMENT_STATUS_LABELS: Record<string, string> = {

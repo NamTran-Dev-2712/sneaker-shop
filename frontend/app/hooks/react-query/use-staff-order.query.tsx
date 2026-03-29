@@ -5,12 +5,19 @@ import type { GetStoreOrdersRequest } from "~/services/order/dto/get-store-order
 import type { ShipStoreOrderRequest } from "~/services/order/dto/ship-store-order/ship-store-order.request";
 import { staffOrderService } from "~/services/order/staff-order.service";
 
+// ---------------------------------------------------------------------------
+// Query keys — export so consumers can reference without magic strings
+// ---------------------------------------------------------------------------
 export const staffOrderKeys = {
   all: ["staffOrders"] as const,
   list: (params: GetStoreOrdersRequest) =>
     [...staffOrderKeys.all, "list", params] as const,
   detail: (id: number) => [...staffOrderKeys.all, "detail", id] as const,
 };
+
+// ---------------------------------------------------------------------------
+// Queries
+// ---------------------------------------------------------------------------
 
 export const useStoreOrders = (params: GetStoreOrdersRequest) => {
   return useQuery({
@@ -44,27 +51,49 @@ export const useStoreOrderDetail = (id: number) => {
   });
 };
 
+// ---------------------------------------------------------------------------
+// Shared invalidation helper — invalidates detail + all list queries
+// ---------------------------------------------------------------------------
+function useOrderInvalidation(orderId: number) {
+  const queryClient = useQueryClient();
+
+  return async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: staffOrderKeys.detail(orderId),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: staffOrderKeys.all, // prefix match — hits all list queries
+      }),
+    ]);
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Shared status mutation factory — keeps mutation hooks DRY
+// ---------------------------------------------------------------------------
 const useStatusMutation = (
   mutationFn: () => Promise<unknown>,
   successMessage: string,
   orderId: number,
 ) => {
-  const queryClient = useQueryClient();
+  const invalidate = useOrderInvalidation(orderId);
 
   return useMutation({
     mutationFn,
-    onSuccess: () => {
+    onSuccess: async () => {
       showSuccessToast(successMessage);
-      queryClient.invalidateQueries({
-        queryKey: staffOrderKeys.detail(orderId),
-      });
-      queryClient.invalidateQueries({ queryKey: staffOrderKeys.all });
+      await invalidate();
     },
     onError: (error: Error) => {
       showErrorToast(error.message || "Thao tác thất bại.");
     },
   });
 };
+
+// ---------------------------------------------------------------------------
+// Mutations
+// ---------------------------------------------------------------------------
 
 export const useConfirmStoreOrder = (orderId: number) => {
   return useStatusMutation(
@@ -109,7 +138,7 @@ export const usePackStoreOrder = (orderId: number) => {
 };
 
 export const useShipStoreOrder = (orderId: number) => {
-  const queryClient = useQueryClient();
+  const invalidate = useOrderInvalidation(orderId);
 
   return useMutation({
     mutationFn: async (request: ShipStoreOrderRequest) => {
@@ -119,12 +148,9 @@ export const useShipStoreOrder = (orderId: number) => {
       }
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       showSuccessToast("Đã bàn giao cho đơn vị vận chuyển.");
-      queryClient.invalidateQueries({
-        queryKey: staffOrderKeys.detail(orderId),
-      });
-      queryClient.invalidateQueries({ queryKey: staffOrderKeys.all });
+      await invalidate();
     },
     onError: (error: Error) => {
       showErrorToast(error.message || "Thao tác thất bại.");
@@ -147,7 +173,7 @@ export const useDeliverStoreOrder = (orderId: number) => {
 };
 
 export const useCancelStoreOrder = (orderId: number) => {
-  const queryClient = useQueryClient();
+  const invalidate = useOrderInvalidation(orderId);
 
   return useMutation({
     mutationFn: async (request: CancelStoreOrderRequest) => {
@@ -157,12 +183,9 @@ export const useCancelStoreOrder = (orderId: number) => {
       }
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       showSuccessToast("Hủy đơn hàng thành công.");
-      queryClient.invalidateQueries({
-        queryKey: staffOrderKeys.detail(orderId),
-      });
-      queryClient.invalidateQueries({ queryKey: staffOrderKeys.all });
+      await invalidate();
     },
     onError: (error: Error) => {
       showErrorToast(error.message || "Thao tác thất bại.");

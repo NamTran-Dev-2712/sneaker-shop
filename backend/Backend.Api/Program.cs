@@ -35,6 +35,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Rate limiting — must be after UseRouting and before MapControllers
+app.UseRateLimiter();
+
 // Custom middlewares
 app.UseCustomMiddlewares();
 

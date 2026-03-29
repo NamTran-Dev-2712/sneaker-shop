@@ -22,6 +22,7 @@ export enum PaymentMethod {
   BANK_TRANSFER = "BANK_TRANSFER",
   COD = "COD",
   EWALLET = "EWALLET",
+  VNPAY = "VNPAY",
 }
 
 export enum PaymentStatus {

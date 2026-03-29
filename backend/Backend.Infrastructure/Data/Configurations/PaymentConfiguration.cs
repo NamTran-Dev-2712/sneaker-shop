@@ -31,6 +31,10 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.HasIndex(p => p.Method);
         builder.HasIndex(p => p.Status);
         builder.HasIndex(p => p.ProviderTxnId);
+        builder
+            .HasIndex(p => new { p.Provider, p.ProviderTxnId })
+            .IsUnique()
+            .HasFilter("provider_txn_id IS NOT NULL");
         builder.HasIndex(p => p.PaidAt);
 
         // Composite index for payment reconciliation

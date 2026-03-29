@@ -56,6 +56,10 @@ export default [
 
           // checkout success — outside checkout guard (checkout state is cleared after order)
           route("checkout/success", "./routes/order/checkout.success.tsx"),
+          route(
+            "checkout/vnpay-return",
+            "./routes/order/checkout.vnpay-return.tsx",
+          ),
         ]),
       ]),
     ]),

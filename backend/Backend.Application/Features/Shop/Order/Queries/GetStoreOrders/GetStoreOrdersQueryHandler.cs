@@ -68,16 +68,41 @@ public class GetStoreOrdersQueryHandler
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            var keyword = query.Search.Trim().ToLower();
-            baseQuery = baseQuery.Where(o =>
-                ("ord-" + o.Id).ToLower().Contains(keyword)
-                || (
-                    o.Customer != null
-                    && o.Customer.FullName != null
-                    && o.Customer.FullName.ToLower().Contains(keyword)
-                )
-                || (o.Customer != null && o.Customer.Phone.Contains(keyword))
-            );
+            var keyword = query.Search.Trim();
+
+            // Optimized search:
+            // 1. If keyword is purely numeric — match order ID directly (uses PK index)
+            // 2. If keyword starts with "ord-" — strip prefix and try numeric match
+            // 3. Always also search customer name and phone (parameterized — safe)
+            var numericKeyword = keyword;
+            if (numericKeyword.StartsWith("ord-", StringComparison.OrdinalIgnoreCase))
+                numericKeyword = numericKeyword[4..];
+
+            var keywordLower = keyword.ToLower();
+
+            if (int.TryParse(numericKeyword, out var numericId))
+            {
+                baseQuery = baseQuery.Where(o =>
+                    o.Id == numericId
+                    || (
+                        o.Customer != null
+                        && o.Customer.FullName != null
+                        && o.Customer.FullName.ToLower().Contains(keywordLower)
+                    )
+                    || (o.Customer != null && o.Customer.Phone.Contains(keyword))
+                );
+            }
+            else
+            {
+                // Non-numeric search: customer name and phone only
+                baseQuery = baseQuery.Where(o =>
+                    (
+                        o.Customer != null
+                        && o.Customer.FullName != null
+                        && o.Customer.FullName.ToLower().Contains(keywordLower)
+                    ) || (o.Customer != null && o.Customer.Phone.Contains(keyword))
+                );
+            }
         }
 
         var totalItems = await baseQuery.CountAsync(cancellationToken);
@@ -93,9 +118,15 @@ public class GetStoreOrdersQueryHandler
                 PlacedAt = o.PlacedAt,
                 Status = o.Status.ToString(),
                 PaymentStatus =
-                    o.Payments.Select(p => p.Status.ToString()).FirstOrDefault() ?? "PENDING",
+                    o.Payments.OrderByDescending(p => p.UpdatedAt)
+                        .Select(p => p.Status.ToString())
+                        .FirstOrDefault()
+                    ?? "PENDING",
                 PaymentMethod =
-                    o.Payments.Select(p => p.Method.ToString()).FirstOrDefault() ?? "N/A",
+                    o.Payments.OrderByDescending(p => p.UpdatedAt)
+                        .Select(p => p.Method.ToString())
+                        .FirstOrDefault()
+                    ?? "N/A",
                 FulfillmentType =
                     o.OrderFulfillment != null ? o.OrderFulfillment.Type.ToString() : "N/A",
                 CustomerName = o.Customer != null ? o.Customer.FullName : null,

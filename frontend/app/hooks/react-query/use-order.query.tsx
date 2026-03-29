@@ -14,6 +14,8 @@ export const orderKeys = {
   myOrders: (params: GetMyOrdersRequest) =>
     [...orderKeys.all, "myOrders", params] as const,
   detail: (id: number) => [...orderKeys.all, "detail", id] as const,
+  vnpayReturn: (params: Record<string, string>) =>
+    [...orderKeys.all, "vnpayReturn", params] as const,
 };
 
 // ==========================================
@@ -56,6 +58,22 @@ export const useOrderDetail = (id: number) => {
   });
 };
 
+export const useHandleVnPayReturn = (params: Record<string, string>) => {
+  return useQuery({
+    queryKey: orderKeys.vnpayReturn(params),
+    queryFn: async () => {
+      const response = await orderService.handleVnPayReturn(params);
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể xác thực kết quả VNPay");
+      }
+      return response.data;
+    },
+    enabled: Object.keys(params).length > 0,
+    retry: 1,
+    staleTime: 0,
+  });
+};
+
 // ==========================================
 // Mutations
 // ==========================================
@@ -84,6 +102,23 @@ export const useCreateOrder = () => {
       showErrorToast(
         error.message || "Không thể tạo đơn hàng. Vui lòng thử lại.",
       );
+    },
+  });
+};
+
+export const useCreateVnPayPaymentUrl = () => {
+  return useMutation({
+    mutationFn: async (orderId: number) => {
+      const response = await orderService.createVnPayPaymentUrl({ orderId });
+      if (!response.success || !response.data) {
+        throw new Error(
+          response.message || "Không thể tạo URL thanh toán VNPay",
+        );
+      }
+      return response.data;
+    },
+    onError: (error: Error) => {
+      showErrorToast(error.message || "Không thể khởi tạo thanh toán VNPay.");
     },
   });
 };

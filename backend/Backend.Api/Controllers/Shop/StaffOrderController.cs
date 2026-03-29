@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 [ApiController]
 [Route("api/staff/orders")]
@@ -15,6 +16,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpGet]
+    [DisableRateLimiting]
     public async Task<IActionResult> GetStoreOrders([FromQuery] GetStoreOrdersQuery query)
     {
         var storeId = HttpContext.GetStoreId();
@@ -29,6 +31,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpGet("{id:int}")]
+    [DisableRateLimiting]
     public async Task<IActionResult> GetOrderDetail(int id)
     {
         var storeId = HttpContext.GetStoreId();
@@ -43,6 +46,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpPost("{id:int}/confirm")]
+    [EnableRateLimiting("staff-mutations")]
     public async Task<IActionResult> ConfirmOrder(int id)
     {
         var (storeId, staffAccountId, unauthorized) = ResolveStaffContext();
@@ -61,6 +65,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpPost("{id:int}/mark-paid")]
+    [EnableRateLimiting("staff-mutations")]
     public async Task<IActionResult> MarkAsPaid(int id)
     {
         var (storeId, staffAccountId, unauthorized) = ResolveStaffContext();
@@ -79,6 +84,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpPost("{id:int}/pack")]
+    [EnableRateLimiting("staff-mutations")]
     public async Task<IActionResult> PackOrder(int id)
     {
         var (storeId, staffAccountId, unauthorized) = ResolveStaffContext();
@@ -97,6 +103,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpPost("{id:int}/ship")]
+    [EnableRateLimiting("staff-mutations")]
     public async Task<IActionResult> ShipOrder(int id, [FromBody] ShipStoreOrderRequest request)
     {
         var (storeId, staffAccountId, unauthorized) = ResolveStaffContext();
@@ -117,6 +124,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpPost("{id:int}/deliver")]
+    [EnableRateLimiting("staff-mutations")]
     public async Task<IActionResult> DeliverOrder(int id)
     {
         var (storeId, staffAccountId, unauthorized) = ResolveStaffContext();
@@ -135,6 +143,7 @@ public class StaffOrderController : BaseController
     }
 
     [HttpPost("{id:int}/cancel")]
+    [EnableRateLimiting("staff-mutations")]
     public async Task<IActionResult> CancelOrder(int id, [FromBody] CancelStoreOrderRequest request)
     {
         var (storeId, staffAccountId, unauthorized) = ResolveStaffContext();

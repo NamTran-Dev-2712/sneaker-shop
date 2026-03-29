@@ -11,7 +11,13 @@ import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { CreditCard, Banknote, Wallet, ArrowRight } from "lucide-react";
+import {
+  CreditCard,
+  Banknote,
+  Wallet,
+  ArrowRight,
+  Landmark,
+} from "lucide-react";
 
 const paymentMethodOptions = [
   {
@@ -30,7 +36,13 @@ const paymentMethodOptions = [
     value: PaymentMethod.EWALLET,
     label: "Ví điện tử",
     icon: Wallet,
-    description: "Thanh toán qua MoMo, ZaloPay, VNPay...",
+    description: "Thanh toán qua ví điện tử (MoMo, ZaloPay...)",
+  },
+  {
+    value: PaymentMethod.VNPAY,
+    label: "VNPay",
+    icon: Landmark,
+    description: "Thanh toán online qua cổng VNPay",
   },
 ];
 
