@@ -2,7 +2,7 @@ public class Customer : BaseEntity
 {
     public Customer() { }
 
-    public string Phone { get; set; } = string.Empty; // Key omnichannel (POS dùng phone)
+    public string? Phone { get; set; } // Key omnichannel (POS dùng phone)
     public string? Email { get; set; }
     public string? FullName { get; set; }
     public string? Birthday { get; set; }
@@ -22,7 +22,25 @@ public class Customer : BaseEntity
 
         return new Customer
         {
-            Phone = phone,
+            Phone = phone.Trim(),
+            Email = email,
+            FullName = fullName,
+            Birthday = birthday,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+    }
+
+    // Factory method for external OAuth customers (Google, etc.)
+    public static Customer CreateForExternalAuth(
+        string fullName,
+        string? email = null,
+        string? birthday = null
+    )
+    {
+        return new Customer
+        {
+            Phone = null,
             Email = email,
             FullName = fullName,
             Birthday = birthday,
@@ -50,6 +68,11 @@ public class Customer : BaseEntity
 
     public void UpdatePhone(string newPhone)
     {
+        if (string.IsNullOrWhiteSpace(newPhone))
+        {
+            throw new ArgumentException("Phone number is required.", nameof(newPhone));
+        }
+
         Phone = newPhone;
         UpdatedAt = DateTime.UtcNow;
     }

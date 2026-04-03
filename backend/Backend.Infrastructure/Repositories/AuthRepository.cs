@@ -23,6 +23,11 @@ public class AuthRepository : IAuthRepository
 
     public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber)
     {
+        if (string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            return false;
+        }
+
         bool existPhone = await _unitOfWork
             .Repository<Account>()
             .ExistsAsync(a => a.Phone.ToLower() == phoneNumber.ToLower());
@@ -32,9 +37,14 @@ public class AuthRepository : IAuthRepository
 
     public async Task<Customer?> FindCustomerByPhoneAsync(string phone)
     {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return null;
+        }
+
         return await _unitOfWork
             .Repository<Customer>()
-            .GetFirstOrDefaultAsync(c => c.Phone.ToLower() == phone.ToLower());
+            .GetFirstOrDefaultAsync(c => c.Phone != null && c.Phone.ToLower() == phone.ToLower());
     }
 
     public async Task<Account> CreateAccountAsync(Account account)

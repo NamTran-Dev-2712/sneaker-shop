@@ -89,7 +89,11 @@ public class GetStoreOrdersQueryHandler
                         && o.Customer.FullName != null
                         && o.Customer.FullName.ToLower().Contains(keywordLower)
                     )
-                    || (o.Customer != null && o.Customer.Phone.Contains(keyword))
+                    || (
+                        o.Customer != null
+                        && o.Customer.Phone != null
+                        && o.Customer.Phone.Contains(keyword)
+                    )
                 );
             }
             else
@@ -100,7 +104,12 @@ public class GetStoreOrdersQueryHandler
                         o.Customer != null
                         && o.Customer.FullName != null
                         && o.Customer.FullName.ToLower().Contains(keywordLower)
-                    ) || (o.Customer != null && o.Customer.Phone.Contains(keyword))
+                    )
+                    || (
+                        o.Customer != null
+                        && o.Customer.Phone != null
+                        && o.Customer.Phone.Contains(keyword)
+                    )
                 );
             }
         }
