@@ -54,6 +54,10 @@ public class EmailProcessorService : BackgroundService
                 v.FullName,
                 v.VerificationLink
             ),
+            PasswordResetOtpEmailJob p => mailSender.SendPasswordResetOtpEmailAsync(
+                p.Email,
+                p.OtpCode
+            ),
             StaffCredentialsEmailJob s => mailSender.SendStaffCredentialsEmailAsync(
                 s.Email,
                 s.FullName,
@@ -67,6 +71,7 @@ public class EmailProcessorService : BackgroundService
         job switch
         {
             VerificationEmailJob v => v.Email,
+            PasswordResetOtpEmailJob p => p.Email,
             StaffCredentialsEmailJob s => s.Email,
             _ => "unknown",
         };

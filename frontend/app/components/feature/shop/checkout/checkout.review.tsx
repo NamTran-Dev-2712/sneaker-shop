@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useAppDispatch } from "~/hooks/redux";
 import useCheckout from "~/store/checkout/checkout.hook";
+import useAuth from "~/store/auth/auth.hook";
 import { setCurrentStep } from "~/store/checkout/checkout.slice";
 import {
   useCreateOrder,
@@ -60,6 +61,7 @@ function groupItemsByStore(items: CheckoutItem[]) {
 const CheckoutReview = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const checkout = useCheckout();
   const createOrderMutation = useCreateOrder();
   const createVnPayPaymentUrlMutation = useCreateVnPayPaymentUrl();
@@ -78,6 +80,13 @@ const CheckoutReview = () => {
 
   const handlePlaceOrder = async () => {
     if (!checkout.idempotencyKey || isPlacingOrders) return;
+
+    if (!user?.isEmailVerified) {
+      showErrorToast(
+        "Email của bạn chưa được xác minh. Vui lòng xác minh email trước khi đặt hàng.",
+      );
+      return;
+    }
 
     if (
       checkout.paymentInfo.paymentMethod === PaymentMethod.VNPAY &&
@@ -181,6 +190,19 @@ const CheckoutReview = () => {
             <p className="mt-1 text-blue-700">
               Hệ thống sẽ tự động tạo {orderGroups.length} đơn hàng riêng biệt
               (mỗi cửa hàng 1 đơn) để xử lý nhanh nhất cho bạn.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!user?.isEmailVerified && (
+        <div className="flex items-start gap-3 p-4 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">
+          <Info className="h-5 w-5 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-medium">Email chưa xác minh</p>
+            <p className="mt-1 text-amber-700">
+              Bạn cần xác minh email trước khi đặt hàng. Vui lòng kiểm tra hộp
+              thư hoặc cập nhật email trong trang hồ sơ.
             </p>
           </div>
         </div>
@@ -345,7 +367,11 @@ const CheckoutReview = () => {
         >
           ← Quay lại
         </Button>
-        <Button onClick={handlePlaceOrder} disabled={isPlacingOrders} size="lg">
+        <Button
+          onClick={handlePlaceOrder}
+          disabled={isPlacingOrders || !user?.isEmailVerified}
+          size="lg"
+        >
           {isPlacingOrders ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

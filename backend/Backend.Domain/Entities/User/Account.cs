@@ -24,6 +24,8 @@ public class Account : BaseEntity
     public ICollection<RestockRequest> RestockRequests { get; set; } = new List<RestockRequest>();
     public ICollection<ExternalAuthProvider> ExternalAuthProviders { get; set; } =
         new List<ExternalAuthProvider>();
+    public ICollection<PasswordResetOtp> PasswordResetOtps { get; set; } =
+        new List<PasswordResetOtp>();
 
     private Account(string phone, string email, string? passwordHash)
     {

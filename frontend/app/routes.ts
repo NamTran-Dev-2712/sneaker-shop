@@ -27,6 +27,7 @@ export default [
         // auth routes
         layout("./components/provider/guest-only.provider.tsx", [
           route("login", "./routes/auth/login.tsx"),
+          route("forgot-password", "./routes/auth/forgot-password.tsx"),
           route("register", "./routes/auth/register.tsx"),
         ]),
         route(

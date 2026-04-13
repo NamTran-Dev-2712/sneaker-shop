@@ -15,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<CustomerAccount> CustomerAccounts { get; set; }
     public DbSet<ExternalAuthProvider> ExternalAuthProviders { get; set; }
+    public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
     // Store DbSet
     public DbSet<Store> Stores { get; set; }

@@ -2,7 +2,7 @@
 name: performance-agent
 description: "Use when you need performance profiling, latency reduction, throughput tuning, memory optimization, or bundle/runtime improvements. Triggers: performance, slow, latency, cpu, memory, throughput, optimize, bottleneck."
 tools: [read, search, edit, execute, todo]
-model: GPT-5.3-Codex (copilot)
+model: Claude Opus 4.6 (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

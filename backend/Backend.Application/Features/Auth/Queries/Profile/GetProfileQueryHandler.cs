@@ -78,6 +78,7 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileRe
             CustomerId = customer?.Id,
             Email = account.Email ?? string.Empty,
             IsEmailVerified = account.IsEmailVerified,
+            HasPassword = account.HasPassword(),
             Phone = account.Phone,
             FullName =
                 account.Role == Role.STAFF

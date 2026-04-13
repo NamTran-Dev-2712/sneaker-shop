@@ -2,7 +2,7 @@
 name: product-story-agent
 description: "Use when you need to convert a feature request into user stories, acceptance criteria, edge cases, UX scenarios, and implementation-ready requirements. Triggers: user story, acceptance criteria, business flow, scope, edge case, product requirement."
 tools: [read, search, todo, agent]
-model: GPT-5.3-Codex (copilot)
+model: Claude Sonnet 4.6 (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

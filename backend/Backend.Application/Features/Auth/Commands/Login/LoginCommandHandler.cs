@@ -125,6 +125,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResult>
             CustomerId = customer?.Id,
             Email = account.Email ?? string.Empty,
             IsEmailVerified = account.IsEmailVerified,
+            HasPassword = account.HasPassword(),
             Phone = account.Phone,
             FullName =
                 account.Role == Role.STAFF

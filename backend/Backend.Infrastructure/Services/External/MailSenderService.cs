@@ -75,6 +75,16 @@ public class MailSenderService : IMailSender
         await SendEmailAsync(toEmail, "Verify Your Email - Sneaker Shop", htmlBody);
     }
 
+    public async Task SendPasswordResetOtpEmailAsync(string toEmail, string otpCode)
+    {
+        var model = new PasswordResetOtpModel { OtpCode = otpCode };
+
+        var templatePath = "Email/PasswordResetOtpTemplate.cshtml";
+        var htmlBody = await _razorEngine.CompileRenderAsync(templatePath, model);
+
+        await SendEmailAsync(toEmail, "Mã OTP đặt lại mật khẩu - Sneaker Shop", htmlBody);
+    }
+
     public async Task SendStaffCredentialsEmailAsync(
         string toEmail,
         string fullName,

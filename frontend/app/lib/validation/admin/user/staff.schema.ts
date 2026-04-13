@@ -36,9 +36,9 @@ export const staffUpdateSchema = z.object({
 
 export type StaffUpdateData = z.infer<typeof staffUpdateSchema>;
 
-export const changePasswordSchema = z
+const baseChangePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Mật khẩu hiện tại không được để trống"),
+    currentPassword: z.string().optional(),
     newPassword: z
       .string()
       .min(8, "Mật khẩu mới phải có ít nhất 8 ký tự")
@@ -51,13 +51,31 @@ export const changePasswordSchema = z
       ),
     confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu mới"),
   })
-  .refine((data) => data.newPassword !== data.currentPassword, {
-    message: "Mật khẩu mới không được trùng với mật khẩu hiện tại",
-    path: ["newPassword"],
-  })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
   });
+
+export const buildChangePasswordSchema = (requireCurrentPassword: boolean) => {
+  if (!requireCurrentPassword) {
+    return baseChangePasswordSchema;
+  }
+
+  return baseChangePasswordSchema
+    .refine(
+      (data) =>
+        !!data.currentPassword && data.currentPassword.trim().length > 0,
+      {
+        message: "Mật khẩu hiện tại không được để trống",
+        path: ["currentPassword"],
+      },
+    )
+    .refine((data) => data.newPassword !== data.currentPassword, {
+      message: "Mật khẩu mới không được trùng với mật khẩu hiện tại",
+      path: ["newPassword"],
+    });
+};
+
+export const changePasswordSchema = buildChangePasswordSchema(true);
 
 export type ChangePasswordData = z.infer<typeof changePasswordSchema>;

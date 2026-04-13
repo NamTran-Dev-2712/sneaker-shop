@@ -11,6 +11,10 @@ import type { UpdateProfileResponse } from "./dto/update-profile/update-profile.
 import type { UpdateAvatarResponse } from "./dto/update-avatar/update-avatar.response";
 import type { ChangePasswordRequest } from "./dto/change-password/change-password.request";
 import type { ChangePasswordResponse } from "./dto/change-password/change-password.response";
+import type { RequestPasswordResetOtpRequest } from "./dto/forgot-password/request-password-reset-otp.request";
+import type { RequestPasswordResetOtpResponse } from "./dto/forgot-password/request-password-reset-otp.response";
+import type { ResetPasswordWithOtpRequest } from "./dto/forgot-password/reset-password-with-otp.request";
+import type { ResetPasswordWithOtpResponse } from "./dto/forgot-password/reset-password-with-otp.response";
 
 const getApiUrl = (): string => {
   if (typeof window !== "undefined" && window.ENV?.VITE_API_URL) {
@@ -149,6 +153,66 @@ export const authSerivce = {
         "/auth/password",
         request,
       );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  requestPasswordResetOtp: async (
+    request: RequestPasswordResetOtpRequest,
+  ): Promise<ApiResponse<RequestPasswordResetOtpResponse | null>> => {
+    try {
+      const res = await api.post<
+        ApiResponse<RequestPasswordResetOtpResponse | null>
+      >("/auth/forgot-password/request-otp", request);
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  resendPasswordResetOtp: async (
+    request: RequestPasswordResetOtpRequest,
+  ): Promise<ApiResponse<RequestPasswordResetOtpResponse | null>> => {
+    try {
+      const res = await api.post<
+        ApiResponse<RequestPasswordResetOtpResponse | null>
+      >("/auth/forgot-password/resend-otp", request);
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  resetPasswordWithOtp: async (
+    request: ResetPasswordWithOtpRequest,
+  ): Promise<ApiResponse<ResetPasswordWithOtpResponse | null>> => {
+    try {
+      const res = await api.post<
+        ApiResponse<ResetPasswordWithOtpResponse | null>
+      >("/auth/forgot-password/reset", request);
       return res.data;
     } catch (error) {
       const err = error as ApiResponseError;

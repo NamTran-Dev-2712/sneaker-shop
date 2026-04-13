@@ -14,6 +14,7 @@ export interface LoginResponse {
   customerId?: number;
   email: string;
   isEmailVerified: boolean;
+  hasPassword: boolean;
   phone: string;
   fullName: string;
   avatar?: string;

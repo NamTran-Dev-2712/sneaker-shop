@@ -19,7 +19,7 @@ import {
 import { useChangePassword } from "~/hooks/react-query/use-staff.query";
 import useAuth from "~/store/auth/auth.hook";
 
-const StaffChangePassword = () => {
+const UserChangePassword = () => {
   const { user } = useAuth();
   const requireCurrentPassword = user?.hasPassword ?? true;
   const changePasswordSchema = useMemo(
@@ -43,19 +43,10 @@ const StaffChangePassword = () => {
 
   const onSubmit = (data: ChangePasswordData) => {
     const payload = requireCurrentPassword
-      ? {
-          currentPassword: data.currentPassword,
-          newPassword: data.newPassword,
-        }
-      : {
-          newPassword: data.newPassword,
-        };
+      ? { currentPassword: data.currentPassword, newPassword: data.newPassword }
+      : { newPassword: data.newPassword };
 
-    changePassword(payload, {
-      onSuccess: () => {
-        reset();
-      },
-    });
+    changePassword(payload, { onSuccess: () => reset() });
   };
 
   return (
@@ -63,15 +54,23 @@ const StaffChangePassword = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lock className="h-5 w-5" />
-          Đổi mật khẩu
+          {requireCurrentPassword ? "Đổi mật khẩu" : "Đặt mật khẩu"}
         </CardTitle>
         <CardDescription>
-          Cập nhật mật khẩu để bảo mật tài khoản của bạn.
+          {requireCurrentPassword
+            ? "Cập nhật mật khẩu để bảo mật tài khoản của bạn."
+            : "Thiết lập mật khẩu để có thể đăng nhập bằng email/số điện thoại."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Current Password */}
+          {!requireCurrentPassword && (
+            <p className="text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+              Tài khoản của bạn chưa có mật khẩu. Hãy thiết lập mật khẩu mới để
+              đăng nhập bằng email/số điện thoại.
+            </p>
+          )}
+
           {requireCurrentPassword && (
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
@@ -101,13 +100,6 @@ const StaffChangePassword = () => {
                 </p>
               )}
             </div>
-          )}
-
-          {!requireCurrentPassword && (
-            <p className="text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
-              Tài khoản của bạn chưa có mật khẩu. Hãy thiết lập mật khẩu mới để
-              đăng nhập bằng email/số điện thoại.
-            </p>
           )}
 
           {/* New Password */}
@@ -176,7 +168,11 @@ const StaffChangePassword = () => {
 
           <div className="flex justify-end">
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Đang cập nhật..." : "Đổi mật khẩu"}
+              {isPending
+                ? "Đang cập nhật..."
+                : requireCurrentPassword
+                  ? "Đổi mật khẩu"
+                  : "Đặt mật khẩu"}
             </Button>
           </div>
         </form>
@@ -185,4 +181,4 @@ const StaffChangePassword = () => {
   );
 };
 
-export default StaffChangePassword;
+export default UserChangePassword;

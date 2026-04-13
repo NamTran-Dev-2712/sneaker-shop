@@ -2,7 +2,7 @@
 name: architect-agent
 description: "Use when you need system design, architecture review, module boundaries, API contracts, event/data flow, or refactor strategy before coding. Triggers: architecture, design, boundary, structure, clean architecture, cqrs, module split, technical decision."
 tools: [read, search, todo, agent]
-model: GPT-5.3-Codex (copilot)
+model: Claude Opus 4.6 (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

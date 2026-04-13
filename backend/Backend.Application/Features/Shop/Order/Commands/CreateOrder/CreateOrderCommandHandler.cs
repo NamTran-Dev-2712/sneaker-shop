@@ -37,6 +37,24 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
         CancellationToken cancellationToken
     )
     {
+        var customerAccount = await _unitOfWork
+            .Repository<CustomerAccount>()
+            .GetFirstOrDefaultAsync(ca => ca.CustomerId == command.CustomerId, ca => ca.Account);
+
+        if (customerAccount?.Account == null || !customerAccount.Account.IsActive)
+        {
+            throw new ForbiddenException(
+                "Tài khoản khách hàng không hợp lệ hoặc đã bị vô hiệu hóa."
+            );
+        }
+
+        if (!customerAccount.Account.IsEmailVerified)
+        {
+            throw new ForbiddenException(
+                "Email của bạn chưa được xác minh. Vui lòng xác minh email trước khi đặt hàng."
+            );
+        }
+
         var fulfillmentType = Enum.Parse<FulfillmentType>(command.FulfillmentType, true);
         var paymentMethod = Enum.Parse<PaymentMethod>(command.PaymentMethod, true);
         var isCodPayment = paymentMethod == PaymentMethod.COD;

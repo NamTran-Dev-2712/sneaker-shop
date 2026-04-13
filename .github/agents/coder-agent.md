@@ -2,7 +2,7 @@
 name: coder-agent
 description: "Use when you need implementation work, code changes, feature delivery, or test-driven fixes. Triggers: implement, code, build, compile, test, refactor, endpoint, component, handler, migration."
 tools: [read, search, edit, execute, todo, agent]
-model: GPT-5.3-Codex (copilot)
+model: Claude Sonnet 4.6 (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

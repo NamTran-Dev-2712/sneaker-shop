@@ -4,6 +4,7 @@ public record ProfileResult
     public int? CustomerId { get; init; }
     public required string Email { get; init; }
     public required bool IsEmailVerified { get; init; }
+    public required bool HasPassword { get; init; }
     public required string Phone { get; init; }
     public required string FullName { get; init; }
     public string? Avatar { get; init; }

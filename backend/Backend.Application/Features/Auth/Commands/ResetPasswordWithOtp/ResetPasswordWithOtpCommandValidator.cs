@@ -1,15 +1,20 @@
 using FluentValidation;
 
-public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCommand>
+public class ResetPasswordWithOtpCommandValidator : AbstractValidator<ResetPasswordWithOtpCommand>
 {
-    public ChangePasswordCommandValidator()
+    public ResetPasswordWithOtpCommandValidator()
     {
-        RuleFor(x => x.AccountId).GreaterThan(0).WithMessage("Id tài khoản không hợp lệ.");
-
-        RuleFor(x => x.CurrentPassword)
+        RuleFor(x => x.Email)
             .NotEmpty()
-            .WithMessage("Mật khẩu hiện tại không được để trống.")
-            .When(x => x.CurrentPassword != null);
+            .WithMessage("Email là bắt buộc.")
+            .EmailAddress()
+            .WithMessage("Định dạng email không hợp lệ.");
+
+        RuleFor(x => x.Otp)
+            .NotEmpty()
+            .WithMessage("Mã OTP là bắt buộc.")
+            .Matches("^[0-9]{6}$")
+            .WithMessage("Mã OTP phải gồm 6 chữ số.");
 
         RuleFor(x => x.NewPassword)
             .NotEmpty()
@@ -24,12 +29,5 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
             .WithMessage("Mật khẩu mới phải chứa ít nhất 1 chữ số.")
             .Matches(@"[\!\?\*\.]")
             .WithMessage("Mật khẩu mới phải chứa ít nhất 1 ký tự đặc biệt (!?*).");
-
-        RuleFor(x => x)
-            .Must(x =>
-                string.IsNullOrWhiteSpace(x.CurrentPassword) || x.NewPassword != x.CurrentPassword
-            )
-            .WithMessage("Mật khẩu mới không được trùng với mật khẩu hiện tại.")
-            .When(x => !string.IsNullOrEmpty(x.NewPassword));
     }
 }

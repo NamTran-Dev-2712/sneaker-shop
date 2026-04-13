@@ -39,6 +39,7 @@ public class AuthController : BaseController
                 result.CustomerId,
                 result.Email,
                 result.IsEmailVerified,
+                result.HasPassword,
                 result.Phone,
                 result.FullName,
                 result.Avatar,
@@ -95,6 +96,36 @@ public class AuthController : BaseController
         SetAuthCookies(result.AccessToken, result.RefreshToken, _configuration);
 
         return Ok(new { message = "Tokens refreshed successfully" });
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/request-otp")]
+    public async Task<IActionResult> RequestPasswordResetOtp(
+        [FromBody] RequestPasswordResetOtpCommand command
+    )
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/resend-otp")]
+    public async Task<IActionResult> ResendPasswordResetOtp(
+        [FromBody] RequestPasswordResetOtpCommand command
+    )
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/reset")]
+    public async Task<IActionResult> ResetPasswordWithOtp(
+        [FromBody] ResetPasswordWithOtpCommand command
+    )
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     [Authorize]

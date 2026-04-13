@@ -2,7 +2,7 @@
 name: database-agent
 description: "Use when you need schema design, SQL optimization, indexing, migrations, data integrity checks, transaction strategy, or query tuning. Triggers: database, schema, sql, migration, index, constraint, query plan, deadlock."
 tools: [read, search, edit, execute, todo]
-model: GPT-5.3-Codex (copilot)
+model: Claude Sonnet 4.6 (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

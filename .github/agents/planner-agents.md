@@ -2,7 +2,7 @@
 name: planner-agents
 description: "Use when you need an implementation roadmap, scoped task breakdown, risk map, sequencing, or delivery plan before coding. Triggers: plan, roadmap, break down, estimate, implementation steps, rollout, checklist."
 tools: [read, search, todo, agent]
-model: GPT-5.3-Codex (copilot)
+model: Claude Opus 4.6 (copilot)
 user-invocable: true
 disable-model-invocation: false
 ---

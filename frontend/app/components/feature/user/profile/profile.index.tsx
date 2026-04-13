@@ -13,6 +13,7 @@ import {
   Loader2,
   Camera,
 } from "lucide-react";
+import UserChangePassword from "./user.change-password";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -275,8 +276,11 @@ const ProfilePage = () => {
         </CardContent>
       </Card>
 
+      {/* Change Password */}
+      <UserChangePassword />
+
       {/* Profile Form */}
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />

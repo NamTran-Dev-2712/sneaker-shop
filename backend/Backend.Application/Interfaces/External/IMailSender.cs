@@ -17,6 +17,13 @@ public interface IMailSender
     Task SendVerificationEmailAsync(string toEmail, string fullName, string verificationLink);
 
     /// <summary>
+    /// Send forgot-password OTP email.
+    /// </summary>
+    /// <param name="toEmail">Recipient email address</param>
+    /// <param name="otpCode">6-digit OTP code</param>
+    Task SendPasswordResetOtpEmailAsync(string toEmail, string otpCode);
+
+    /// <summary>
     /// Send staff credentials email with generated password
     /// </summary>
     /// <param name="toEmail">Staff email address</param>

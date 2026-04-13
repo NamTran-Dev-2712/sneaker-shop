@@ -11,6 +11,9 @@ public class EmailJobQueue : IEmailJobQueue
     public void EnqueueVerificationEmail(string email, string fullName, string verificationLink) =>
         _channel.Writer.TryWrite(new VerificationEmailJob(email, fullName, verificationLink));
 
+    public void EnqueuePasswordResetOtpEmail(string email, string otpCode) =>
+        _channel.Writer.TryWrite(new PasswordResetOtpEmailJob(email, otpCode));
+
     public void EnqueueStaffCredentialsEmail(
         string email,
         string fullName,

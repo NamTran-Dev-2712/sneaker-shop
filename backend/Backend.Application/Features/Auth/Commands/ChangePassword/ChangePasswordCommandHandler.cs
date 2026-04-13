@@ -25,20 +25,23 @@ public class ChangePasswordCommandHandler
             throw new NotFoundException("Tài khoản không tồn tại hoặc không hoạt động.");
         }
 
-        // 2. Verify current password
-        if (!account.HasPassword())
+        // 2. Adaptive flow: verify current password only when account already has one.
+        if (account.HasPassword())
         {
-            throw new BadException("Tài khoản này chưa thiết lập mật khẩu.");
-        }
+            if (string.IsNullOrWhiteSpace(command.CurrentPassword))
+            {
+                throw new BadException("Mật khẩu hiện tại không được để trống.");
+            }
 
-        var isCurrentPasswordValid = _passwordHasher.VerifyPassword(
-            command.CurrentPassword,
-            account.Password!
-        );
+            var isCurrentPasswordValid = _passwordHasher.VerifyPassword(
+                command.CurrentPassword,
+                account.Password!
+            );
 
-        if (!isCurrentPasswordValid)
-        {
-            throw new BadException("Mật khẩu hiện tại không đúng.");
+            if (!isCurrentPasswordValid)
+            {
+                throw new BadException("Mật khẩu hiện tại không đúng.");
+            }
         }
 
         // 3. Hash and update new password
