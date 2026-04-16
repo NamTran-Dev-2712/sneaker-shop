@@ -159,6 +159,9 @@ export default [
             "purchase-orders/:id",
             "./routes/admin/procurement/purchase-order/purchase-order.detail.tsx",
           ),
+
+          // finance management routes
+          route("vouchers", "./routes/admin/finance/voucher.management.tsx"),
         ]),
       ]),
     ]),

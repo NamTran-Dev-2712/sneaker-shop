@@ -13,6 +13,7 @@ import {
   Store,
   Tag,
   Sparkles,
+  Ticket,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
@@ -161,6 +162,12 @@ const menuItems: MenuItem[] = [
     label: "Quản lý Kho",
     icon: <Package className="h-5 w-5" />,
     path: "/admin/inventory",
+  },
+  {
+    id: "vouchers",
+    label: "Quản lý Voucher",
+    icon: <Ticket className="h-5 w-5" />,
+    path: "/admin/vouchers",
   },
   {
     id: "procurement",

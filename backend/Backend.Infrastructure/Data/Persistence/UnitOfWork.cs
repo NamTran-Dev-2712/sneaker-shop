@@ -39,6 +39,8 @@ public class UnitOfWork : IUnitOfWork
     private ISlideRepository? _slideRepository;
     private IExternalAuthProviderRepository? _externalAuthProviderRepository;
     private IFinanceLedgerEntryRepository? _financeLedgerEntryRepository;
+    private IVoucherRepository? _voucherRepository;
+    private IVoucherRedemptionRepository? _voucherRedemptionRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -99,6 +101,9 @@ public class UnitOfWork : IUnitOfWork
         _externalAuthProviderRepository ??= new ExternalAuthProviderRepository(_context);
     public IFinanceLedgerEntryRepository FinanceLedgerEntries =>
         _financeLedgerEntryRepository ??= new FinanceLedgerEntryRepository(_context);
+    public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
+    public IVoucherRedemptionRepository VoucherRedemptions =>
+        _voucherRedemptionRepository ??= new VoucherRedemptionRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

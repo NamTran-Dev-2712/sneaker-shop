@@ -36,6 +36,8 @@ public interface IUnitOfWork
     ISlideRepository Slides { get; }
     IExternalAuthProviderRepository ExternalAuthProviders { get; }
     IFinanceLedgerEntryRepository FinanceLedgerEntries { get; }
+    IVoucherRepository Vouchers { get; }
+    IVoucherRedemptionRepository VoucherRedemptions { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

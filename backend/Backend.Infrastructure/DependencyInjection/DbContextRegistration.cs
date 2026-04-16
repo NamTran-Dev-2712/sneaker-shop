@@ -83,6 +83,8 @@ public static class DbContextRegistration
 
         // finance repositories
         services.AddScoped<IFinanceLedgerEntryRepository, FinanceLedgerEntryRepository>();
+        services.AddScoped<IVoucherRepository, VoucherRepository>();
+        services.AddScoped<IVoucherRedemptionRepository, VoucherRedemptionRepository>();
 
         return services;
     }
