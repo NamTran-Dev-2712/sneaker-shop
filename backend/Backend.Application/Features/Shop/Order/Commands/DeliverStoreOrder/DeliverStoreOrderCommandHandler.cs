@@ -87,6 +87,9 @@ public class DeliverStoreOrderCommandHandler
                     _unitOfWork.Payments.Update(payment);
                 }
 
+                // ============ Loyalty Points Earn (1 point per 1,000₫ of order.Total) ============
+                await EarnLoyaltyPointsAsync(order, cancellationToken);
+
                 _unitOfWork.Orders.Update(order);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -98,6 +101,53 @@ public class DeliverStoreOrderCommandHandler
                 };
             },
             IsolationLevel.ReadCommitted
+        );
+    }
+
+    private async Task EarnLoyaltyPointsAsync(Order order, CancellationToken cancellationToken)
+    {
+        if (!order.CustomerId.HasValue || order.Total <= 0)
+            return;
+
+        long earnedPoints = (long)Math.Floor((double)order.Total / 1000);
+        if (earnedPoints <= 0)
+            return;
+
+        // Idempotency guard: skip if this order already has an EARN transaction
+        var alreadyEarned = await _unitOfWork
+            .LoyaltyTransactions.Query()
+            .AnyAsync(
+                lt => lt.OrderId == order.Id && lt.TxnType == LoyaltyTxnType.EARN,
+                cancellationToken
+            );
+
+        if (alreadyEarned)
+            return;
+
+        var loyaltyAccount = await _unitOfWork
+            .LoyaltyAccounts.Query()
+            .FirstOrDefaultAsync(la => la.CustomerId == order.CustomerId.Value, cancellationToken);
+
+        if (loyaltyAccount == null)
+        {
+            loyaltyAccount = new LoyaltyAccount { CustomerId = order.CustomerId.Value };
+            await _unitOfWork.LoyaltyAccounts.AddAsync(loyaltyAccount, cancellationToken);
+            // Flush within the transaction to obtain the generated PK
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        loyaltyAccount.EarnPoints(earnedPoints);
+        _unitOfWork.LoyaltyAccounts.Update(loyaltyAccount);
+
+        await _unitOfWork.LoyaltyTransactions.AddAsync(
+            LoyaltyTransaction.CreateEarn(
+                loyaltyAccount.Id,
+                earnedPoints,
+                $"Tích điểm đơn hàng ORD-{order.Id:D6}",
+                order.Id,
+                order.CustomerId
+            ),
+            cancellationToken
         );
     }
 }

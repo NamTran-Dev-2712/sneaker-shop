@@ -15,10 +15,10 @@ import type {
 const FREE_SHIPPING_THRESHOLD = 500000;
 const SHIPPING_FEE = 30000;
 
-function calculateTotals(items: CheckoutItem[]) {
+function calculateTotals(items: CheckoutItem[], discountAmount = 0) {
   const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
   const shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const total = subtotal + shippingFee;
+  const total = Math.max(0, subtotal - discountAmount) + shippingFee;
   return { subtotal, shippingFee, total };
 }
 
@@ -36,6 +36,8 @@ export const CheckoutSlice = createSlice({
       state.currentStep = 1;
       state.shippingInfo = initialShippingInfo;
       state.paymentInfo = initialPaymentInfo;
+      state.voucherCode = null;
+      state.discountAmount = 0;
       state.idempotencyKey = crypto.randomUUID();
     },
 
@@ -54,6 +56,32 @@ export const CheckoutSlice = createSlice({
       state.paymentInfo = { ...state.paymentInfo, ...action.payload };
     },
 
+    /** Apply a validated voucher and recalculate total */
+    applyVoucher: (
+      state,
+      action: PayloadAction<{ voucherCode: string; discountAmount: number }>,
+    ) => {
+      state.voucherCode = action.payload.voucherCode;
+      state.discountAmount = action.payload.discountAmount;
+      const totals = calculateTotals(
+        state.items,
+        action.payload.discountAmount,
+      );
+      state.subtotal = totals.subtotal;
+      state.shippingFee = totals.shippingFee;
+      state.total = totals.total;
+    },
+
+    /** Remove the applied voucher and recalculate total */
+    removeVoucher: (state) => {
+      state.voucherCode = null;
+      state.discountAmount = 0;
+      const totals = calculateTotals(state.items, 0);
+      state.subtotal = totals.subtotal;
+      state.shippingFee = totals.shippingFee;
+      state.total = totals.total;
+    },
+
     /** Reset checkout state completely (after order placed or user navigates away) */
     resetCheckout: () => initialState,
   },
@@ -64,6 +92,8 @@ export const {
   setCurrentStep,
   updateShippingInfo,
   updatePaymentInfo,
+  applyVoucher,
+  removeVoucher,
   resetCheckout,
 } = CheckoutSlice.actions;
 

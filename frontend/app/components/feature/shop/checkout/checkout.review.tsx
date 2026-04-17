@@ -98,6 +98,14 @@ const CheckoutReview = () => {
       return;
     }
 
+    // Voucher only applies to single-store orders
+    if (checkout.voucherCode && orderGroups.length > 1) {
+      showErrorToast(
+        "Voucher chỉ áp dụng cho đơn hàng từ 1 cửa hàng. Vui lòng tách giỏ hàng hoặc xóa voucher.",
+      );
+      return;
+    }
+
     setIsPlacingOrders(true);
 
     try {
@@ -133,6 +141,7 @@ const CheckoutReview = () => {
             primaryImageUrl: item.mainImage || undefined,
           })),
           note: checkout.shippingInfo.note || undefined,
+          voucherCode: checkout.voucherCode ?? undefined,
         };
 
         // Sequential order creation — await each to guarantee atomicity per order
@@ -339,6 +348,19 @@ const CheckoutReview = () => {
             <span className="text-muted-foreground">Tạm tính</span>
             <span>{formatCurrency(checkout.subtotal)}</span>
           </div>
+          {checkout.discountAmount > 0 && (
+            <div className="flex justify-between text-sm text-green-700">
+              <span>
+                Voucher
+                {checkout.voucherCode && (
+                  <span className="ml-1 font-medium">
+                    ({checkout.voucherCode})
+                  </span>
+                )}
+              </span>
+              <span>- {formatCurrency(checkout.discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Phí vận chuyển</span>
             <span>

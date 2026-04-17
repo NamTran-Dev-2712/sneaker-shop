@@ -19,6 +19,10 @@ export interface CheckoutState {
   /** Payment form data */
   paymentInfo: PaymentInfo;
 
+  /** Applied voucher */
+  voucherCode: string | null;
+  discountAmount: number;
+
   /** Computed totals */
   subtotal: number;
   shippingFee: number;
@@ -48,6 +52,8 @@ export const initialState: CheckoutState = {
   items: [],
   shippingInfo: initialShippingInfo,
   paymentInfo: initialPaymentInfo,
+  voucherCode: null,
+  discountAmount: 0,
   subtotal: 0,
   shippingFee: 0,
   total: 0,

@@ -11,6 +11,9 @@ import type { GetOrderDetailResponse } from "./dto/get-order-detail/get-order-de
 import type { CreateVnPayPaymentUrlRequest } from "./dto/create-vnpay-payment-url/create-vnpay-payment-url.request";
 import type { CreateVnPayPaymentUrlResponse } from "./dto/create-vnpay-payment-url/create-vnpay-payment-url.response";
 import type { HandleVnPayReturnResponse } from "./dto/handle-vnpay-return/handle-vnpay-return.response";
+import type { ValidateVoucherRequest } from "./dto/validate-voucher/validate-voucher.request";
+import type { ValidateVoucherResponse } from "./dto/validate-voucher/validate-voucher.response";
+import type { GetAvailableVouchersResponse } from "./dto/get-available-vouchers/get-available-vouchers.response";
 
 export const orderService = {
   createOrder: async (
@@ -126,6 +129,49 @@ export const orderService = {
       const res = await api.post<ApiResponse<unknown>>(
         `/orders/${id}/confirm-received`,
       );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  validateVoucher: async (
+    request: ValidateVoucherRequest,
+  ): Promise<ApiResponse<ValidateVoucherResponse | null>> => {
+    try {
+      const res = await api.post<ApiResponse<ValidateVoucherResponse | null>>(
+        "/orders/voucher/validate",
+        request,
+      );
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
+
+  getAvailableVouchers: async (
+    subtotal: number,
+  ): Promise<ApiResponse<GetAvailableVouchersResponse[] | null>> => {
+    try {
+      const res = await api.get<
+        ApiResponse<GetAvailableVouchersResponse[] | null>
+      >("/orders/vouchers/available", { params: { subtotal } });
       return res.data;
     } catch (error) {
       const err = error as ApiResponseError;

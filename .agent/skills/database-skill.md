@@ -1,18 +1,17 @@
 ---
 name: database-skill
-description: Kỹ năng tối ưu PostgreSQL, xử lý migration và quản lý data với EF Core
+description: EF Core patterns, migration, query optimization — đọc khi làm database task
 ---
 
 # Database Skill
 
-Hướng dẫn làm việc với PostgreSQL và Entity Framework Core trong project.
+> Schema chi tiết & business invariants → [docs/DATABASE.md](../../docs/DATABASE.md)
+> Entity config examples → `Backend.Infrastructure/Data/Configurations/`
 
 ## EF Core Commands
 
-### Migration Commands
-
 ```powershell
-# Tạo migration mới
+# Tạo migration
 dotnet ef migrations add {MigrationName} -p Backend.Infrastructure -s Backend.Api
 
 # Apply migrations
@@ -25,304 +24,113 @@ dotnet ef database update {PreviousMigration} -p Backend.Infrastructure -s Backe
 dotnet ef migrations remove -p Backend.Infrastructure -s Backend.Api
 ```
 
-### Migration Naming Convention
-
-```
-{Action}{Entity}[Detail]
-```
-
-Examples:
-- `InitialCreate`
-- `AddSneakerColorway`
-- `AddIndexToOrderStatus`
-- `UpdateInventoryReservedColumn`
-
----
+Migration naming: `{Action}{Entity}[Detail]` — e.g. `AddSneakerColorway`, `AddIndexToOrderStatus`
 
 ## Entity Configuration Pattern
 
-### Entity Configuration File
-
 ```csharp
-// Backend.Infrastructure/Data/Configurations/SneakerConfiguration.cs
+// Backend.Infrastructure/Data/Configurations/{Entity}Configuration.cs
 public sealed class SneakerConfiguration : IEntityTypeConfiguration<Sneaker>
 {
     public void Configure(EntityTypeBuilder<Sneaker> builder)
     {
-        builder.ToTable("sneakers");
-        
+        builder.ToTable("sneakers");               // snake_case table name
         builder.HasKey(s => s.Id);
-        
-        builder.Property(s => s.Name)
-            .HasMaxLength(200)
-            .IsRequired();
-            
-        builder.Property(s => s.Slug)
-            .HasMaxLength(250)
-            .IsRequired();
-            
-        builder.HasIndex(s => s.Slug)
-            .IsUnique();
-            
+        builder.Property(s => s.Name).HasMaxLength(200).IsRequired();
+        builder.HasIndex(s => s.Slug).IsUnique();
+
         builder.HasOne(s => s.Brand)
             .WithMany(b => b.Sneakers)
             .HasForeignKey(s => s.BrandId)
             .OnDelete(DeleteBehavior.Restrict);
-            
-        // Soft delete filter
-        builder.HasQueryFilter(s => !s.IsDeleted);
+
+        builder.HasQueryFilter(s => !s.IsDeleted); // Soft delete filter
     }
 }
 ```
 
----
-
-## Query Optimization Patterns
-
-### AsNoTracking for Read Queries
+## Query Patterns (BẮT BUỘC)
 
 ```csharp
-// ✅ CORRECT - Read-only query
-var sneakers = await _dbContext.Sneakers
+// ✅ Read query — LUÔN dùng AsNoTracking + Projection
+var result = await unitOfWork.Sneakers.Query()
     .AsNoTracking()
     .Where(s => s.IsActive)
-    .ToListAsync();
+    .Select(s => new SneakerDto { Id = s.Id, Name = s.Name })
+    .ToListAsync(cancellationToken);
 
-// ❌ WRONG - Tracking overhead for read
-var sneakers = await _dbContext.Sneakers
-    .Where(s => s.IsActive)
-    .ToListAsync();
-```
-
-### Projection Pattern
-
-```csharp
-// ✅ CORRECT - Select only needed fields
-var result = await _dbContext.Sneakers
-    .AsNoTracking()
-    .Select(s => new SneakerDto
-    {
-        Id = s.Id,
-        Name = s.Name,
-        MainImage = s.MainImage,
-        Price = s.BasePrice
-    })
-    .ToListAsync();
-
-// ❌ WRONG - Load full entity then map
-var entities = await _dbContext.Sneakers.ToListAsync();
-var result = entities.Select(s => new SneakerDto { ... });
-```
-
-### SplitQuery for Complex Includes
-
-```csharp
-// ✅ CORRECT - Avoid Cartesian explosion
-var sneaker = await _dbContext.Sneakers
+// ✅ Complex includes — dùng AsSplitQuery tránh cartesian explosion
+var sneaker = await unitOfWork.Sneakers.Query()
     .AsNoTracking()
     .AsSplitQuery()
-    .Include(s => s.Colorways)
-        .ThenInclude(c => c.Variants)
+    .Include(s => s.Colorways).ThenInclude(c => c.Variants)
     .Include(s => s.Brand)
-    .FirstOrDefaultAsync(s => s.Id == id);
+    .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 ```
 
----
+## Domain-Specific Patterns
 
-## Sellable_Item Polymorphic Pattern
-
-### Entity Structure
+### Sellable_Item Polymorphic
 
 ```csharp
-public sealed class SellableItem
+// Type PHẢI match FK. DB có check constraint:
+// SNEAKER_VARIANT → sneaker_variant_id NOT NULL, accessory_id NULL
+// ACCESSORY → accessory_id NOT NULL, sneaker_variant_id NULL
+public sealed class SellableItem : BaseEntity
 {
-    public int Id { get; set; }
     public SellableType Type { get; set; }
     public string Sku { get; set; } = string.Empty;
-    public string? Barcode { get; set; }
     public decimal RetailPrice { get; set; }
-    public decimal OnlinePrice { get; set; }
-    public bool IsActive { get; set; }
-    
-    // Polymorphic FK - chỉ 1 trong 2 có giá trị
-    public int? SneakerVariantId { get; set; }
+    public int? SneakerVariantId { get; set; }     // chỉ 1 trong 2 có giá trị
     public int? AccessoryId { get; set; }
-    
-    public SneakerVariant? SneakerVariant { get; set; }
-    public Accessory? Accessory { get; set; }
 }
 ```
 
-### Database Constraint
-
-```sql
--- Check constraint đảm bảo đúng polymorphic
-ALTER TABLE sellable_items ADD CONSTRAINT chk_sellable_type CHECK (
-    (type = 'SNEAKER_VARIANT' AND sneaker_variant_id IS NOT NULL AND accessory_id IS NULL)
-    OR
-    (type = 'ACCESSORY' AND accessory_id IS NOT NULL AND sneaker_variant_id IS NULL)
-);
-```
-
-### Query Pattern
-
-```csharp
-// Get sellable with product details
-var sellable = await _dbContext.SellableItems
-    .AsNoTracking()
-    .Include(s => s.SneakerVariant)
-        .ThenInclude(v => v.Colorway)
-            .ThenInclude(c => c.Sneaker)
-    .Include(s => s.Accessory)
-    .FirstOrDefaultAsync(s => s.Id == id);
-```
-
----
-
-## Inventory Management
-
-### Inventory Rules
+### Inventory Management
 
 ```
 available = on_hand - reserved
+
+| Event              | on_hand | reserved |
+|--------------------|---------|----------|
+| Order PLACED       | —       | +qty     |
+| Order CANCELLED    | —       | -qty     |
+| Order PACKED/SHIPPED | -qty  | -qty     |
+| Stock received     | +qty    | —        |
+| Return COMPLETED   | +qty    | —        |
 ```
 
-| Event | on_hand | reserved |
-|-------|---------|----------|
-| Order PLACED | — | +qty |
-| Order CANCELLED | — | -qty |
-| Order PACKED/SHIPPED | -qty | -qty |
-| Stock received | +qty | — |
-| Return COMPLETED | +qty | — |
-
-### Inventory Update Pattern
+### Transaction Pattern
 
 ```csharp
-public async Task ReserveStock(int sellableItemId, int storeId, int quantity)
+// Dùng ExecuteInTransactionAsync hoặc BeginTransactionAsync
+await unitOfWork.BeginTransactionAsync();
+try
 {
-    var inventory = await _dbContext.Inventories
-        .FirstOrDefaultAsync(i => 
-            i.SellableItemId == sellableItemId && 
-            i.StoreId == storeId);
-    
-    if (inventory == null || inventory.OnHand - inventory.Reserved < quantity)
-        throw new InsufficientStockException();
-    
-    inventory.Reserved += quantity;
-    await _dbContext.SaveChangesAsync();
+    var order = new Order { /* ... */ };
+    await unitOfWork.Orders.AddAsync(order);
+    await unitOfWork.SaveChangesAsync(cancellationToken);
+    await unitOfWork.CommitTransactionAsync();
 }
-
-public async Task ReleaseReservation(int sellableItemId, int storeId, int quantity)
+catch
 {
-    var inventory = await _dbContext.Inventories
-        .FirstOrDefaultAsync(i => 
-            i.SellableItemId == sellableItemId && 
-            i.StoreId == storeId);
-    
-    inventory.Reserved -= quantity;
-    await _dbContext.SaveChangesAsync();
+    await unitOfWork.RollbackTransactionAsync();
+    throw;
 }
 ```
-
----
 
 ## Index Best Practices
 
-### Common Indexes
-
 ```csharp
-// High-frequency filter columns
+// High-frequency filters
 builder.HasIndex(o => o.Status);
-builder.HasIndex(o => o.Channel);
 builder.HasIndex(o => o.CreatedAt);
 
-// Foreign keys (auto-created but explicit for clarity)
-builder.HasIndex(o => o.CustomerId);
-builder.HasIndex(o => o.StoreId);
-
-// Composite for common queries
-builder.HasIndex(o => new { o.StoreId, o.Status });
-```
-
-### Unique Constraints
-
-```csharp
+// Unique constraints
 builder.HasIndex(s => s.Sku).IsUnique();
 builder.HasIndex(s => s.Slug).IsUnique();
+
+// Composite
 builder.HasIndex(v => new { v.SneakerId, v.ColorwayId, v.SizeId }).IsUnique();
-```
-
----
-
-## Transaction Pattern
-
-```csharp
-public async Task<CreateOrderResult> Handle(CreateOrderCommand command, CancellationToken ct)
-{
-    await using var transaction = await _dbContext.Database.BeginTransactionAsync(ct);
-    
-    try
-    {
-        // 1. Create order
-        var order = new Order { /* ... */ };
-        _dbContext.Orders.Add(order);
-        
-        // 2. Create order items
-        foreach (var item in command.Items)
-        {
-            _dbContext.OrderItems.Add(new OrderItem { /* ... */ });
-        }
-        
-        // 3. Reserve inventory
-        await ReserveInventory(command.Items);
-        
-        // 4. Apply voucher if any
-        if (command.VoucherCode != null)
-            await ApplyVoucher(order, command.VoucherCode);
-        
-        await _dbContext.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
-        
-        return new CreateOrderResult { OrderId = order.Id };
-    }
-    catch
-    {
-        await transaction.RollbackAsync(ct);
-        throw;
-    }
-}
-```
-
----
-
-## Pagination Pattern
-
-```csharp
-public async Task<PaginatedList<SneakerDto>> GetSneakers(
-    int pageNumber, 
-    int pageSize,
-    string? search,
-    int? brandId)
-{
-    var query = _dbContext.Sneakers
-        .AsNoTracking()
-        .Where(s => s.IsActive && !s.IsDeleted);
-    
-    if (!string.IsNullOrEmpty(search))
-        query = query.Where(s => s.Name.Contains(search));
-    
-    if (brandId.HasValue)
-        query = query.Where(s => s.BrandId == brandId);
-    
-    var totalItems = await query.CountAsync();
-    
-    var items = await query
-        .OrderBy(s => s.Name)
-        .Skip((pageNumber - 1) * pageSize)
-        .Take(pageSize)
-        .Select(s => new SneakerDto { /* ... */ })
-        .ToListAsync();
-    
-    return new PaginatedList<SneakerDto>(items, totalItems, pageNumber, pageSize);
-}
+builder.HasIndex(o => new { o.StoreId, o.Status });
 ```

@@ -20,6 +20,9 @@ public record CreateOrderCommand : IRequest<CreateOrderResult>
     // Payment info
     public required string PaymentMethod { get; init; } // COD, BANK_TRANSFER, etc.
 
+    // Optional voucher code — validated & redeemed atomically in the transaction
+    public string? VoucherCode { get; init; }
+
     // Items
     public required List<CreateOrderItemDto> Items { get; init; }
 

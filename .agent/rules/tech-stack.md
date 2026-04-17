@@ -1,107 +1,58 @@
 ---
 name: tech-stack
-description: Quy định về .NET 9, React Router 7, PostgreSQL, Docker và các công nghệ sử dụng trong project
+description: Package constraints và version rules — chỉ đọc khi cần kiểm tra dependency
 ---
 
 # Technology Stack Rules
 
-## Backend Stack
+## Backend (.NET 9)
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **.NET** | 9 | Runtime & SDK |
-| **ASP.NET Core** | 9 | Web API framework |
-| **Entity Framework Core** | 9 | ORM |
-| **PostgreSQL** | 16+ | Database |
-| **MediatR** | 12+ | CQRS mediator |
-| **FluentValidation** | 11+ | Request validation |
-| **BCrypt.Net** | 4+ | Password hashing |
-| **Cloudinary** | 1.25+ | Image storage |
+| Tech | Version | Purpose |
+|------|---------|---------|
+| .NET / ASP.NET Core | 9 | Runtime + Web API |
+| Entity Framework Core | 9 | ORM (PostgreSQL) |
+| MediatR | 12+ | CQRS mediator |
+| FluentValidation | 11+ | Request validation |
+| BCrypt.Net | 4+ | Password hashing |
+| Cloudinary | 1.25+ | Image storage |
 
-### Backend Dependencies Enforcement
+### Package Policy
 
 ```
-✅ ALLOWED packages:
-- MediatR, FluentValidation, BCrypt.Net-Next
-- Npgsql.EntityFrameworkCore.PostgreSQL
-- CloudinaryDotNet
-- Microsoft.AspNetCore.* (built-in)
-
-❌ NOT ALLOWED without approval:
-- AutoMapper (use manual mapping/records)
-- Hangfire (use hosted services if needed)
-- Dapper (use EF Core only)
+✅ ALLOWED: MediatR, FluentValidation, BCrypt.Net-Next, Npgsql.EFCore, CloudinaryDotNet
+❌ NOT ALLOWED: AutoMapper (use manual mapping), Hangfire (use hosted services), Dapper (use EF Core)
 ```
 
----
+## Frontend (React 19 + React Router 7)
 
-## Frontend Stack
+| Tech | Version | Purpose |
+|------|---------|---------|
+| React Router | 7 | Routing + SSR |
+| Redux Toolkit | 2.x | Shared state (auth, checkout) |
+| TanStack Query | 5.x | Server data fetching |
+| Axios | 1.x | HTTP client |
+| Zod | 4.x | Schema validation |
+| react-hook-form | 7.x | Form handling |
+| TailwindCSS | 4 | Styling (CSS-first config) |
+| ShadcnUI | latest | Radix UI components |
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **React** | 19 | UI library |
-| **React Router** | 7 | Routing & SSR |
-| **Redux Toolkit** | 2.x | Shared state |
-| **TanStack Query** | 5.x | Data fetching & caching |
-| **Axios** | 1.x | HTTP client |
-| **Zod** | 4.x | Schema validation |
-| **react-hook-form** | 7.x | Form handling |
-| **TailwindCSS** | 4 | Styling |
-| **ShadcnUI** | latest | Component library |
-
-### Frontend Dependencies Enforcement
+### Package Policy
 
 ```
-✅ ALLOWED packages:
-- @tanstack/react-query, axios, zod
-- react-hook-form, @hookform/resolvers
-- @reduxjs/toolkit, react-redux, redux-persist
-- lucide-react (icons)
-- date-fns, lodash-es
-
-❌ NOT ALLOWED without approval:
-- moment.js (use date-fns)
-- styled-components (use TailwindCSS)
-- MobX (use Redux or React Query)
-- formik (use react-hook-form)
+✅ ALLOWED: @tanstack/react-query, axios, zod, react-hook-form, @reduxjs/toolkit, lucide-react, date-fns
+❌ NOT ALLOWED: moment.js (use date-fns), styled-components (use Tailwind), MobX, formik
 ```
-
----
 
 ## Infrastructure
 
-| Technology | Purpose |
-|------------|---------|
-| **Docker** | Containerization |
-| **Cloudinary** | CDN & image processing |
-| **JWT** | Authentication (HttpOnly cookies) |
+- **Docker** for containerization
+- **Cloudinary** for CDN + image processing
+- **JWT** in HttpOnly cookies (access + refresh tokens)
+- **pnpm** for frontend package management
 
----
+## Key Framework Features Used
 
-## Package Manager Rules
-
-| Layer | Package Manager |
-|-------|----------------|
-| Backend | `dotnet` CLI, NuGet |
-| Frontend | `pnpm` (preferred) or `npm` |
-
----
-
-## Version Compatibility Notes
-
-### .NET 9 Features Used
-- File-scoped types (implicit namespace)
-- Records for DTOs and Commands
-- Primary constructors
-- Global usings via `Directory.Build.props`
-
-### React Router 7 Features Used
-- Server-side rendering (SSR)
-- Type-safe routes
-- Nested layouts
-- Data loading patterns
-
-### TailwindCSS v4 Features Used
-- CSS-first configuration
-- Native CSS variables
-- Automatic content detection
+- **.NET 9**: File-scoped types (no namespace), records for DTOs, primary constructors, global usings
+- **React Router 7**: SSR enabled, type-safe routes, nested layouts
+- **TailwindCSS 4**: CSS-first config, native CSS variables, auto content detection
+- **EF Core**: Snake_case naming convention (`UseSnakeCaseNamingConvention()`), retry on failure

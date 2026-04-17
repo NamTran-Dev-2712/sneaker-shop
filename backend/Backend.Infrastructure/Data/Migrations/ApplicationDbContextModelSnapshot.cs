@@ -2879,6 +2879,10 @@ namespace Backend.Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("customer_id");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("discount_amount");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("integer")
                         .HasColumnName("order_id");

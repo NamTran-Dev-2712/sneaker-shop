@@ -41,6 +41,8 @@ public class UnitOfWork : IUnitOfWork
     private IFinanceLedgerEntryRepository? _financeLedgerEntryRepository;
     private IVoucherRepository? _voucherRepository;
     private IVoucherRedemptionRepository? _voucherRedemptionRepository;
+    private ILoyaltyAccountRepository? _loyaltyAccountRepository;
+    private ILoyaltyTransactionRepository? _loyaltyTransactionRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -104,6 +106,10 @@ public class UnitOfWork : IUnitOfWork
     public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
     public IVoucherRedemptionRepository VoucherRedemptions =>
         _voucherRedemptionRepository ??= new VoucherRedemptionRepository(_context);
+    public ILoyaltyAccountRepository LoyaltyAccounts =>
+        _loyaltyAccountRepository ??= new LoyaltyAccountRepository(_context);
+    public ILoyaltyTransactionRepository LoyaltyTransactions =>
+        _loyaltyTransactionRepository ??= new LoyaltyTransactionRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

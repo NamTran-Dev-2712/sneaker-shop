@@ -10,6 +10,7 @@ export interface CreateOrderRequest {
   paymentMethod: string;
   items: CreateOrderItemRequest[];
   note?: string;
+  voucherCode?: string;
 }
 
 export interface CreateOrderItemRequest {

@@ -110,5 +110,10 @@ public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
             .MaximumLength(1000)
             .WithMessage("Ghi chú không được vượt quá 1000 ký tự.")
             .When(x => !string.IsNullOrEmpty(x.Note));
+
+        RuleFor(x => x.VoucherCode)
+            .MaximumLength(50)
+            .WithMessage("Mã voucher không được vượt quá 50 ký tự.")
+            .When(x => !string.IsNullOrWhiteSpace(x.VoucherCode));
     }
 }

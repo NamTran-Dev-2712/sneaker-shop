@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { orderService } from "~/services/order/order.service";
 import type { CreateOrderRequest } from "~/services/order/dto/create-order/create-order.request";
 import type { GetMyOrdersRequest } from "~/services/order/dto/get-my-orders/get-my-orders.request";
+import type { ValidateVoucherRequest } from "~/services/order/dto/validate-voucher/validate-voucher.request";
 import { cartKeys } from "./use-cart.query";
 import { showErrorToast, showSuccessToast } from "~/components/common/toast";
 
@@ -16,6 +17,8 @@ export const orderKeys = {
   detail: (id: number) => [...orderKeys.all, "detail", id] as const,
   vnpayReturn: (params: Record<string, string>) =>
     [...orderKeys.all, "vnpayReturn", params] as const,
+  availableVouchers: (subtotal: number) =>
+    [...orderKeys.all, "availableVouchers", subtotal] as const,
 };
 
 // ==========================================
@@ -142,5 +145,40 @@ export const useConfirmOrderReceived = (orderId: number) => {
     onError: (error: Error) => {
       showErrorToast(error.message || "Xác nhận thất bại. Vui lòng thử lại.");
     },
+  });
+};
+
+/**
+ * Hook kiểm tra và preview discount của voucher (dry-run).
+ * Không tạo redemption record — chỉ trả về discountAmount.
+ */
+export const useValidateVoucher = () => {
+  return useMutation({
+    mutationFn: async (request: ValidateVoucherRequest) => {
+      const response = await orderService.validateVoucher(request);
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Mã voucher không hợp lệ");
+      }
+      return response.data;
+    },
+  });
+};
+
+/**
+ * Hook lấy danh sách voucher khả dụng cho customer tại checkout.
+ * Enabled khi subtotal > 0.
+ */
+export const useAvailableVouchers = (subtotal: number) => {
+  return useQuery({
+    queryKey: orderKeys.availableVouchers(subtotal),
+    queryFn: async () => {
+      const response = await orderService.getAvailableVouchers(subtotal);
+      if (!response.success || !response.data) {
+        throw new Error(response.message || "Không thể tải danh sách voucher");
+      }
+      return response.data;
+    },
+    enabled: subtotal > 0,
+    staleTime: 2 * 60 * 1000,
   });
 };

@@ -45,6 +45,7 @@ export default [
 
           // user profile & orders routes
           route("profile", "./routes/user/profile.tsx"),
+          route("loyalty", "./routes/user/loyalty.tsx"),
           route("orders", "./routes/user/orders.tsx"),
           route("orders/:id", "./routes/user/order-detail.tsx"),
 

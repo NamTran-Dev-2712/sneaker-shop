@@ -122,7 +122,37 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
         }
 
         var shippingFee = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-        var total = subtotal + shippingFee;
+
+        // ============ Voucher Validation & Redemption (inside Serializable transaction) ============
+        decimal discountTotal = 0;
+        VoucherRedemption? voucherRedemption = null;
+
+        if (!string.IsNullOrWhiteSpace(command.VoucherCode))
+        {
+            var code = command.VoucherCode.Trim().ToUpperInvariant();
+            var voucher = await _unitOfWork
+                .Vouchers.Query()
+                .Include(v => v.Redemptions)
+                .FirstOrDefaultAsync(v => v.Code == code, cancellationToken);
+
+            if (voucher == null)
+                throw new NotFoundException("Mã voucher không hợp lệ.");
+
+            // Re-validate atomically inside Serializable transaction.
+            // This catches TOCTOU races where voucher was deactivated or exhausted
+            // between the dry-run preview and the actual order placement.
+            discountTotal = VoucherValidationHelper.Validate(voucher, subtotal, command.CustomerId);
+
+            voucherRedemption = new VoucherRedemption
+            {
+                VoucherId = voucher.Id,
+                CustomerId = command.CustomerId,
+                DiscountAmount = discountTotal,
+            };
+            voucherRedemption.Redeem();
+        }
+
+        var total = subtotal - discountTotal + shippingFee;
 
         // Build the complete order object graph — EF resolves all FKs at SaveChanges time
         var order = new Order
@@ -131,8 +161,9 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
             Status = OrderStatus.PLACED,
             StoreId = resolvedStoreId!.Value,
             CustomerId = command.CustomerId,
-            CreatedBy = command.CustomerId,
+            CreatedBy = customerAccount.AccountId,
             Subtotal = subtotal,
+            DiscountTotal = discountTotal,
             ShippingFee = shippingFee,
             Total = total,
             Note = command.Note?.Trim(),
@@ -173,6 +204,8 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
         order.OrderItems = orderItems;
         order.Payments = new List<Payment> { payment };
         order.OrderFulfillment = fulfillment;
+        if (voucherRedemption != null)
+            order.VoucherRedemption = voucherRedemption;
 
         await _unitOfWork.Orders.AddAsync(order, cancellationToken);
 
@@ -221,8 +254,10 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Cre
             OrderId = order.Id,
             Status = order.Status.ToString(),
             Subtotal = order.Subtotal,
+            DiscountTotal = order.DiscountTotal,
             ShippingFee = order.ShippingFee,
             Total = order.Total,
+            VoucherCode = order.VoucherRedemption?.Voucher?.Code,
             PaymentMethod =
                 order.Payments.FirstOrDefault()?.Method.ToString()
                 ?? fallbackPaymentMethod?.ToString()

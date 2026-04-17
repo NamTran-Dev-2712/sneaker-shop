@@ -38,6 +38,8 @@ public interface IUnitOfWork
     IFinanceLedgerEntryRepository FinanceLedgerEntries { get; }
     IVoucherRepository Vouchers { get; }
     IVoucherRedemptionRepository VoucherRedemptions { get; }
+    ILoyaltyAccountRepository LoyaltyAccounts { get; }
+    ILoyaltyTransactionRepository LoyaltyTransactions { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

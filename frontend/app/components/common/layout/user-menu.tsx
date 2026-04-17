@@ -7,6 +7,7 @@ import {
   Heart,
   Bell,
   CreditCard,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -114,6 +115,15 @@ const UserMenu = () => {
             >
               <ShoppingBag className="mr-3 h-4 w-4" />
               <span>Đơn hàng</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              to="/loyalty"
+              className="flex items-center cursor-pointer py-2.5"
+            >
+              <Star className="mr-3 h-4 w-4" />
+              <span>Điểm thưởng</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
