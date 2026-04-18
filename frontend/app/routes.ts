@@ -46,6 +46,8 @@ export default [
           // user profile & orders routes
           route("profile", "./routes/user/profile.tsx"),
           route("loyalty", "./routes/user/loyalty.tsx"),
+          route("vouchers", "./routes/user/vouchers.tsx"),
+          route("settings", "./routes/user/settings.tsx"),
           route("orders", "./routes/user/orders.tsx"),
           route("orders/:id", "./routes/user/order-detail.tsx"),
 
@@ -163,6 +165,13 @@ export default [
 
           // finance management routes
           route("vouchers", "./routes/admin/finance/voucher.management.tsx"),
+
+          // admin settings route
+          route("settings", "./routes/admin/settings.tsx"),
+
+          // customer management routes
+          route("customers", "./routes/admin/user/customer.management.tsx"),
+          route("customers/:id", "./routes/admin/user/customer.detail.tsx"),
         ]),
       ]),
     ]),

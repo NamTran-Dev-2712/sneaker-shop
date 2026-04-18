@@ -8,6 +8,7 @@ import {
   Bell,
   CreditCard,
   Star,
+  Ticket,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -124,6 +125,15 @@ const UserMenu = () => {
             >
               <Star className="mr-3 h-4 w-4" />
               <span>Điểm thưởng</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              to="/vouchers"
+              className="flex items-center cursor-pointer py-2.5"
+            >
+              <Ticket className="mr-3 h-4 w-4" />
+              <span>Voucher của tôi</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

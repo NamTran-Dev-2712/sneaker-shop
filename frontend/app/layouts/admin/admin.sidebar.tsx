@@ -85,20 +85,7 @@ const menuItems: MenuItem[] = [
     id: "customers",
     label: "Quản lý Khách hàng",
     icon: <Users className="h-5 w-5" />,
-    children: [
-      {
-        id: "customers-list",
-        label: "Danh sách",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/customers",
-      },
-      {
-        id: "customers-create",
-        label: "Tạo mới",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/customers/create",
-      },
-    ],
+    path: "/admin/customers",
   },
   {
     id: "products",

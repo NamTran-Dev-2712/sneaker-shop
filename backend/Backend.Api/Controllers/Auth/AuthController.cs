@@ -195,4 +195,19 @@ public class AuthController : BaseController
         var result = await _mediator.Send(securedCommand);
         return Ok(result);
     }
+
+    [Authorize]
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerificationEmail(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
+        }
+
+        var command = new ResendVerificationEmailCommand { AccountId = accountId.Value };
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(result);
+    }
 }

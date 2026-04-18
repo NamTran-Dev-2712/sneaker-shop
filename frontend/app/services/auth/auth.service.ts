@@ -255,4 +255,24 @@ export const authSerivce = {
       };
     }
   },
+
+  resendVerificationEmail: async (): Promise<
+    ApiResponse<{ success: boolean; message: string } | null>
+  > => {
+    try {
+      const res = await api.post<
+        ApiResponse<{ success: boolean; message: string } | null>
+      >("/auth/resend-verification");
+      return res.data;
+    } catch (error) {
+      const err = error as ApiResponseError;
+      return {
+        success: false,
+        statusCode: err.statusCode,
+        message: err.message,
+        data: null,
+        errors: err.errors,
+      };
+    }
+  },
 };
