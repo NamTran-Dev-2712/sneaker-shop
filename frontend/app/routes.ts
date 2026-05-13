@@ -27,6 +27,7 @@ export default [
         // auth routes
         layout("./components/provider/guest-only.provider.tsx", [
           route("login", "./routes/auth/login.tsx"),
+          route("forgot-password", "./routes/auth/forgot-password.tsx"),
           route("register", "./routes/auth/register.tsx"),
         ]),
         route(
@@ -41,6 +42,28 @@ export default [
         // protected routes (authenticated)
         layout("./components/provider/auth.provider.tsx", [
           route("cart", "./routes/shop/cart/cart.index.tsx"),
+
+          // user profile & orders routes
+          route("profile", "./routes/user/profile.tsx"),
+          route("loyalty", "./routes/user/loyalty.tsx"),
+          route("vouchers", "./routes/user/vouchers.tsx"),
+          route("settings", "./routes/user/settings.tsx"),
+          route("orders", "./routes/user/orders.tsx"),
+          route("orders/:id", "./routes/user/order-detail.tsx"),
+
+          // checkout routes — guarded by checkout provider (redirects to cart if no items)
+          layout("./components/provider/checkout.provider.tsx", [
+            route("checkout/shipping", "./routes/order/checkout.shipping.tsx"),
+            route("checkout/payment", "./routes/order/checkout.payment.tsx"),
+            route("checkout/review", "./routes/order/checkout.review.tsx"),
+          ]),
+
+          // checkout success — outside checkout guard (checkout state is cleared after order)
+          route("checkout/success", "./routes/order/checkout.success.tsx"),
+          route(
+            "checkout/vnpay-return",
+            "./routes/order/checkout.vnpay-return.tsx",
+          ),
         ]),
       ]),
     ]),
@@ -59,6 +82,9 @@ export default [
           route("attributes/colors", "./routes/admin/attribute/color.tsx"),
           route("attributes/sizes", "./routes/admin/attribute/size.tsx"),
           route("attributes/slides", "./routes/admin/attribute/slide.tsx"),
+
+          // staff management routes
+          route("employees", "./routes/admin/user/staff.tsx"),
 
           // sneaker management routes
           route(
@@ -136,6 +162,28 @@ export default [
             "purchase-orders/:id",
             "./routes/admin/procurement/purchase-order/purchase-order.detail.tsx",
           ),
+
+          // finance management routes
+          route("vouchers", "./routes/admin/finance/voucher.management.tsx"),
+
+          // admin settings route
+          route("settings", "./routes/admin/settings.tsx"),
+
+          // customer management routes
+          route("customers", "./routes/admin/user/customer.management.tsx"),
+          route("customers/:id", "./routes/admin/user/customer.detail.tsx"),
+        ]),
+      ]),
+    ]),
+
+    // staff routes
+    ...prefix("staff", [
+      layout("./components/provider/staff.provider.tsx", [
+        layout("./layouts/staff/staff.layout.tsx", [
+          index("./routes/staff/dashboard.tsx"),
+          route("orders", "./routes/staff/orders/orders.tsx"),
+          route("orders/:id", "./routes/staff/orders/order-detail.tsx"),
+          route("profile", "./routes/staff/profile.tsx"),
         ]),
       ]),
     ]),

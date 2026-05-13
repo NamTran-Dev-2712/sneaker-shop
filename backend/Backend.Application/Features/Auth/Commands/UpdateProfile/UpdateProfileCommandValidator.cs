@@ -18,8 +18,21 @@ public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileComm
             .Matches(@"^[0-9]{10,11}$")
             .WithMessage("Số điện thoại phải có 10-11 chữ số.");
 
-        RuleFor(x => x.Avatar)
-            .Must(file => file == null || file.Length > 0)
-            .WithMessage("Tệp ảnh đại diện không hợp lệ.");
+        RuleFor(x => x.FullName)
+            .MaximumLength(100)
+            .WithMessage("Họ tên không được vượt quá 100 ký tự.")
+            .When(x => x.FullName != null);
+
+        RuleFor(x => x.Birthday)
+            .Must(birthday =>
+            {
+                if (string.IsNullOrWhiteSpace(birthday))
+                    return true;
+                return DateTime.TryParse(birthday, out var date)
+                    && date.Year >= 1900
+                    && date <= DateTime.UtcNow;
+            })
+            .WithMessage("Ngày sinh không hợp lệ.")
+            .When(x => x.Birthday != null);
     }
 }

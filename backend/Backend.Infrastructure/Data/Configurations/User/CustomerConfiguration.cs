@@ -10,7 +10,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasKey(c => c.Id);
 
         // Properties
-        builder.Property(c => c.Phone).IsRequired().HasMaxLength(20);
+        builder.Property(c => c.Phone).HasMaxLength(20);
 
         builder.Property(c => c.Email).HasMaxLength(255);
 
@@ -23,7 +23,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(c => c.UpdatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         // Unique constraints
-        builder.HasIndex(c => c.Phone).IsUnique();
+        builder.HasIndex(c => c.Phone).IsUnique().HasFilter("phone IS NOT NULL");
 
         // Indexes
         builder.HasIndex(c => c.Email);

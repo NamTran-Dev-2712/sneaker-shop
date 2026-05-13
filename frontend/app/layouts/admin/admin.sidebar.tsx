@@ -13,6 +13,7 @@ import {
   Store,
   Tag,
   Sparkles,
+  Ticket,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
@@ -78,39 +79,13 @@ const menuItems: MenuItem[] = [
     id: "employees",
     label: "Quản lý Nhân viên",
     icon: <UserCog className="h-5 w-5" />,
-    children: [
-      {
-        id: "employees-list",
-        label: "Danh sách",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/employees",
-      },
-      {
-        id: "employees-create",
-        label: "Tạo mới",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/employees/create",
-      },
-    ],
+    path: "/admin/employees",
   },
   {
     id: "customers",
     label: "Quản lý Khách hàng",
     icon: <Users className="h-5 w-5" />,
-    children: [
-      {
-        id: "customers-list",
-        label: "Danh sách",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/customers",
-      },
-      {
-        id: "customers-create",
-        label: "Tạo mới",
-        icon: <Users className="h-4 w-4" />,
-        path: "/admin/customers/create",
-      },
-    ],
+    path: "/admin/customers",
   },
   {
     id: "products",
@@ -174,6 +149,12 @@ const menuItems: MenuItem[] = [
     label: "Quản lý Kho",
     icon: <Package className="h-5 w-5" />,
     path: "/admin/inventory",
+  },
+  {
+    id: "vouchers",
+    label: "Quản lý Voucher",
+    icon: <Ticket className="h-5 w-5" />,
+    path: "/admin/vouchers",
   },
   {
     id: "procurement",

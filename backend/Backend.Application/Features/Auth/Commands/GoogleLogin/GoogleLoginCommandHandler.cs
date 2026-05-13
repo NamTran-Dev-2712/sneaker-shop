@@ -112,9 +112,8 @@ public class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, Goo
 
                 // Create customer
                 var fullName = googleUser.Name ?? googleUser.Email;
-                customer = Customer.Create(
+                customer = Customer.CreateForExternalAuth(
                     fullName: fullName,
-                    phone: string.Empty,
                     email: googleUser.Email
                 );
 
@@ -131,7 +130,7 @@ public class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, Goo
 
                 // Create external auth provider
                 var provider = ExternalAuthProvider.Create(
-                    account.Id,
+                    account,
                     AuthProvider.Google,
                     googleUser.Sub,
                     googleUser.Email

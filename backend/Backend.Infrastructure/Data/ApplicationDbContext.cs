@@ -15,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<CustomerAccount> CustomerAccounts { get; set; }
     public DbSet<ExternalAuthProvider> ExternalAuthProviders { get; set; }
+    public DbSet<PasswordResetOtp> PasswordResetOtps { get; set; }
 
     // Store DbSet
     public DbSet<Store> Stores { get; set; }
@@ -68,6 +69,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<Return> Returns { get; set; }
     public DbSet<ReturnItem> ReturnItems { get; set; }
     public DbSet<RestockRequest> RestockRequests { get; set; }
+
+    // Finance DbSets
+    public DbSet<FinanceLedgerEntry> FinanceLedgerEntries { get; set; }
 
     public IDbContextTransaction? GetCurrentTransaction() => _currentTransaction;
 

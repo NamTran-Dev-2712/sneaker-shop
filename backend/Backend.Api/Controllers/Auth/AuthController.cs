@@ -39,6 +39,7 @@ public class AuthController : BaseController
                 result.CustomerId,
                 result.Email,
                 result.IsEmailVerified,
+                result.HasPassword,
                 result.Phone,
                 result.FullName,
                 result.Avatar,
@@ -97,6 +98,36 @@ public class AuthController : BaseController
         return Ok(new { message = "Tokens refreshed successfully" });
     }
 
+    [AllowAnonymous]
+    [HttpPost("forgot-password/request-otp")]
+    public async Task<IActionResult> RequestPasswordResetOtp(
+        [FromBody] RequestPasswordResetOtpCommand command
+    )
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/resend-otp")]
+    public async Task<IActionResult> ResendPasswordResetOtp(
+        [FromBody] RequestPasswordResetOtpCommand command
+    )
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/reset")]
+    public async Task<IActionResult> ResetPasswordWithOtp(
+        [FromBody] ResetPasswordWithOtpCommand command
+    )
+    {
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
     [Authorize]
     [HttpGet("profile")]
     public async Task<IActionResult> GetProfile()
@@ -115,8 +146,7 @@ public class AuthController : BaseController
 
     [Authorize]
     [HttpPut("profile")]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileCommand command)
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command)
     {
         var accountId = HttpContext.GetAccountId();
         if (accountId == null)
@@ -124,13 +154,60 @@ public class AuthController : BaseController
             return Unauthorized("Authentication không hợp lệ.");
         }
 
-        // Ensure user can only update their own profile
-        if (command.AccountId != accountId.Value)
+        // Override AccountId from JWT to prevent client tampering
+        var securedCommand = command with
         {
-            return Forbid("Bạn không có quyền cập nhật profile này.");
+            AccountId = accountId.Value,
+        };
+
+        var result = await _mediator.Send(securedCommand);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("profile/avatar")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateAvatar([FromForm] IFormFile avatar)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
         }
 
+        var command = new UpdateAvatarCommand { AccountId = accountId.Value, Avatar = avatar };
+
         var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
+        }
+
+        var securedCommand = command with { AccountId = accountId.Value };
+        var result = await _mediator.Send(securedCommand);
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerificationEmail(CancellationToken cancellationToken)
+    {
+        var accountId = HttpContext.GetAccountId();
+        if (accountId == null)
+        {
+            return Unauthorized("Authentication không hợp lệ.");
+        }
+
+        var command = new ResendVerificationEmailCommand { AccountId = accountId.Value };
+        var result = await _mediator.Send(command, cancellationToken);
         return Ok(result);
     }
 }

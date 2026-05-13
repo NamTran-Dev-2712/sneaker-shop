@@ -4,6 +4,7 @@ public record LoginResult
     public int? CustomerId { get; init; }
     public required string Email { get; init; }
     public required bool IsEmailVerified { get; init; }
+    public required bool HasPassword { get; init; }
     public required string Phone { get; init; }
     public required string FullName { get; init; }
     public string? Avatar { get; init; }
@@ -12,4 +13,5 @@ public record LoginResult
     public int CartItemCount { get; init; }
     public required string AccessToken { get; init; }
     public required string RefreshToken { get; init; }
+    public StaffProfileInfo? StaffProfile { get; init; }
 }

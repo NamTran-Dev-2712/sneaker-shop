@@ -73,6 +73,11 @@ public class ExceptionMiddleware
                 message = exception.Message; // Example: "You do not have permission to access this resource."
                 break;
 
+            case ConflictException:
+                statusCode = StatusCodes.Status409Conflict;
+                message = exception.Message;
+                break;
+
             case KeyNotFoundException:
                 statusCode = StatusCodes.Status404NotFound;
                 message = "The requested resource was not found.";

@@ -17,8 +17,9 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
         RuleFor(x => x.Phone)
-            .Matches(@"^\+?[1-9]\d{1,14}$")
-            .WithMessage("Định dạng số điện thoại không hợp lệ.");
+            .Matches(@"^[0-9]{10,11}$")
+            .WithMessage("Số điện thoại phải có 10-11 chữ số.")
+            .When(x => !string.IsNullOrWhiteSpace(x.Phone));
 
         RuleFor(x => x.Password)
             .NotEmpty()

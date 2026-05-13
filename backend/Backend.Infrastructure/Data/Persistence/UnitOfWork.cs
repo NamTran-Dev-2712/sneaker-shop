@@ -32,8 +32,17 @@ public class UnitOfWork : IUnitOfWork
     private IInventoryRepository? _inventoryRepository;
     private ICartRepository? _cartRepository;
     private ICartItemRepository? _cartItemRepository;
+    private IOrderRepository? _orderRepository;
+    private IOrderItemRepository? _orderItemRepository;
+    private IPaymentRepository? _paymentRepository;
+    private IOrderFulfillmentRepository? _orderFulfillmentRepository;
     private ISlideRepository? _slideRepository;
     private IExternalAuthProviderRepository? _externalAuthProviderRepository;
+    private IFinanceLedgerEntryRepository? _financeLedgerEntryRepository;
+    private IVoucherRepository? _voucherRepository;
+    private IVoucherRedemptionRepository? _voucherRedemptionRepository;
+    private ILoyaltyAccountRepository? _loyaltyAccountRepository;
+    private ILoyaltyTransactionRepository? _loyaltyTransactionRepository;
 
     // dictionary to hold repositories
     private readonly Dictionary<Type, object> _repositories = new();
@@ -83,9 +92,24 @@ public class UnitOfWork : IUnitOfWork
     public ICartRepository Carts => _cartRepository ??= new CartRepository(_context);
     public ICartItemRepository CartItems =>
         _cartItemRepository ??= new CartItemRepository(_context);
+    public IOrderRepository Orders => _orderRepository ??= new OrderRepository(_context);
+    public IOrderItemRepository OrderItems =>
+        _orderItemRepository ??= new OrderItemRepository(_context);
+    public IPaymentRepository Payments => _paymentRepository ??= new PaymentRepository(_context);
+    public IOrderFulfillmentRepository OrderFulfillments =>
+        _orderFulfillmentRepository ??= new OrderFulfillmentRepository(_context);
     public ISlideRepository Slides => _slideRepository ??= new SlideRepository(_context);
     public IExternalAuthProviderRepository ExternalAuthProviders =>
         _externalAuthProviderRepository ??= new ExternalAuthProviderRepository(_context);
+    public IFinanceLedgerEntryRepository FinanceLedgerEntries =>
+        _financeLedgerEntryRepository ??= new FinanceLedgerEntryRepository(_context);
+    public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
+    public IVoucherRedemptionRepository VoucherRedemptions =>
+        _voucherRedemptionRepository ??= new VoucherRedemptionRepository(_context);
+    public ILoyaltyAccountRepository LoyaltyAccounts =>
+        _loyaltyAccountRepository ??= new LoyaltyAccountRepository(_context);
+    public ILoyaltyTransactionRepository LoyaltyTransactions =>
+        _loyaltyTransactionRepository ??= new LoyaltyTransactionRepository(_context);
 
     // generic repository accessor
     public IGenericRepository<T> Repository<T>()

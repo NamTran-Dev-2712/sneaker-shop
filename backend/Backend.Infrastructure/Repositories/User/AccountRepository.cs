@@ -5,6 +5,10 @@ public class AccountRepository : GenericRepository<Account>, IAccountRepository
 
     public async Task<Account?> GetAccountByIdAsync(int accountId)
     {
-        return await GetFirstOrDefaultAsync(a => a.Id == accountId, a => a.CustomerAccount!);
+        return await GetFirstOrDefaultAsync(
+            a => a.Id == accountId,
+            a => a.CustomerAccount!,
+            a => a.StaffProfile!
+        );
     }
 }

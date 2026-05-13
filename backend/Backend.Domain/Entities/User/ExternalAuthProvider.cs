@@ -33,4 +33,32 @@ public class ExternalAuthProvider : BaseEntity
             UpdatedAt = DateTime.UtcNow,
         };
     }
+
+    public static ExternalAuthProvider Create(
+        Account account,
+        AuthProvider provider,
+        string providerUserId,
+        string? email
+    )
+    {
+        if (account == null)
+        {
+            throw new ArgumentNullException(nameof(account));
+        }
+
+        if (string.IsNullOrWhiteSpace(providerUserId))
+        {
+            throw new ArgumentException("Provider user ID is required.", nameof(providerUserId));
+        }
+
+        return new ExternalAuthProvider
+        {
+            Account = account,
+            Provider = provider,
+            ProviderUserId = providerUserId,
+            Email = email,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+    }
 }

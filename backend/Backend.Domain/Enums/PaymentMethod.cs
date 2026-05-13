@@ -5,4 +5,5 @@ public enum PaymentMethod
     BANK_TRANSFER,
     COD,
     EWALLET,
+    VNPAY,
 }

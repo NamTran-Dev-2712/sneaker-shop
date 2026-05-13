@@ -27,4 +27,20 @@ public static class HttpContextExtensions
     {
         return context.User?.FindFirst(ClaimTypes.Role)?.Value;
     }
+
+    public static int? GetStaffId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst("StaffId");
+        if (claim == null || !int.TryParse(claim.Value, out var staffId))
+            return null;
+        return staffId;
+    }
+
+    public static int? GetStoreId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst("StoreId");
+        if (claim == null || !int.TryParse(claim.Value, out var storeId))
+            return null;
+        return storeId;
+    }
 }

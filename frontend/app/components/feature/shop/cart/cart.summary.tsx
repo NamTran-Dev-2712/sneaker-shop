@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ShoppingBag, CreditCard, Truck, Shield, Tag } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -6,6 +6,9 @@ import { Separator } from "~/components/ui/separator";
 import { Badge } from "~/components/ui/badge";
 import { formatCurrency } from "~/common/helpers/format-currency.helper";
 import type { CartItemDto } from "~/services/shop/cart/dto/get-cart/get-cart.response";
+import { useAppDispatch } from "~/hooks/redux";
+import { setCheckoutItems } from "~/store/checkout/checkout.slice";
+import type { CheckoutItem } from "~/types/entities/checkout.type";
 
 interface CartSummaryProps {
   subTotal: number;
@@ -27,6 +30,8 @@ const CartSummary = ({
   const hasSelectedItems = selectedItems.length > 0;
   const displayTotal = hasSelectedItems ? selectedTotal : subTotal;
   const displayCount = hasSelectedItems ? selectedCount : totalQuantity;
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   // Giả định phí ship miễn phí trên 500k
   const shippingFee = displayTotal >= 500000 ? 0 : 30000;
@@ -127,19 +132,38 @@ const CartSummary = ({
             className="w-full"
             size="lg"
             disabled={!hasSelectedItems}
-            asChild={hasSelectedItems}
+            onClick={() => {
+              if (!hasSelectedItems) return;
+              const selectedCartItems = cartItems.filter((item) =>
+                selectedItems.includes(item.cartItemId),
+              );
+              const checkoutItems: CheckoutItem[] = selectedCartItems.map(
+                (item) => ({
+                  cartItemId: item.cartItemId,
+                  sellableItemId: item.sellableItemId,
+                  inventoryId: item.inventoryId,
+                  quantity: item.quantity,
+                  unitPrice: item.unitPrice,
+                  lineTotal: item.lineTotal,
+                  storeId: item.selectedInventory.storeId,
+                  storeName: item.selectedInventory.storeName,
+                  productName: item.productName,
+                  sku: item.sku,
+                  mainImage: item.mainImage,
+                  colorName: item.colorName,
+                  colorHex: item.colorHex,
+                  sizeName: item.sizeName,
+                  brandName: item.brandName,
+                }),
+              );
+              dispatch(setCheckoutItems(checkoutItems));
+              navigate("/checkout/shipping");
+            }}
           >
-            {hasSelectedItems ? (
-              <Link to="/checkout" state={{ selectedItems, cartItems }}>
-                <CreditCard className="h-4 w-4 mr-2" />
-                Tiến hành thanh toán
-              </Link>
-            ) : (
-              <>
-                <CreditCard className="h-4 w-4 mr-2" />
-                Chọn sản phẩm để thanh toán
-              </>
-            )}
+            <CreditCard className="h-4 w-4 mr-2" />
+            {hasSelectedItems
+              ? "Tiến hành thanh toán"
+              : "Chọn sản phẩm để thanh toán"}
           </Button>
 
           {/* Continue Shopping */}

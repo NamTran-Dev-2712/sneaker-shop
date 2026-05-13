@@ -1,0 +1,40 @@
+export enum OrderStatus {
+  PLACED = "PLACED",
+  CONFIRMED = "CONFIRMED",
+  PAID = "PAID",
+  PACKED = "PACKED",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+  RETURN_REQUESTED = "RETURN_REQUESTED",
+  RETURNED = "RETURNED",
+  REFUNDED = "REFUNDED",
+}
+
+export enum FulfillmentType {
+  DELIVERY = "DELIVERY",
+  PICKUP = "PICKUP",
+}
+
+export enum PaymentMethod {
+  CASH = "CASH",
+  CARD = "CARD",
+  BANK_TRANSFER = "BANK_TRANSFER",
+  COD = "COD",
+  EWALLET = "EWALLET",
+  VNPAY = "VNPAY",
+}
+
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  PAID = "PAID",
+  FAILED = "FAILED",
+  REFUNDED = "REFUNDED",
+  PARTIALLY_REFUNDED = "PARTIALLY_REFUNDED",
+}
+
+export enum SalesChannel {
+  ONLINE = "ONLINE",
+  POS = "POS",
+  OFFLINE_ASSISTED = "OFFLINE_ASSISTED",
+}

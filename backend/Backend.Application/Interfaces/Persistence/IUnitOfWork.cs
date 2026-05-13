@@ -29,8 +29,17 @@ public interface IUnitOfWork
     IInventoryRepository Inventories { get; }
     ICartRepository Carts { get; }
     ICartItemRepository CartItems { get; }
+    IOrderRepository Orders { get; }
+    IOrderItemRepository OrderItems { get; }
+    IPaymentRepository Payments { get; }
+    IOrderFulfillmentRepository OrderFulfillments { get; }
     ISlideRepository Slides { get; }
     IExternalAuthProviderRepository ExternalAuthProviders { get; }
+    IFinanceLedgerEntryRepository FinanceLedgerEntries { get; }
+    IVoucherRepository Vouchers { get; }
+    IVoucherRedemptionRepository VoucherRedemptions { get; }
+    ILoyaltyAccountRepository LoyaltyAccounts { get; }
+    ILoyaltyTransactionRepository LoyaltyTransactions { get; }
 
     // Transaction Management
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

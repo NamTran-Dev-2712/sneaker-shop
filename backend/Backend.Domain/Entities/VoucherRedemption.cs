@@ -5,6 +5,7 @@ public class VoucherRedemption : BaseEntity
     public int VoucherId { get; set; }
     public int OrderId { get; set; }
     public int? CustomerId { get; set; }
+    public decimal DiscountAmount { get; set; }
     public DateTime? RedeemedAt { get; set; }
 
     // Navigation properties

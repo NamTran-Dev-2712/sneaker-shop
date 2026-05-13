@@ -75,6 +75,19 @@ public static class DbContextRegistration
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<ICartItemRepository, CartItemRepository>();
 
+        // order repositories
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IOrderFulfillmentRepository, OrderFulfillmentRepository>();
+
+        // finance repositories
+        services.AddScoped<IFinanceLedgerEntryRepository, FinanceLedgerEntryRepository>();
+        services.AddScoped<IVoucherRepository, VoucherRepository>();
+        services.AddScoped<IVoucherRedemptionRepository, VoucherRedemptionRepository>();
+        services.AddScoped<ILoyaltyAccountRepository, LoyaltyAccountRepository>();
+        services.AddScoped<ILoyaltyTransactionRepository, LoyaltyTransactionRepository>();
+
         return services;
     }
 }

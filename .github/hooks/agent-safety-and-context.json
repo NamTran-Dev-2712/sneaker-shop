@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./.github/hooks/scripts/policy-hook.ps1 -Mode SessionStart",
+        "linux": "bash ./.github/hooks/scripts/policy-hook.sh SessionStart",
+        "osx": "bash ./.github/hooks/scripts/policy-hook.sh SessionStart",
+        "timeout": 8
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./.github/hooks/scripts/policy-hook.ps1 -Mode PreToolUse",
+        "linux": "bash ./.github/hooks/scripts/policy-hook.sh PreToolUse",
+        "osx": "bash ./.github/hooks/scripts/policy-hook.sh PreToolUse",
+        "timeout": 10
+      }
+    ]
+  }
+}
