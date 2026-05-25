@@ -1,0 +1,4 @@
+export enum SellableType {
+  SNEAKER_VARIANT = "SNEAKER_VARIANT",
+  ACCESSORY = "ACCESSORY",
+}

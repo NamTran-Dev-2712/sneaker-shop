@@ -1,0 +1,46 @@
+using System.Security.Claims;
+
+public static class HttpContextExtensions
+{
+    public static int? GetAccountId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst(ClaimTypes.NameIdentifier);
+        if (claim == null || !int.TryParse(claim.Value, out var userId))
+            return null;
+        return userId;
+    }
+
+    public static int? GetCustomerId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst("CustomerId");
+        if (claim == null || !int.TryParse(claim.Value, out var customerId))
+            return null;
+        return customerId;
+    }
+
+    public static string? GetAccountEmail(this HttpContext context)
+    {
+        return context.User?.FindFirst(ClaimTypes.Email)?.Value;
+    }
+
+    public static string? GetAccountRole(this HttpContext context)
+    {
+        return context.User?.FindFirst(ClaimTypes.Role)?.Value;
+    }
+
+    public static int? GetStaffId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst("StaffId");
+        if (claim == null || !int.TryParse(claim.Value, out var staffId))
+            return null;
+        return staffId;
+    }
+
+    public static int? GetStoreId(this HttpContext context)
+    {
+        var claim = context.User?.FindFirst("StoreId");
+        if (claim == null || !int.TryParse(claim.Value, out var storeId))
+            return null;
+        return storeId;
+    }
+}
